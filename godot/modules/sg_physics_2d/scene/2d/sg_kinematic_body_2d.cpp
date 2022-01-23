@@ -118,7 +118,7 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 	// At this point, the overlap_info will contain info about the collision at 'hi'
 	// which is what we want to store in p_collision.
 	p_collision.collider = Object::cast_to<SGCollisionObject2D>((Object *)overlap_info.collider->get_data());
-	p_collision.normal = overlap_info.separation.normalized();
+	p_collision.normal = overlap_info.collision_normal;
 	p_collision.remainder = p_linear_velocity - (p_linear_velocity * low);
 
 	return true;
@@ -137,6 +137,14 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 			// No collision, so we're good - bail!
 			break;
 		}
+
+		if (collision.normal == SGFixedVector2Internal::ZERO) {
+			// This means we couldn't unstuck the body. Clear out the motion
+			// vector and bail.
+			motion = SGFixedVector2Internal::ZERO;
+			break;
+		}
+
 		colliders.push_back(collision.collider);
 		motion = collision.remainder.slide(collision.normal);
 

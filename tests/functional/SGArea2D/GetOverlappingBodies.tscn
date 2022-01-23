@@ -73,6 +73,21 @@ fixed_position_x = 3211264
 fixed_position_y = 6160384
 collision_layer = 2
 collision_mask = 2
+__meta__ = {
+"_editor_description_": "Layer and mask"
+}
 
 [node name="SGCollisionShape2D" type="SGCollisionShape2D" parent="StaticBody7"]
+shape = SubResource( 2 )
+
+[node name="StaticBody8" type="SGStaticBody2D" parent="."]
+modulate = Color( 1, 0, 0, 1 )
+position = Vector2( 138, 79.75 )
+fixed_position_x = 9043968
+fixed_position_y = 5226496
+__meta__ = {
+"_editor_description_": "Exact edge overlap"
+}
+
+[node name="SGCollisionShape2D" type="SGCollisionShape2D" parent="StaticBody8"]
 shape = SubResource( 2 )

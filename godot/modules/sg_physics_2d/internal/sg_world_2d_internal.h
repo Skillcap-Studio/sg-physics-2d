@@ -47,6 +47,7 @@ public:
 	struct ShapeOverlapInfo {
 		SGShape2DInternal *shape;
 		SGFixedVector2Internal separation;
+		SGFixedVector2Internal collision_normal;
 
 		ShapeOverlapInfo() {
 			shape = nullptr;
@@ -58,6 +59,7 @@ public:
 		SGShape2DInternal *collider_shape;
 		SGShape2DInternal *local_shape;
 		SGFixedVector2Internal separation;
+		SGFixedVector2Internal collision_normal;
 
 		BodyOverlapInfo() {
 			collider = nullptr;

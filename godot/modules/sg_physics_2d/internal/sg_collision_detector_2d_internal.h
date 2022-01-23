@@ -42,6 +42,7 @@ public:
 
 	struct OverlapInfo {
 		SGFixedVector2Internal separation;
+		SGFixedVector2Internal collision_normal;
 	};
 
 	static bool AABB_overlaps_AABB(const SGFixedRect2Internal &aabb1, const SGFixedRect2Internal &aabb2);
@@ -53,7 +54,7 @@ public:
 	static Interval get_interval(const SGShape2DInternal &shape, const SGFixedVector2Internal &axis, fixed p_margin);
 
 	static bool overlaps_on_axis(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const SGFixedVector2Internal &axis, fixed p_margin, fixed &separation);
-	static bool sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes, fixed p_margin, SGFixedVector2Internal &best_separation_vector);
+	static bool sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes, fixed p_margin, SGFixedVector2Internal &best_separation_vector, SGFixedVector2Internal &collision_normal);
 
 	//
 	// Rectangles

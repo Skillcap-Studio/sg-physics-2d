@@ -32,10 +32,13 @@ func test_normalize():
 	assert_eq(v.y, 0)
 
 	# Super tiny X, with Y just on the edge of being super huge.
-	v = SGFixed.vector2(255, 11863282).normalized()
+	v = SGFixed.vector2(255, 1482909).normalized()
 	assert_gt(v.y, 0, "Y axis of the vector flipped")
 	assert_gt(v.x, 0, "X axis of the vector flipped")
-	assert_eq(v.x, 1)
-	assert_eq(v.y, 65536)
-	assert_eq(v.length(), 65536)
-
+	assert_eq(v.x, 11)
+	assert_eq(v.y, 65535)
+	assert_eq(v.length(), 65535)
+	
+	# Smallish values that (due to imprecision) resist normalization.
+	v = SGFixed.vector2(334, -667).normalized()
+	assert_true(v.is_normalized())
