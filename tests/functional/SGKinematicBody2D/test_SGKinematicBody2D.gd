@@ -78,3 +78,23 @@ func test_move_and_collide_lowest_scene_tree() -> void:
 
 		remove_child(scene)
 		scene.queue_free()
+
+func test_move_and_collide_slide_on_big_polygon() -> void:
+	var MoveAndCollide3 = load("res://tests/functional/SGKinematicBody2D/MoveAndCollide3.tscn")
+	
+	var scene = MoveAndCollide3.instance()
+	add_child(scene)
+
+	for _i in range(200):
+		scene._physics_process(1/60)
+		assert_gt(scene.movements[0], 1000000)
+		assert_gt(scene.movements[1], 1000000)
+		assert_gt(scene.movements[2], 1000000)
+		assert_gt(scene.movements[3], 1000000)
+		assert_lt(scene.slides[0], 2)
+		assert_lt(scene.slides[1], 2)
+		assert_lt(scene.slides[2], 2)
+		assert_lt(scene.slides[3], 2)
+
+	remove_child(scene)
+	scene.queue_free()

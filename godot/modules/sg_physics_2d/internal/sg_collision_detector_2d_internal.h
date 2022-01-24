@@ -50,33 +50,32 @@ public:
 	// SAT testing utilities
 	//
 
-	static Interval get_interval(const SGFixedRect2Internal &aabb, const SGFixedVector2Internal &axis);
-	static Interval get_interval(const SGShape2DInternal &shape, const SGFixedVector2Internal &axis);
+	static Interval get_interval(const SGShape2DInternal &shape, const SGFixedVector2Internal &axis, fixed p_margin);
 
-	static bool overlaps_on_axis(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const SGFixedVector2Internal &axis, fixed &separation);
-	static bool sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes, SGFixedVector2Internal &best_separation_vector);
+	static bool overlaps_on_axis(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const SGFixedVector2Internal &axis, fixed p_margin, fixed &separation);
+	static bool sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes, fixed p_margin, SGFixedVector2Internal &best_separation_vector);
 
 	//
 	// Rectangles
 	//
 
-	static bool Rectangle_overlaps_Rectangle(const SGRectangle2DInternal &rectangle1, const SGRectangle2DInternal &rectangle2, OverlapInfo *p_info = nullptr);
+	static bool Rectangle_overlaps_Rectangle(const SGRectangle2DInternal &rectangle1, const SGRectangle2DInternal &rectangle2, fixed p_margin, OverlapInfo *p_info = nullptr);
 
 	//
 	// Circles
 	//
 
-	static bool Circle_overlaps_Circle(const SGCircle2DInternal &circle1, const SGCircle2DInternal &circle2, OverlapInfo *p_info = nullptr);
-	static bool Circle_overlaps_AABB(const SGCircle2DInternal &circle, const SGFixedRect2Internal &aabb, OverlapInfo *p_info = nullptr);
-	static bool Circle_overlaps_Rectangle(const SGCircle2DInternal &circle, const SGRectangle2DInternal &rectangle, OverlapInfo *p_info = nullptr);
+	static bool Circle_overlaps_Circle(const SGCircle2DInternal &circle1, const SGCircle2DInternal &circle2, fixed p_margin, OverlapInfo *p_info = nullptr);
+	static bool Circle_overlaps_AABB(const SGCircle2DInternal &circle, const SGFixedRect2Internal &aabb, fixed p_margin, OverlapInfo *p_info = nullptr);
+	static bool Circle_overlaps_Rectangle(const SGCircle2DInternal &circle, const SGRectangle2DInternal &rectangle, fixed p_margin, OverlapInfo *p_info = nullptr);
 
 	//
 	// Polygons
 	//
 
-	static bool Polygon_overlaps_Polygon(const SGPolygon2DInternal &polygon1, const SGPolygon2DInternal &polygon2, OverlapInfo *p_info = nullptr);
-	static bool Polygon_overlaps_Circle(const SGPolygon2DInternal &polygon, const SGCircle2DInternal &circle, OverlapInfo *p_info = nullptr);
-	static bool Polygon_overlaps_Rectangle(const SGPolygon2DInternal &polygon, const SGRectangle2DInternal &rectangle, OverlapInfo *p_info = nullptr);
+	static bool Polygon_overlaps_Polygon(const SGPolygon2DInternal &polygon1, const SGPolygon2DInternal &polygon2, fixed p_margin, OverlapInfo *p_info = nullptr);
+	static bool Polygon_overlaps_Circle(const SGPolygon2DInternal &polygon, const SGCircle2DInternal &circle, fixed p_margin, OverlapInfo *p_info = nullptr);
+	static bool Polygon_overlaps_Rectangle(const SGPolygon2DInternal &polygon, const SGRectangle2DInternal &rectangle, fixed p_margin, OverlapInfo *p_info = nullptr);
 
 
 	//

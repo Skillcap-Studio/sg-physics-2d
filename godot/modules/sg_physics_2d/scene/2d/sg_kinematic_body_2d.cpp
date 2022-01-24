@@ -33,9 +33,23 @@ static bool sg_compare_collision_objects(SGCollisionObject2DInternal* p_a, SGCol
 }
 
 void SGKinematicBody2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_safe_margin"), &SGKinematicBody2D::get_safe_margin);
+	ClassDB::bind_method(D_METHOD("set_safe_margin", "fixed_margin"), &SGKinematicBody2D::set_safe_margin);
+
 	ClassDB::bind_method(D_METHOD("move_and_collide", "linear_velocity"), &SGKinematicBody2D::_move);
 	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "max_slides"), &SGKinematicBody2D::move_and_slide, DEFVAL(4));
 	ClassDB::bind_method(D_METHOD("rotate_and_slide", "rotation", "max_slides"), &SGKinematicBody2D::rotate_and_slide, DEFVAL(4));
+	ClassDB::bind_method(D_METHOD("get_slide_count"), &SGKinematicBody2D::get_slide_count);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "safe_margin"), "set_safe_margin", "get_safe_margin");
+}
+
+int SGKinematicBody2D::get_safe_margin() const {
+	return safe_margin.value;
+}
+
+void SGKinematicBody2D::set_safe_margin(int p_safe_margin) {
+	safe_margin = fixed(p_safe_margin);
 }
 
 bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_velocity, SGKinematicBody2D::Collision &p_collision) {
@@ -43,14 +57,14 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 	SGWorld2DInternal::BodyOverlapInfo overlap_info;
 
 	// First, get our body unstuck, if it's stuck.
-	bool stuck = world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects);
+	bool stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
 	if (stuck) {
 		for (int i = 0; i < 4; i++) {
 			SGFixedTransform2DInternal t = internal->get_transform();
 			t.set_origin(t.get_origin() + overlap_info.separation);
 			internal->set_transform(t);
 
-			stuck = world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects);
+			stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
 			if (!stuck) {
 				break;
 			}
@@ -74,7 +88,7 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 	internal->set_transform(test_transform);
 
 	// Check if we're colliding. If not, sync from physics engine and bail.
-	if (!world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects)) {
+	if (!world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects)) {
 		set_global_fixed_position_internal(test_transform.get_origin());
 		return false;
 	}
@@ -87,7 +101,7 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 		SGFixedVector2Internal test_position = original_transform.get_origin() + (p_linear_velocity * cur);
 		test_transform.set_origin(test_position);
 		internal->set_transform(test_transform);
-		if (world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects)) {
+		if (world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects)) {
 			hi = cur;
 		}
 		else {
@@ -113,6 +127,7 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, int p_max_slides) {
 	ERR_FAIL_COND_V(!p_linear_velocity.is_valid(), Ref<SGFixedVector2>());
 	
+	colliders.clear();
 	SGFixedVector2Internal motion = p_linear_velocity->get_internal();
 
 	while (p_max_slides) {
@@ -122,6 +137,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 			// No collision, so we're good - bail!
 			break;
 		}
+		colliders.push_back(collision.collider);
 		motion = collision.remainder.slide(collision.normal);
 
 		if (motion == SGFixedVector2Internal::ZERO) {
@@ -135,6 +151,10 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 	return Ref<SGFixedVector2>(memnew(SGFixedVector2(motion)));
 }
 
+int SGKinematicBody2D::get_slide_count() const {
+	return colliders.size();
+}
+
 bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
 	SGWorld2DInternal *world = SGWorld2DInternal::get_singleton();
 	SGWorld2DInternal::BodyOverlapInfo overlap_info;
@@ -142,14 +162,14 @@ bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
 	set_fixed_rotation(get_fixed_rotation() + p_rotation);
 	sync_to_physics_engine();
 
-	bool stuck = world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects);
+	bool stuck = world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects);
 	if (stuck) {
 		for (int i = 0; i < p_max_slides; i++) {
 			SGFixedTransform2DInternal t = internal->get_transform();
 			t.set_origin(t.get_origin() + overlap_info.separation);
 			internal->set_transform(t);
 
-			stuck = world->get_best_overlapping_body(internal, &overlap_info, &sg_compare_collision_objects);
+			stuck = world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects);
 			if (!stuck) {
 				break;
 			}
@@ -174,6 +194,7 @@ Ref<SGKinematicCollision2D> SGKinematicBody2D::_move(const Ref<SGFixedVector2> &
 SGKinematicBody2D::SGKinematicBody2D()
 	: SGCollisionObject2D(memnew(SGBody2DInternal(SGBody2DInternal::BodyType::BODY_KINEMATIC)))
 {
+	safe_margin = fixed(64);
 }
 
 SGKinematicBody2D::~SGKinematicBody2D() {

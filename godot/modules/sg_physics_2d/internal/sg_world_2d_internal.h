@@ -89,10 +89,10 @@ public:
 	void add_body(SGBody2DInternal *p_body);
 	void remove_body(SGBody2DInternal *p_body);
 
-	bool overlaps(SGCollisionObject2DInternal *p_object1, SGCollisionObject2DInternal *p_object2, BodyOverlapInfo *p_info = nullptr) const;
-	bool overlaps(SGShape2DInternal *p_shape1, SGShape2DInternal *p_shape2, ShapeOverlapInfo *p_info = nullptr) const;
+	bool overlaps(SGCollisionObject2DInternal *p_object1, SGCollisionObject2DInternal *p_object2, fixed p_margin, BodyOverlapInfo *p_info = nullptr) const;
+	bool overlaps(SGShape2DInternal *p_shape1, SGShape2DInternal *p_shape2, fixed p_margin, ShapeOverlapInfo *p_info = nullptr) const;
 
-	bool get_best_overlapping_body(SGCollisionObject2DInternal *p_object, BodyOverlapInfo *p_info, CompareCallback p_compare = nullptr) const;
+	bool get_best_overlapping_body(SGCollisionObject2DInternal *p_object, fixed p_margin, BodyOverlapInfo *p_info, CompareCallback p_compare = nullptr) const;
 
 	void get_overlapping_areas(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const;
 	void get_overlapping_bodies(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const;

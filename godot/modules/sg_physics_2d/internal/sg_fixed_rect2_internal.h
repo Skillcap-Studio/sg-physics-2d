@@ -84,6 +84,13 @@ struct SGFixedRect2Internal {
 		return new_rect;
 	};
 
+	inline void grow_by(fixed p_by) {
+		position.x -= p_by;
+		position.y -= p_by;
+		size.width += p_by * fixed::TWO;
+		size.height += p_by * fixed::TWO;
+	}
+
 	inline void expand_to(const SGFixedVector2Internal &p_vector) {
 		SGFixedVector2Internal begin = position;
 		SGFixedVector2Internal end = position + size;
