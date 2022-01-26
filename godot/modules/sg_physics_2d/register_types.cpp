@@ -70,6 +70,7 @@ void register_sg_physics_2d_types() {
 	ClassDB::register_virtual_class<SGShape2D>();
 	ClassDB::register_class<SGRectangleShape2D>();
 	ClassDB::register_class<SGCircleShape2D>();
+	ClassDB::register_class<SGCapsuleShape2D>();
 
 	fixed_singleton = memnew(SGFixed);
 	Engine::get_singleton()->add_singleton(Engine::Singleton("SGFixed", SGFixed::get_singleton()));

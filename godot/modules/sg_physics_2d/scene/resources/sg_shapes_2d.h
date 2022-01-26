@@ -103,4 +103,30 @@ public:
 	~SGCircleShape2D();
 };
 
+class SGCapsuleShape2D : public SGShape2D {
+	GDCLASS(SGCapsuleShape2D, SGShape2D);
+	OBJ_SAVE_TYPE(SGCapsuleShape2D);
+
+	fixed radius;
+	fixed height;
+
+protected:
+	static void _bind_methods();
+
+	virtual SGShape2DInternal* create_internal_shape() const override;
+
+public:
+	void set_radius(int p_radius);
+	int get_radius() const;
+	void set_height(int p_height);
+	int get_height() const;
+
+	virtual void sync_to_physics_engine(SGShape2DInternal* p_internal_shape) const override;
+
+	virtual void draw(const RID& p_to_rid, const Color& p_color) override;
+
+	SGCapsuleShape2D();
+	~SGCapsuleShape2D();
+};
+
 #endif

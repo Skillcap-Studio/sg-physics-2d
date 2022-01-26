@@ -47,6 +47,19 @@ Interval SGCollisionDetector2DInternal::get_interval(const SGShape2DInternal &sh
 		result.min = center - radius;
 		result.max = center + radius;
 	}
+	else if (shape.get_shape_type() == SGShape2DInternal::ShapeType::SHAPE_CAPSULE) {
+		const SGCapsule2DInternal& capsule = (const SGCapsule2DInternal&)shape;
+		SGFixedTransform2DInternal t = shape.get_global_transform();
+		const fixed scaled_radius = capsule.get_radius() * t.get_scale().x;
+		const Vector<SGFixedVector2Internal> verts = capsule.get_global_vertices();
+		result.min = axis.dot(verts[0]);
+		result.max = axis.dot(verts[1]);
+		if (result.min > result.max) {
+			std::swap(result.min, result.max);
+		}
+		result.min -= scaled_radius;
+		result.max += scaled_radius;
+	}
 	else {
 		Vector<SGFixedVector2Internal> verts = shape.get_global_vertices();
 		result.min = result.max = axis.dot(verts[0]);
@@ -319,6 +332,175 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Rectangle(const SGPolygon2D
 
 	return true;
 }
+
+bool SGCollisionDetector2DInternal::Capsule_overlaps_Circle(const SGCapsule2DInternal& capsule, const SGCircle2DInternal& circle, fixed p_margin, OverlapInfo* p_info) {
+	SGFixedVector2Internal best_separation_vector;
+	SGFixedVector2Internal collision_normal;
+	Vector<SGFixedVector2Internal> axes;
+	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
+	// Capsule width axis
+	axes.push_back(capsule_transform.elements[0].normalized());
+
+	// Center of the circle to capsule internal endpoints
+	const Vector<SGFixedVector2Internal> verts = capsule.get_global_vertices();
+	const SGFixedVector2Internal circle_center = circle.get_global_transform().get_origin();
+	axes.push_back((circle_center - verts[0]).normalized());
+	axes.push_back((circle_center - verts[1]).normalized());
+	if (!sat_test(capsule, circle, axes, p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	if (p_info) {
+		p_info->collision_normal = collision_normal;
+		p_info->separation = best_separation_vector;
+	}
+
+	return true;
+}
+
+
+bool SGCollisionDetector2DInternal::Capsule_overlaps_Rectangle(const SGCapsule2DInternal& capsule, const SGRectangle2DInternal& rectangle, fixed p_margin, OverlapInfo* p_info) {
+	SGFixedVector2Internal best_separation_vector;
+	SGFixedVector2Internal collision_normal;
+	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
+	// Rectangle edges 
+	if (!sat_test(capsule, rectangle, rectangle.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	Vector<SGFixedVector2Internal> axes;
+	// Capsule width axis
+	axes.push_back(capsule_transform.elements[0].normalized());
+	
+	// Rectangle vertex to capsule internal endpoints
+	const Vector<SGFixedVector2Internal> capsule_endpoints = capsule.get_global_vertices();
+	axes.push_back((rectangle.get_closest_vertex(capsule_endpoints[0]) - capsule_endpoints[0]).normalized());
+	axes.push_back((rectangle.get_closest_vertex(capsule_endpoints[1]) - capsule_endpoints[1]).normalized());
+
+	if (!sat_test(capsule, rectangle, axes, p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	if (p_info) {
+		p_info->collision_normal = collision_normal;
+		p_info->separation = best_separation_vector;
+	}
+
+	return true;
+}
+
+
+bool SGCollisionDetector2DInternal::Capsule_overlaps_Polygon(const SGCapsule2DInternal& capsule, const SGPolygon2DInternal& polygon, fixed p_margin, OverlapInfo* p_info) {
+	SGFixedVector2Internal best_separation_vector;
+	SGFixedVector2Internal collision_normal;
+	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
+	// Polygon edges 
+	if (!sat_test(capsule, polygon, polygon.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	Vector<SGFixedVector2Internal> axes;
+	// Capsule width axis
+	axes.push_back(capsule_transform.elements[0].normalized());
+	if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	// Polygon vertices to capsule internal endpoints
+	const Vector<SGFixedVector2Internal> capsule_endpoints = capsule.get_global_vertices();
+	const Vector<SGFixedVector2Internal> polygon_vertices = polygon.get_global_vertices();
+	for (int i = 0; i < polygon_vertices.size(); i++) {
+		axes.clear();
+		axes.push_back((polygon_vertices[i] - capsule_endpoints[0]).normalized());
+		axes.push_back((polygon_vertices[i] - capsule_endpoints[1]).normalized());
+
+		if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, collision_normal)) {
+			return false;
+		}
+	}
+
+	if (p_info) {
+		p_info->collision_normal = collision_normal;
+		p_info->separation = best_separation_vector;
+	}
+
+	return true;
+}
+
+bool SGCollisionDetector2DInternal::Capsule_overlaps_Capsule(const SGCapsule2DInternal& capsule1, const SGCapsule2DInternal& capsule2, fixed p_margin, OverlapInfo* p_info) {
+	SGFixedVector2Internal best_separation_vector;
+	SGFixedVector2Internal collision_normal;
+	Vector<SGFixedVector2Internal> axes;
+	// Capsule width axis
+	axes.push_back(capsule1.get_global_transform().elements[0].normalized());
+	axes.push_back(capsule2.get_global_transform().elements[0].normalized());
+	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	// Internal endpoints to internal endpoints
+	const Vector<SGFixedVector2Internal> capsule1_endpoints = capsule1.get_global_vertices();
+	const Vector<SGFixedVector2Internal> capsule2_endpoints = capsule2.get_global_vertices();
+	axes.clear();
+	axes.push_back((capsule1_endpoints[0] - capsule2_endpoints[0]).normalized());
+	axes.push_back((capsule1_endpoints[0] - capsule2_endpoints[1]).normalized());
+	axes.push_back((capsule1_endpoints[1] - capsule2_endpoints[0]).normalized());
+	axes.push_back((capsule1_endpoints[1] - capsule2_endpoints[1]).normalized());
+
+	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, collision_normal)) {
+		return false;
+	}
+
+	if (p_info) {
+		p_info->collision_normal = collision_normal;
+		p_info->separation = best_separation_vector;
+	}
+
+	return true;
+}
+
+bool SGCollisionDetector2DInternal::segment_intersects_Capsule(const SGFixedVector2Internal& p_start, const SGFixedVector2Internal& p_cast_to, const SGCapsule2DInternal& capsule, SGFixedVector2Internal& p_intersection_point, SGFixedVector2Internal& p_collision_normal) {
+
+
+	SGCircle2DInternal circle(capsule.get_radius());
+	auto t = capsule.get_global_transform();
+	t.set_origin(capsule.get_global_vertices()[0]);
+	circle.set_transform(t);
+	SGFixedVector2Internal intersection_point;
+	SGFixedVector2Internal collision_normal;
+	fixed closest_distance_squared;
+	bool colliding = false;
+	if (segment_intersects_Circle(p_start, p_cast_to, circle, intersection_point, collision_normal)) {
+		closest_distance_squared = intersection_point.distance_squared_to(p_start);
+		p_intersection_point = intersection_point;
+		p_collision_normal = collision_normal;
+		colliding = true;
+	}
+	t.set_origin(capsule.get_global_vertices()[1]);
+	circle.set_transform(t);
+	if (segment_intersects_Circle(p_start, p_cast_to, circle, intersection_point, collision_normal)) {
+		fixed distance_squared = intersection_point.distance_squared_to(p_start);
+		if (!colliding || closest_distance_squared > distance_squared) {
+			closest_distance_squared = distance_squared;
+			p_intersection_point = intersection_point;
+			p_collision_normal = collision_normal;
+		}
+		colliding = true;
+	}
+	SGRectangle2DInternal rectangle(capsule.get_radius(), fixed(capsule.get_height().value / 2));
+	rectangle.set_transform(capsule.get_global_transform());
+	if (segment_intersects_Polygon(p_start, p_cast_to, rectangle, intersection_point, collision_normal)) {
+		fixed distance_squared = intersection_point.distance_squared_to(p_start);
+		if (!colliding || closest_distance_squared > distance_squared) {
+			p_intersection_point = intersection_point;
+			p_collision_normal = collision_normal;
+		}
+		colliding = true;
+	}
+
+	return colliding;
+}
+
 
 // Algorithm from https://stackoverflow.com/a/565282
 //

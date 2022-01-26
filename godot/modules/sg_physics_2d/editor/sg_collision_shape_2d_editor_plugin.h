@@ -35,6 +35,7 @@ class SGCollisionShape2DEditor : public Control {
 	enum ShapeType {
 		RECTANGLE_SHAPE,
 		CIRCLE_SHAPE,
+		CAPSULE_SHAPE,
 	};
 
 	EditorNode *editor;

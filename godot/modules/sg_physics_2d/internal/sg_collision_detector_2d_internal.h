@@ -78,6 +78,14 @@ public:
 	static bool Polygon_overlaps_Circle(const SGPolygon2DInternal &polygon, const SGCircle2DInternal &circle, fixed p_margin, OverlapInfo *p_info = nullptr);
 	static bool Polygon_overlaps_Rectangle(const SGPolygon2DInternal &polygon, const SGRectangle2DInternal &rectangle, fixed p_margin, OverlapInfo *p_info = nullptr);
 
+	//
+	// Capsules
+	//
+
+	static bool Capsule_overlaps_Circle(const SGCapsule2DInternal& capsule, const SGCircle2DInternal& circle, fixed p_margin, OverlapInfo* p_info = nullptr);
+	static bool Capsule_overlaps_Rectangle(const SGCapsule2DInternal& capsule, const SGRectangle2DInternal& rectangle, fixed p_margin, OverlapInfo* p_info);
+	static bool Capsule_overlaps_Polygon(const SGCapsule2DInternal& capsule, const SGPolygon2DInternal& polygon, fixed p_margin, OverlapInfo* p_info);
+	static bool Capsule_overlaps_Capsule(const SGCapsule2DInternal& capsule1, const SGCapsule2DInternal& capsule2, fixed p_margin, OverlapInfo* p_info);
 
 	//
 	// Line segments
@@ -89,6 +97,7 @@ public:
 	// get_global_vertices().
 	static bool segment_intersects_Polygon(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, const SGShape2DInternal &polygon, SGFixedVector2Internal &p_intersection_point, SGFixedVector2Internal &p_collision_normal);
 	static bool segment_intersects_Circle(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, const SGCircle2DInternal &circle, SGFixedVector2Internal &p_intersection_point, SGFixedVector2Internal &p_collision_normal);
+	static bool segment_intersects_Capsule(const SGFixedVector2Internal& p_start, const SGFixedVector2Internal& p_cast_to, const SGCapsule2DInternal& capsule, SGFixedVector2Internal& p_intersection_point, SGFixedVector2Internal& p_collision_normal);
 
 };
 

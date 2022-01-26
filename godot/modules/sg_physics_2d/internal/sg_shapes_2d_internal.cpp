@@ -83,6 +83,18 @@ Vector<SGFixedVector2Internal> SGRectangle2DInternal::get_global_axes() const {
 	return global_axes;
 }
 
+SGFixedVector2Internal SGRectangle2DInternal::get_closest_vertex(const SGFixedVector2Internal& point) const {
+	const SGFixedTransform2DInternal t = get_global_transform();
+	const SGFixedVector2Internal local_v = t.xform_inv(point);
+	const SGFixedVector2Internal half_extents = SGFixedVector2Internal(fixed(get_extents().x.value / 2), fixed(get_extents().y.value / 2));
+
+	const SGFixedVector2Internal vertex(
+		(local_v.x.value < 0) ? -half_extents.x : half_extents.x,
+		(local_v.y.value < 0) ? -half_extents.y : half_extents.y);
+
+	return t.xform(vertex);
+}
+
 Vector<SGFixedVector2Internal> SGPolygon2DInternal::get_global_vertices() const {
 	if (global_vertices_dirty) {
 		SGFixedTransform2DInternal t = get_global_transform();
@@ -124,4 +136,28 @@ SGFixedRect2Internal SGCircle2DInternal::get_bounds() const {
 	fixed radius_scaled = radius * t.get_scale().x;
 	fixed diameter(radius_scaled.value << 1);
 	return SGFixedRect2Internal(t.get_origin() - radius_scaled, SGFixedVector2Internal(diameter, diameter));
+}
+
+Vector<SGFixedVector2Internal> SGCapsule2DInternal::get_global_vertices() const {
+	if (global_vertices_dirty) {
+		SGFixedTransform2DInternal t = get_global_transform();
+		const fixed half_height = fixed(height.value / 2);
+		global_vertices.write[0] = t.get_origin() + t.elements[1] * half_height;
+		global_vertices.write[1] = t.get_origin() - t.elements[1] * half_height;
+		global_vertices_dirty = false;
+	}
+
+	return global_vertices;
+}
+
+SGFixedRect2Internal SGCapsule2DInternal::get_bounds() const {
+	SGFixedTransform2DInternal t = get_global_transform();
+	fixed radius_scaled = radius * t.get_scale().x;
+	const Vector<SGFixedVector2Internal> global_vertices = get_global_vertices();
+	SGFixedRect2Internal bounds(global_vertices[0], SGFixedVector2Internal());
+	bounds.expand_to(global_vertices[1]);
+	bounds.position -= SGFixedVector2Internal(radius_scaled, radius_scaled);
+	fixed diameter_scaled = fixed(radius_scaled.value * 2);
+	bounds.size += SGFixedVector2Internal(diameter_scaled, diameter_scaled);
+	return bounds;
 }

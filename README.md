@@ -113,6 +113,7 @@ And, we currently support the following shapes:
 
  - Rectangles
  - Circles
+ - Capsules
  - Convex polygons (via the `SGCollisionPolygon2D` node)
 
 These nodes and resources can be created and edited in the Godot editor in much

@@ -148,6 +148,9 @@ struct SGFixedVector2Internal {
 	//fixed posmod(const fixed p_mod) const;
 	//fixed posmodv(const SGFixedVector2Internal &p_modv) const;
 	//SGFixedVector2Internal project(const SGFixedVector2Internal &p_to) const;
+	_FORCE_INLINE_ SGFixedVector2Internal tangent() const { 
+		return SGFixedVector2Internal(y, -x);
+	}
 
 	_FORCE_INLINE_ static SGFixedVector2Internal linear_interpolate(const SGFixedVector2Internal &p_a, const SGFixedVector2Internal &p_b, fixed p_weight);
 

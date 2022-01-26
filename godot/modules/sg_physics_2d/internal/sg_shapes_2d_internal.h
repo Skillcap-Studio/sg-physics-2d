@@ -38,6 +38,7 @@ public:
 		SHAPE_RECTANGLE,
 		SHAPE_CIRCLE,
 		SHAPE_POLYGON,
+		SHAPE_CAPSULE,
 	};
 
 protected:
@@ -102,6 +103,7 @@ public:
 		global_vertices_dirty = true;
 	}
 
+	SGFixedVector2Internal get_closest_vertex(const SGFixedVector2Internal& point) const;
 	virtual Vector<SGFixedVector2Internal> get_global_vertices() const override;
 	virtual Vector<SGFixedVector2Internal> get_global_axes() const override;
 
@@ -151,6 +153,31 @@ public:
 	virtual Vector<SGFixedVector2Internal> get_global_axes() const override;
 
 	SGPolygon2DInternal() : SGShape2DInternal(SHAPE_POLYGON) { }
+};
+
+class SGCapsule2DInternal : public SGShape2DInternal {
+protected:
+
+	fixed radius;
+	fixed height;
+
+public:
+	_FORCE_INLINE_ fixed get_radius() const { return radius; }
+	_FORCE_INLINE_ void set_radius(const fixed& p_radius) { radius = p_radius; }
+
+	_FORCE_INLINE_ fixed get_height() const { return height; }
+	_FORCE_INLINE_ void set_height(const fixed& p_height) { height = p_height; }
+
+	virtual Vector<SGFixedVector2Internal> get_global_vertices() const override;
+	virtual SGFixedRect2Internal get_bounds() const override;
+
+	SGCapsule2DInternal(fixed p_radius, fixed p_height)
+		: SGShape2DInternal(SHAPE_CAPSULE)
+	{
+		global_vertices.resize(2);
+		radius = p_radius;
+		height = p_height;
+	}
 };
 
 #endif

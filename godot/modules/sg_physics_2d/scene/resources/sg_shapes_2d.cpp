@@ -161,3 +161,70 @@ SGCircleShape2D::SGCircleShape2D() : SGShape2D(),
 
 SGCircleShape2D::~SGCircleShape2D() {
 }
+
+
+void SGCapsuleShape2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_radius"), &SGCapsuleShape2D::get_radius);
+	ClassDB::bind_method(D_METHOD("set_radius", "radius"), &SGCapsuleShape2D::set_radius);
+	ClassDB::bind_method(D_METHOD("get_height"), &SGCapsuleShape2D::get_height);
+	ClassDB::bind_method(D_METHOD("set_height", "height"), &SGCapsuleShape2D::set_height);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "radius"), "set_radius", "get_radius");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "height"), "set_height", "get_height");
+}
+
+void SGCapsuleShape2D::set_radius(int p_radius) {
+	radius = fixed(p_radius);
+	_change_notify("extents");
+	emit_changed();
+}
+
+int SGCapsuleShape2D::get_radius() const {
+	return radius.value;
+}
+
+void SGCapsuleShape2D::set_height(int p_height) {
+	height = fixed(p_height);
+	_change_notify("extents");
+	emit_changed();
+}
+
+int SGCapsuleShape2D::get_height() const {
+	return height.value;
+}
+
+SGShape2DInternal* SGCapsuleShape2D::create_internal_shape() const {
+	return memnew(SGCapsule2DInternal(fixed(655360), fixed(655360)));
+}
+
+void SGCapsuleShape2D::sync_to_physics_engine(SGShape2DInternal* p_internal_shape) const {
+	SGCapsule2DInternal* capsule = (SGCapsule2DInternal*)p_internal_shape;
+	capsule->set_radius(fixed(radius));
+	capsule->set_height(fixed(height));
+}
+
+void SGCapsuleShape2D::draw(const RID& p_to_rid, const Color& p_color) {
+	float float_height = height.to_float();
+	float float_radius = radius.to_float();
+
+	Vector<Vector2> points;
+	for (int i = 12; i < 24; i++) {
+		points.push_back(Vector2(Math::cos(i * Math_PI * 2 / 24.0), Math::sin(i * Math_PI * 2 / 24.0)) * float_radius + Vector2(0, -float_height/2));
+	}
+	for (int i = 0; i < 12; i++) {
+		points.push_back(Vector2(Math::cos(i * Math_PI * 2 / 24.0), Math::sin(i * Math_PI * 2 / 24.0)) * float_radius + Vector2(0, float_height / 2));
+	}
+
+	Vector<Color> col;
+	col.push_back(p_color);
+	VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+}
+
+SGCapsuleShape2D::SGCapsuleShape2D() : SGShape2D(),
+radius(655360),
+height(655360)
+{
+}
+
+SGCapsuleShape2D::~SGCapsuleShape2D() {
+}

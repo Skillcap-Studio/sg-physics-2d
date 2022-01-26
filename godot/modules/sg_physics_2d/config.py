@@ -27,5 +27,6 @@ def get_doc_classes():
         'SGRectangleShape2D',
         'SGCircleShape2D',
         'SGYSort',
+        'SGCapsuleShape2D',
     ]
 

@@ -45,6 +45,17 @@ Variant SGCollisionShape2DEditor::get_handle_value(int idx) const {
 				return circle->get_radius();
 			}
 		} break;
+
+		case CAPSULE_SHAPE: {
+			Ref<SGCapsuleShape2D> capsule = node->get_shape();
+
+			if (idx == 0) {
+				return capsule->get_radius();
+			}
+			else if (idx == 1) {
+				return capsule->get_height();
+			}
+		} break;
 	}
 
 	return Variant();
@@ -78,6 +89,20 @@ void SGCollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
 			canvas_item_editor->update_viewport();
 		} break;
+
+		case CAPSULE_SHAPE: {
+			Ref<SGCapsuleShape2D> capsule = node->get_shape();
+			switch (idx) {
+				case 0:
+					capsule->set_radius(fixed::from_float(p_point.length()).value);
+					break;
+				case 1:
+					capsule->set_height(fixed::from_float(p_point.length()).value);
+					break;
+			}
+
+			canvas_item_editor->update_viewport();
+		} break;
 	}
 }
 
@@ -102,6 +127,15 @@ void SGCollisionShape2DEditor::commit_handle(int idx, Variant &p_org) {
 			undo_redo->add_undo_method(circle.ptr(), "set_radius", p_org);
 			undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
 		} break;
+
+		case CAPSULE_SHAPE: {
+			Ref<SGCapsuleShape2D> capsule = node->get_shape();
+
+			undo_redo->add_do_method(capsule.ptr(), "set_radius", capsule->get_radius());
+			undo_redo->add_do_method(canvas_item_editor, "update_viewport");
+			undo_redo->add_undo_method(capsule.ptr(), "set_radius", p_org);
+			undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
+		} break;
 	}
 
 	undo_redo->commit_action();
@@ -123,6 +157,9 @@ void SGCollisionShape2DEditor::_get_current_shape_type() {
 	}
 	else if (Object::cast_to<SGCircleShape2D>(*shape)) {
 		shape_type = CIRCLE_SHAPE;
+	}
+	else if (Object::cast_to<SGCapsuleShape2D>(*shape)) {
+		shape_type = CAPSULE_SHAPE;
 	}
 	else {
 		shape_type = -1;
@@ -269,6 +306,19 @@ void SGCollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_over
 			handles.write[0] = Point2(fixed(shape->get_radius()).to_float(), 0);
 
 			p_overlay->draw_texture(h, gt.xform(handles[0]) - size);
+		} break;
+
+		case CAPSULE_SHAPE: {
+			Ref<SGCapsuleShape2D> shape = node->get_shape();
+
+			handles.resize(2);
+			float height = fixed(shape->get_height()).to_float();
+			float radius = fixed(shape->get_radius()).to_float();
+			handles.write[0] = Point2(radius, 0);
+			handles.write[1] = Point2(0, -(height / 2 + radius));
+
+			p_overlay->draw_texture(h, gt.xform(handles[0]) - size);
+			p_overlay->draw_texture(h, gt.xform(handles[1]) - size);
 		} break;
 	}
 }
