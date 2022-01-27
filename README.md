@@ -247,7 +247,7 @@ documentation](https://docs.godotengine.org/en/stable/development/compiling/inde
 License
 -------
 
-Copyright 2021 David Snopek.
+Copyright 2021-2022 David Snopek.
 
 Licensed under the [MIT License](LICENSE.txt).
 
