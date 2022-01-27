@@ -9,10 +9,40 @@
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="get_floor_angle" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="up_direction" type="SGFixedVector2" default="0" />
+			<description>
+				Gets the angle between the up direction and the floor normal.
+				The floor normal is only set after running [method move_and_slide].
+			</description>
+		</method>
+		<method name="get_floor_normal" qualifiers="const">
+			<return type="SGFixedVector2" />
+			<description>
+				Gets the floor normal.
+				This is only set after running [method move_and_slide].
+			</description>
+		</method>
 		<method name="get_slide_count" qualifiers="const">
 			<return type="int" />
 			<description>
-				Get the number of slides of the last move_and_slide call.
+				Gets the number of slides of the last move_and_slide call.
+			</description>
+		</method>
+		<method name="is_on_ceiling" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="is_on_floor" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="is_on_wall" qualifiers="const">
+			<return type="bool" />
+			<description>
 			</description>
 		</method>
 		<method name="move_and_collide">
@@ -24,7 +54,10 @@
 		<method name="move_and_slide">
 			<return type="SGFixedVector2" />
 			<argument index="0" name="linear_velocity" type="SGFixedVector2" />
-			<argument index="1" name="max_slides" type="int" default="4" />
+			<argument index="1" name="up_direction" type="SGFixedVector2" default="0" />
+			<argument index="2" name="unused" type="bool" default="false" />
+			<argument index="3" name="max_slides" type="int" default="4" />
+			<argument index="4" name="floor_max_angle" type="int" default="51471" />
 			<description>
 			</description>
 		</method>

@@ -31,12 +31,6 @@ class SGKinematicCollision2D;
 class SGKinematicBody2D : public SGCollisionObject2D {
 	GDCLASS(SGKinematicBody2D, SGCollisionObject2D);
 
-protected:
-	fixed safe_margin;
-	Vector<SGCollisionObject2D*> colliders;
-
-	static void _bind_methods();
-
 public:
 	struct Collision {
 		SGCollisionObject2D *collider;
@@ -49,19 +43,37 @@ public:
 		}
 	};
 
+protected:
+	fixed safe_margin;
+
+	Vector<SGCollisionObject2D*> colliders;
+	Ref<SGFixedVector2> floor_normal;
+	bool on_floor;
+	bool on_ceiling;
+	bool on_wall;
+
+	static void _bind_methods();
+
+public:
 	int get_safe_margin() const;
 	void set_safe_margin(int p_safe_margin);
 
+	Ref<SGFixedVector2> get_floor_normal() const;
+	int get_floor_angle(const Ref<SGFixedVector2> &p_up_direction) const;
+	bool is_on_floor() const;
+	bool is_on_ceiling() const;
+	bool is_on_wall() const;
+
+	int get_slide_count() const;
+
 	bool move_and_collide(const SGFixedVector2Internal &p_linear_velocity, Collision &p_collision);
-	Ref<SGFixedVector2> move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, int p_max_slides);
+	Ref<SGFixedVector2> move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, const Ref<SGFixedVector2> &p_up_direction, bool p_unused, int p_max_slides, int p_floor_max_angle);
 	bool rotate_and_slide(int64_t p_rotation, int p_max_slides);
 
 	Ref<SGKinematicCollision2D> _move(const Ref<SGFixedVector2> &p_linear_velocity);
-	int get_slide_count() const;
 
 	SGKinematicBody2D();
 	~SGKinematicBody2D();
-
 };
 
 class SGKinematicCollision2D : public Reference {

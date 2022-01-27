@@ -172,6 +172,9 @@
 		<constant name="TAU" value="411774">
 			An approimation of PI * 2 (6.283172607421875) in fixed-point.
 		</constant>
+		<constant name="PI_DIV_2" value="102943">
+			An approximation of PI / 2.0 (1.5707931518554688) in fixed-point.
+		</constant>
 		<constant name="PI_DIV_4" value="51471">
 			An approximation of PI / 4.0 (0.7853851318359375) in fixed-point.
 		</constant>

@@ -70,6 +70,7 @@ const fixed fixed::TWO  = fixed(131072);
 const fixed fixed::NEG_ONE = fixed(-fix16_one);
 const fixed fixed::PI = fixed(fix16_pi);
 const fixed fixed::TAU = fixed(fix16_pi << 1);
+const fixed fixed::PI_DIV_2 = fixed(fix16_pi >> 1);
 const fixed fixed::PI_DIV_4 = fixed(PI_DIV_4);
 const fixed fixed::EPSILON = fixed(fix16_eps);
 const fixed fixed::ARITHMETIC_OVERFLOW = fixed(INT64_MIN);
@@ -113,6 +114,12 @@ fixed fixed::tan() const {
 }
 
 fixed fixed::asin() const {
+	if (value == 65536) {
+		// libfixmath generates an incorrect result for asin(65536).
+		// @todo Remove after we've replaced libfixmatch per issue #4:
+		//       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
+		return fixed::PI_DIV_2;
+	}
 	if (value < fix16_maximum && value > fix16_minimum) {
 		return fixed(fix16_asin(value));
 	}
@@ -122,6 +129,12 @@ fixed fixed::asin() const {
 }
 
 fixed fixed::acos() const {
+	if (value == 65536) {
+		// libfixmath generates an incorrect result for acos(65536).
+		// @todo Remove after we've replaced libfixmatch per issue #4:
+		//       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
+		return fixed::ZERO;
+	}
 	if (value < fix16_maximum && value > fix16_minimum) {
 		return fixed(fix16_acos(value));
 	}

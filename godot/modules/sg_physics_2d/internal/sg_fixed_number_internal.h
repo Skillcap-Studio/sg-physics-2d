@@ -53,6 +53,7 @@ struct fixed {
 	static const fixed NEG_ONE;
 	static const fixed PI;
 	static const fixed TAU;
+	static const fixed PI_DIV_2;
 	static const fixed PI_DIV_4;
 	static const fixed EPSILON;
 	static const fixed ARITHMETIC_OVERFLOW;

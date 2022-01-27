@@ -49,6 +49,12 @@ func test_trig():
 	var cos_0: int = SGFixed.cos(0)
 	assert_eq(cos_0, 65536)
 	
+	var acos_65536: int = SGFixed.acos(65536)
+	assert_eq(acos_65536, 0)
+	
+	var asin_65536: int = SGFixed.asin(65536)
+	assert_eq(asin_65536, SGFixed.PI_DIV_2)
+	
 	#
 	# Test that big values loop around as expected
 	#

@@ -36,10 +36,16 @@ void SGKinematicBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_safe_margin"), &SGKinematicBody2D::get_safe_margin);
 	ClassDB::bind_method(D_METHOD("set_safe_margin", "fixed_margin"), &SGKinematicBody2D::set_safe_margin);
 
-	ClassDB::bind_method(D_METHOD("move_and_collide", "linear_velocity"), &SGKinematicBody2D::_move);
-	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "max_slides"), &SGKinematicBody2D::move_and_slide, DEFVAL(4));
-	ClassDB::bind_method(D_METHOD("rotate_and_slide", "rotation", "max_slides"), &SGKinematicBody2D::rotate_and_slide, DEFVAL(4));
+	ClassDB::bind_method(D_METHOD("get_floor_normal"), &SGKinematicBody2D::get_floor_normal);
+	ClassDB::bind_method(D_METHOD("get_floor_angle", "up_direction"), &SGKinematicBody2D::get_floor_angle, DEFVAL(NULL));
+	ClassDB::bind_method(D_METHOD("is_on_floor"), &SGKinematicBody2D::is_on_floor);
+	ClassDB::bind_method(D_METHOD("is_on_ceiling"), &SGKinematicBody2D::is_on_ceiling);
+	ClassDB::bind_method(D_METHOD("is_on_wall"), &SGKinematicBody2D::is_on_wall);
 	ClassDB::bind_method(D_METHOD("get_slide_count"), &SGKinematicBody2D::get_slide_count);
+
+	ClassDB::bind_method(D_METHOD("move_and_collide", "linear_velocity"), &SGKinematicBody2D::_move);
+	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "up_direction", "unused", "max_slides", "floor_max_angle"), &SGKinematicBody2D::move_and_slide, DEFVAL(NULL), DEFVAL(false), DEFVAL(4), DEFVAL(51471));
+	ClassDB::bind_method(D_METHOD("rotate_and_slide", "rotation", "max_slides"), &SGKinematicBody2D::rotate_and_slide, DEFVAL(4));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "safe_margin"), "set_safe_margin", "get_safe_margin");
 }
@@ -50,6 +56,34 @@ int SGKinematicBody2D::get_safe_margin() const {
 
 void SGKinematicBody2D::set_safe_margin(int p_safe_margin) {
 	safe_margin = fixed(p_safe_margin);
+}
+
+Ref<SGFixedVector2> SGKinematicBody2D::get_floor_normal() const {
+	return floor_normal;
+}
+
+int SGKinematicBody2D::get_floor_angle(const Ref<SGFixedVector2> &p_up_direction) const {
+	SGFixedVector2Internal up_direction(fixed::ZERO, fixed::NEG_ONE);
+	if (p_up_direction.is_valid()) {
+		up_direction = p_up_direction->get_internal();
+	}
+	return floor_normal->get_internal().dot(up_direction).acos().value;
+}
+
+bool SGKinematicBody2D::is_on_floor() const {
+	return on_floor;
+}
+
+bool SGKinematicBody2D::is_on_ceiling() const {
+	return on_ceiling;
+}
+
+bool SGKinematicBody2D::is_on_wall() const {
+	return on_wall;
+}
+
+int SGKinematicBody2D::get_slide_count() const {
+	return colliders.size();
 }
 
 bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_velocity, SGKinematicBody2D::Collision &p_collision) {
@@ -124,11 +158,22 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 	return true;
 }
 
-Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, int p_max_slides) {
+Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, const Ref<SGFixedVector2> &p_up_direction, bool p_unused, int p_max_slides, int p_floor_max_angle) {
 	ERR_FAIL_COND_V(!p_linear_velocity.is_valid(), Ref<SGFixedVector2>());
 	
-	colliders.clear();
 	SGFixedVector2Internal motion = p_linear_velocity->get_internal();
+	SGFixedVector2Internal up_direction;
+	fixed floor_max_angle = fixed(p_floor_max_angle);
+
+	if (p_up_direction.is_valid()) {
+		up_direction = p_up_direction->get_internal();
+	}
+
+	colliders.clear();
+	floor_normal->clear();
+	on_floor = false;
+	on_ceiling = false;
+	on_wall = false;
 
 	while (p_max_slides) {
 		Collision collision;
@@ -146,6 +191,24 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 		}
 
 		colliders.push_back(collision.collider);
+
+		if (up_direction == SGFixedVector2Internal::ZERO) {
+			// All is wall!
+			on_wall = true;
+		}
+		else {
+			if (collision.normal.dot(up_direction).acos() <= floor_max_angle) {
+				on_floor = true;
+				floor_normal->set_internal(collision.normal);
+			}
+			else if (collision.normal.dot(-up_direction).acos() <= floor_max_angle) {
+				on_ceiling = true;
+			}
+			else {
+				on_wall = true;
+			}
+		}
+
 		motion = collision.remainder.slide(collision.normal);
 
 		if (motion == SGFixedVector2Internal::ZERO) {
@@ -157,10 +220,6 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 	}
 
 	return Ref<SGFixedVector2>(memnew(SGFixedVector2(motion)));
-}
-
-int SGKinematicBody2D::get_slide_count() const {
-	return colliders.size();
 }
 
 bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
@@ -203,6 +262,10 @@ SGKinematicBody2D::SGKinematicBody2D()
 	: SGCollisionObject2D(memnew(SGBody2DInternal(SGBody2DInternal::BodyType::BODY_KINEMATIC)))
 {
 	safe_margin = fixed(64);
+	floor_normal.instance();
+	on_floor = false;
+	on_ceiling = false;
+	on_wall = false;
 }
 
 SGKinematicBody2D::~SGKinematicBody2D() {
