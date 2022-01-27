@@ -37,14 +37,14 @@ void SGKinematicBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_safe_margin", "fixed_margin"), &SGKinematicBody2D::set_safe_margin);
 
 	ClassDB::bind_method(D_METHOD("get_floor_normal"), &SGKinematicBody2D::get_floor_normal);
-	ClassDB::bind_method(D_METHOD("get_floor_angle", "up_direction"), &SGKinematicBody2D::get_floor_angle, DEFVAL(NULL));
+	ClassDB::bind_method(D_METHOD("get_floor_angle", "up_direction"), &SGKinematicBody2D::get_floor_angle, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("is_on_floor"), &SGKinematicBody2D::is_on_floor);
 	ClassDB::bind_method(D_METHOD("is_on_ceiling"), &SGKinematicBody2D::is_on_ceiling);
 	ClassDB::bind_method(D_METHOD("is_on_wall"), &SGKinematicBody2D::is_on_wall);
 	ClassDB::bind_method(D_METHOD("get_slide_count"), &SGKinematicBody2D::get_slide_count);
 
 	ClassDB::bind_method(D_METHOD("move_and_collide", "linear_velocity"), &SGKinematicBody2D::_move);
-	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "up_direction", "unused", "max_slides", "floor_max_angle"), &SGKinematicBody2D::move_and_slide, DEFVAL(NULL), DEFVAL(false), DEFVAL(4), DEFVAL(51471));
+	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "up_direction", "unused", "max_slides", "floor_max_angle"), &SGKinematicBody2D::move_and_slide, DEFVAL(Variant()), DEFVAL(false), DEFVAL(4), DEFVAL(51471));
 	ClassDB::bind_method(D_METHOD("rotate_and_slide", "rotation", "max_slides"), &SGKinematicBody2D::rotate_and_slide, DEFVAL(4));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "safe_margin"), "set_safe_margin", "get_safe_margin");

@@ -11,7 +11,7 @@
 	<methods>
 		<method name="get_floor_angle" qualifiers="const">
 			<return type="int" />
-			<argument index="0" name="up_direction" type="SGFixedVector2" default="0" />
+			<argument index="0" name="up_direction" type="SGFixedVector2" default="null" />
 			<description>
 				Gets the angle between the up direction and the floor normal.
 				The floor normal is only set after running [method move_and_slide].
@@ -54,7 +54,7 @@
 		<method name="move_and_slide">
 			<return type="SGFixedVector2" />
 			<argument index="0" name="linear_velocity" type="SGFixedVector2" />
-			<argument index="1" name="up_direction" type="SGFixedVector2" default="0" />
+			<argument index="1" name="up_direction" type="SGFixedVector2" default="null" />
 			<argument index="2" name="unused" type="bool" default="false" />
 			<argument index="3" name="max_slides" type="int" default="4" />
 			<argument index="4" name="floor_max_angle" type="int" default="51471" />
