@@ -12,7 +12,6 @@ sg_physics_2d_subdirs = [
     "servers/",
     "scene/2d/",
     "scene/resources/",
-    "editor/",
 ]
 
 # Add the sources for libfixmath
@@ -24,4 +23,7 @@ env_sg_physics_2d.add_source_files(env.modules_sources, "thirdparty/libfixmath/*
 
 for d in sg_physics_2d_subdirs:
     env_sg_physics_2d.add_source_files(env.modules_sources, d + "*.cpp")
+
+if env["tools"]:
+    env_sg_physics_2d.add_source_files(env.modules_sources, "./editor/*.cpp")
 
