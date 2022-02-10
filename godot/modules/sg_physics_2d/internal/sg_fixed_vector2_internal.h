@@ -169,6 +169,8 @@ struct SGFixedVector2Internal {
 	_FORCE_INLINE_ SGFixedVector2Internal()
 		: x(fixed::ZERO), y(fixed::ZERO) {}
 
+	SGFixedVector2Internal cubic_interpolate(const SGFixedVector2Internal& p_b, const SGFixedVector2Internal& p_pre_a, const SGFixedVector2Internal& p_post_b, fixed p_weight) const;
+
 };
 
 SGFixedVector2Internal SGFixedVector2Internal::direction_to(const SGFixedVector2Internal &p_to) const {

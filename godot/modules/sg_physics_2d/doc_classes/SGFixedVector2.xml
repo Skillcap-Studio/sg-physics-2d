@@ -68,6 +68,15 @@
 			<description>
 			</description>
 		</method>
+		<method name="cubic_interpolate" qualifiers="const">
+			<return type="SGFixedVector2" />
+			<argument index="0" name="other_vector" type="SGFixedVector2" />
+			<argument index="1" name="pre_a" type="SGFixedVector2" />
+			<argument index="2" name="post_b" type="SGFixedVector2" />
+			<argument index="3" name="weight" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="direction_to" qualifiers="const">
 			<return type="SGFixedVector2" />
 			<argument index="0" name="other_vector" type="SGFixedVector2" />

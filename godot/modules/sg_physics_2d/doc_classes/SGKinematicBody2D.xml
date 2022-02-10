@@ -70,8 +70,8 @@
 		</method>
 	</methods>
 	<members>
-		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" overrides="true" />
-		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" overrides="true" />
+		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" override="true" />
+		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
 		<member name="safe_margin" type="int" setter="set_safe_margin" getter="get_safe_margin" default="64">
 			Extra margin used for separating the body before [method move_and_slide] or [method move_and_collide].
 			If the body is at least this close to another body, it will move them apart before performing the motion.

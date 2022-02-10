@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SGPath2D" inherits="SGFixedNode2D" version="3.4">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+	</methods>
+	<members>
+		<member name="curve" type="SGCurve2D" setter="set_curve" getter="get_curve">
+		</member>
+		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" override="true" />
+		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
+		<member name="self_modulate" type="Color" setter="set_self_modulate" getter="get_self_modulate" override="true" default="Color( 0.5, 0.6, 1, 0.7 )" />
+	</members>
+	<constants>
+	</constants>
+</class>

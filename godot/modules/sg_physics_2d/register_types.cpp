@@ -39,11 +39,14 @@
 #include "./scene/2d/sg_collision_polygon_2d.h"
 #include "./scene/2d/sg_ysort.h"
 #include "./scene/resources/sg_shapes_2d.h"
+#include "./scene/resources/sg_curve_2d.h"
+#include "./scene/2d/sg_path_2d.h"
 #include "./internal/sg_world_2d_internal.h"
 
 #include "./editor/sg_fixed_math_editor_plugin.h"
 #include "./editor/sg_collision_shape_2d_editor_plugin.h"
 #include "./editor/sg_collision_polygon_2d_editor_plugin.h"
+#include "./editor/sg_path_2d_editor_plugin.h"
 
 static SGFixed *fixed_singleton;
 static SGWorld2DInternal *world_singleton;
@@ -72,6 +75,10 @@ void register_sg_physics_2d_types() {
 	ClassDB::register_class<SGCircleShape2D>();
 	ClassDB::register_class<SGCapsuleShape2D>();
 
+	ClassDB::register_class<SGCurve2D>();
+	ClassDB::register_class<SGPath2D>();
+	ClassDB::register_class<SGPathFollow2D>();
+
 	fixed_singleton = memnew(SGFixed);
 	Engine::get_singleton()->add_singleton(Engine::Singleton("SGFixed", SGFixed::get_singleton()));
 
@@ -81,6 +88,7 @@ void register_sg_physics_2d_types() {
 	EditorPlugins::add_by_type<SGFixedMathEditorPlugin>();
 	EditorPlugins::add_by_type<SGCollisionShape2DEditorPlugin>();
 	EditorPlugins::add_by_type<SGCollisionPolygon2DEditorPlugin>();
+	EditorPlugins::add_by_type<SGPath2DEditorPlugin>();
 #endif
 }
 

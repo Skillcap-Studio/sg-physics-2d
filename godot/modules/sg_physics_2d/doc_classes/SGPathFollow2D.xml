@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SGPathFollow2D" inherits="SGFixedNode2D" version="3.4">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+	</methods>
+	<members>
+		<member name="cubic_interp" type="bool" setter="set_cubic_interpolation" getter="get_cubic_interpolation" default="true">
+		</member>
+		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" override="true" />
+		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
+		<member name="h_offset" type="int" setter="set_h_offset" getter="get_h_offset" default="0">
+		</member>
+		<member name="lookahead" type="int" setter="set_lookahead" getter="get_lookahead" default="4">
+		</member>
+		<member name="loop" type="bool" setter="set_loop" getter="has_loop" default="true">
+		</member>
+		<member name="offset" type="int" setter="set_offset" getter="get_offset" default="0">
+		</member>
+		<member name="rotate" type="bool" setter="set_rotate" getter="is_rotating" default="true">
+		</member>
+		<member name="unit_offset" type="int" setter="set_unit_offset" getter="get_unit_offset" default="0">
+		</member>
+		<member name="v_offset" type="int" setter="set_v_offset" getter="get_v_offset" default="0">
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

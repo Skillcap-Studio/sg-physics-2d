@@ -111,6 +111,7 @@ public:
 	int64_t cross(const Ref<SGFixedVector2> &p_other) const;
 
 	Ref<SGFixedVector2> linear_interpolate(const Ref<SGFixedVector2> &p_to, int64_t weight) const;
+	Ref<SGFixedVector2> cubic_interpolate(const Ref<SGFixedVector2>& p_b, const Ref<SGFixedVector2>& p_pre_a, const Ref<SGFixedVector2>& p_post_b, int64_t p_weight) const;
 
 	Ref<SGFixedVector2> slide(const Ref<SGFixedVector2> &p_normal) const;
 	Ref<SGFixedVector2> bounce(const Ref<SGFixedVector2> &p_normal) const;

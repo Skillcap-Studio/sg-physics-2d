@@ -196,6 +196,12 @@ func _physics_process(delta: float) -> void:
 However, if you have parts of the game that are purely cosmetic, you're safe to
 use normal floating-point math for those.
 
+Other nodes
+-----------
+- `SGYSort` provides the same functionality as `YSort`, and inherits its parent's `fixed_position`.
+- `SGPath2D` and `SGPathFollow2D` provide the same functionality as `Path2D` and `PathFollow2D`, replacing the use of floating point numbers by fixed point numbers.
+
+
 Compiling from source
 ---------------------
 

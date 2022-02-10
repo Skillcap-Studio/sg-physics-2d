@@ -178,3 +178,25 @@ bool SGFixedVector2Internal::is_equal_approx(const SGFixedVector2Internal &p_v) 
 	return fixed::is_equal_approx(x, p_v.x) && fixed::is_equal_approx(y, p_v.y);
 }
 
+SGFixedVector2Internal SGFixedVector2Internal::cubic_interpolate(const SGFixedVector2Internal& p_b, const SGFixedVector2Internal& p_pre_a, const SGFixedVector2Internal& p_post_b, fixed p_weight) const {
+	SGFixedVector2Internal p0 = p_pre_a;
+	SGFixedVector2Internal p1 = *this;
+	SGFixedVector2Internal p2 = p_b;
+	SGFixedVector2Internal p3 = p_post_b;
+
+	fixed t = p_weight;
+	fixed t2 = t * t;
+	fixed t3 = t2 * t;
+
+	// from original floating point compute:
+	//out = 0.5 *
+	//	((p1 * 2.0) +
+	//		(-p0 + p2) * t +
+	//		(2.0 * p0 - 5.0 * p1 + 4 * p2 - p3) * t2 +
+	//		(-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3);
+	SGFixedVector2Internal out = ((p1 * fixed(131072)) +
+			(-p0 + p2) * t +
+			((p0 * fixed(131072)) - p1 * fixed(327680) + (p2 * fixed(262144)) - p3) * t2 +
+			(-p0 + p1 * fixed(196608) - p2 * fixed(196608) + p3) * t3) * fixed(32768);
+	return out;
+}

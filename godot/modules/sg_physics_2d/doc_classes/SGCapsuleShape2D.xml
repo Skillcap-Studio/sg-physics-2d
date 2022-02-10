@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="SGCapsuleShape2D" inherits="SGShape2D" version="3.4">
 	<brief_description>
 		Capsule shape resource for 2D collisions in SG Physics 2D.
@@ -11,9 +11,9 @@
 	<methods>
 	</methods>
 	<members>
-		<member name="radius" type="int" setter="set_radius" getter="get_radius" default="655360">
-		</member>
 		<member name="height" type="int" setter="set_height" getter="get_height" default="655360">
+		</member>
+		<member name="radius" type="int" setter="set_radius" getter="get_radius" default="655360">
 		</member>
 	</members>
 	<constants>

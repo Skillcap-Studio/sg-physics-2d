@@ -64,6 +64,7 @@ void SGFixedVector2::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("cross", "other_vector"), &SGFixedVector2::cross);
 
 	ClassDB::bind_method(D_METHOD("linear_interpolate", "other_vector", "weight"), &SGFixedVector2::linear_interpolate);
+	ClassDB::bind_method(D_METHOD("cubic_interpolate", "other_vector", "pre_a", "post_b", "weight"), &SGFixedVector2::cubic_interpolate);
 
 	ClassDB::bind_method(D_METHOD("slide", "normal"), &SGFixedVector2::slide);
 	ClassDB::bind_method(D_METHOD("bounce", "normal"), &SGFixedVector2::bounce);
@@ -296,5 +297,9 @@ void SGFixedVector2::from_float(Vector2 p_float_vector) {
 
 Vector2 SGFixedVector2::to_float() const {
 	return Vector2(value.x.to_float(), value.y.to_float());
+}
+
+Ref<SGFixedVector2> SGFixedVector2::cubic_interpolate(const Ref<SGFixedVector2>& p_b, const Ref<SGFixedVector2>& p_pre_a, const Ref<SGFixedVector2>& p_post_b, int64_t p_weight) const {
+	return SGFixedVector2::from_internal(value.cubic_interpolate(p_b->get_internal(), p_pre_a->get_internal(), p_post_b->get_internal(), fixed(p_weight)));
 }
 

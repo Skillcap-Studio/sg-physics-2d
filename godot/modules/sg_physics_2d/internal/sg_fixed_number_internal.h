@@ -156,6 +156,17 @@ struct fixed {
 		value = (*this / p_other).value;
 	}
 
+	_FORCE_INLINE_ fixed operator<<(size_t pos) const {
+		return fixed(value << pos);
+	}
+	_FORCE_INLINE_ fixed operator>>(size_t pos) const {
+		return fixed(value >> pos);
+	}
+
+	_FORCE_INLINE_ fixed operator%(fixed const& rhs) const {
+		return fixed(value % rhs.value);
+	}
+
 	_FORCE_INLINE_ bool operator==(const fixed &p_other) const { return value == p_other.value; }
 	_FORCE_INLINE_ bool operator!=(const fixed &p_other) const { return value != p_other.value; }
 	_FORCE_INLINE_ bool operator<=(const fixed &p_other) const { return value <= p_other.value; }
