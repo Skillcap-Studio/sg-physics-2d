@@ -43,10 +43,12 @@
 #include "./scene/2d/sg_path_2d.h"
 #include "./internal/sg_world_2d_internal.h"
 
+#ifdef TOOLS_ENABLED
 #include "./editor/sg_fixed_math_editor_plugin.h"
 #include "./editor/sg_collision_shape_2d_editor_plugin.h"
 #include "./editor/sg_collision_polygon_2d_editor_plugin.h"
 #include "./editor/sg_path_2d_editor_plugin.h"
+#endif
 
 static SGFixed *fixed_singleton;
 static SGWorld2DInternal *world_singleton;
