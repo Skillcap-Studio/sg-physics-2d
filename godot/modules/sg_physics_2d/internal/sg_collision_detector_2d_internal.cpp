@@ -154,15 +154,29 @@ bool SGCollisionDetector2DInternal::Circle_overlaps_Circle(const SGCircle2DInter
 	SGFixedTransform2DInternal t2 = circle2.get_global_transform();
 
 	SGFixedVector2Internal line = t1.get_origin() - t2.get_origin();
-
+	fixed line_length_squared = line.length_squared();
 	// We only multiply by the scale.x because we don't support non-uniform scaling.
-	fixed combined_radius = circle1.get_radius() * t1.get_scale().x + circle2.get_radius() * t2.get_scale().x;
-	bool overlapping = (line.length_squared() < combined_radius * combined_radius);
+	fixed combined_radius = (circle1.get_radius() * t1.get_scale().x + circle2.get_radius() * t2.get_scale().x) + p_margin;
+	bool overlapping = false;
 
-	if (overlapping && p_info) {
-		SGFixedVector2Internal collision_normal = line.normalized();
-		p_info->collision_normal = collision_normal;
-		p_info->separation = collision_normal * (combined_radius - line.length());
+	if (line_length_squared == fixed::ZERO) {
+		overlapping = true;
+
+		if (p_info) {
+			// If circles share an origin, then we arbitrarily decide that we
+			// separate them by moving up.
+			p_info->collision_normal = SGFixedVector2Internal(fixed::ZERO, fixed::NEG_ONE);
+			p_info->separation = SGFixedVector2Internal(fixed::ZERO, -combined_radius);
+		}
+	}
+	else {
+		overlapping = (line_length_squared < combined_radius * combined_radius);
+
+		if (overlapping && p_info) {
+			SGFixedVector2Internal collision_normal = line.normalized();
+			p_info->collision_normal = collision_normal;
+			p_info->separation = collision_normal * (combined_radius - line.length());
+		}
 	}
 
 	return overlapping;
