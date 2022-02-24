@@ -129,7 +129,7 @@ SGFixedVector2Internal SGFixedTransform2DInternal::xform(const SGFixedVector2Int
 
 SGFixedVector2Internal SGFixedTransform2DInternal::xform_inv(const SGFixedVector2Internal &p_vec) const {
 	SGFixedVector2Internal v = p_vec - elements[2];
-	return SGFixedVector2Internal(elements[0].dot(v), elements[2].dot(v));
+	return SGFixedVector2Internal(elements[0].dot(v), elements[1].dot(v));
 }
 
 void SGFixedTransform2DInternal::set_rotation_and_scale(fixed p_rot, const SGFixedVector2Internal &p_scale) {
