@@ -39,11 +39,9 @@ void SGFixedTransform2DInternal::affine_invert() {
 #ifdef MATH_CHECKS
 	ERR_FAIL_COND(det == fixed::ZERO);
 #endif
-	fixed idet = fixed::ONE / det;
-
 	SWAP(elements[0][0], elements[1][1]);
-	elements[0] *= SGFixedVector2Internal(idet, -idet);
-	elements[1] *= SGFixedVector2Internal(-idet, idet);
+	elements[0] /= SGFixedVector2Internal(det, -det);
+	elements[1] /= SGFixedVector2Internal(-det, det);
 
 	elements[2] = basis_xform(-elements[2]);
 }

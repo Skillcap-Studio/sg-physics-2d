@@ -10,6 +10,18 @@ func test_deterministic_rotation():
 	t.y.y = 65535
 	assert_eq(t.get_rotation(), -290)
 	
+	var big_t = t.scaled(SGFixed.vector2(13107200, 13107200))
+	var big_t_inv = big_t.affine_inverse()
+	var rounda = big_t.xform(big_t_inv.xform(SGFixed.vector2(65536, 65536)))
+	assert_almost_eq(rounda.x, 65536, 2000)
+	assert_almost_eq(rounda.y, 65536, 2000)
+
+	var small_t = t.scaled(SGFixed.vector2(131, 131))
+	var small_t_inv = small_t.affine_inverse()
+	var roundb = small_t.xform(small_t_inv.xform(SGFixed.vector2(65536, 65536)))
+	assert_almost_eq(rounda.x, 65536, 2000)
+	assert_almost_eq(rounda.y, 65536, 2000)
+	
 	t = SGFixedTransform2D.new()
 	t.x.x = 65348
 	t.x.y = -4956
