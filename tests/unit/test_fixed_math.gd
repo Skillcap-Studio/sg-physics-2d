@@ -30,6 +30,15 @@ func test_division():
 	
 	assert_eq(c, 491520)
 
+func test_move_toward():
+	var a: int = SGFixed.from_int(1)
+	var b: int = SGFixed.from_int(2)
+	var c: int = SGFixed.move_toward(a, b, 32768) #0.5
+	var d: int = SGFixed.move_toward(a, b, 131072) #2
+	
+	assert_eq(c, 98304) # 1.5
+	assert_eq(d, 131072) # 2
+
 func test_trig():
 	#
 	# Test some important "well known" values

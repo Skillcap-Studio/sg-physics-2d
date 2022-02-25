@@ -38,6 +38,8 @@ int64_t sg_sqrt_64(int64_t num);
 #define SG_FIXED_MATH_CHECKS
 #endif
 
+#define FIXED_SGN(m_v) (((m_v) < fixed::ZERO) ? fixed::NEG_ONE : fixed::ONE)
+
 struct fixed {
 	int64_t value;
 
@@ -182,6 +184,7 @@ struct fixed {
 	_FORCE_INLINE_ fixed operator-() const { return fixed(-value); }
 	_FORCE_INLINE_ fixed sqrt() const { return fixed(sg_sqrt_64(value << 16)); }
 	_FORCE_INLINE_ fixed sign() const { return value < 0 ? fixed::NEG_ONE : (value > 0 ? fixed::ONE : fixed::ZERO); }
+	_FORCE_INLINE_ fixed move_toward(const fixed& p_other, fixed p_delta) { return (p_other - *this).abs() <= p_delta ? p_other : *this + FIXED_SGN(p_other - *this) * p_delta; }
 
 	fixed  sin() const;
 	fixed  cos() const;
@@ -191,7 +194,5 @@ struct fixed {
 	fixed atan() const;
 	fixed atan2(const fixed &inY) const;
 };
-
-#define FIXED_SGN(m_v) (((m_v) < fixed::ZERO) ? fixed::NEG_ONE : fixed::ONE)
 
 #endif

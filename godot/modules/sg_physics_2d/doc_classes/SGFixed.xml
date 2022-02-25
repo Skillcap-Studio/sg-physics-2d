@@ -85,6 +85,14 @@
 				Converts a normal integer into a fixed-point number.
 			</description>
 		</method>
+		<method name="move_toward" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_from_value" type="int" />
+			<argument index="1" name="fixed_to_value" type="int" />
+			<argument index="2" name="fixed_delta_value" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="mul" qualifiers="const">
 			<return type="int" />
 			<argument index="0" name="fixed_one" type="int" />
