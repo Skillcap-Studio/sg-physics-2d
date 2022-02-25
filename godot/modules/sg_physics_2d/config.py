@@ -32,5 +32,6 @@ def get_doc_classes():
         'SGPath2D',
         'SGPathFollow2D',
         'SGTween',
+        'SGAStar2D',
     ]
 

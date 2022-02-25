@@ -30,6 +30,7 @@
 #include "./math/sg_fixed_vector2.h"
 #include "./math/sg_fixed_rect2.h"
 #include "./math/sg_fixed_transform_2d.h"
+#include "./math/sg_a_star.h"
 #include "./scene/2d/sg_fixed_position_2d.h"
 #include "./scene/2d/sg_area_2d.h"
 #include "./scene/2d/sg_static_body_2d.h"
@@ -83,6 +84,7 @@ void register_sg_physics_2d_types() {
 	ClassDB::register_class<SGPathFollow2D>();
 
 	ClassDB::register_class<SGTween>();
+	ClassDB::register_class<SGAStar2D>();
 
 	fixed_singleton = memnew(SGFixed);
 	Engine::get_singleton()->add_singleton(Engine::Singleton("SGFixed", SGFixed::get_singleton()));

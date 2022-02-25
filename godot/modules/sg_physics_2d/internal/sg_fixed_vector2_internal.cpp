@@ -119,11 +119,13 @@ fixed SGFixedVector2Internal::length_squared() const {
 }
 
 fixed SGFixedVector2Internal::distance_to(const SGFixedVector2Internal &p_other) const {
-	return fixed(sg_sqrt_64((p_other.x.value - x.value) * (p_other.x.value - x.value) + (p_other.y.value - y.value) * (p_other.y.value - y.value)));
+	SGFixedVector2Internal vec = p_other - *this;
+	return vec.length();
 }
 
 fixed SGFixedVector2Internal::distance_squared_to(const SGFixedVector2Internal &p_other) const {
-	return fixed((p_other.x.value - x.value) * (p_other.x.value - x.value) + (p_other.y.value - y.value) * (p_other.y.value - y.value));
+	SGFixedVector2Internal vec = p_other - *this;
+	return vec.length_squared();
 }
 
 fixed SGFixedVector2Internal::angle_to(const SGFixedVector2Internal &p_other) const {
@@ -199,4 +201,23 @@ SGFixedVector2Internal SGFixedVector2Internal::cubic_interpolate(const SGFixedVe
 			((p0 * fixed(131072)) - p1 * fixed(327680) + (p2 * fixed(262144)) - p3) * t2 +
 			(-p0 + p1 * fixed(196608) - p2 * fixed(196608) + p3) * t3) * fixed(32768);
 	return out;
+}
+
+SGFixedVector2Internal SGFixedVector2Internal::get_closest_point_to_segment_2d(const SGFixedVector2Internal &p_point, const SGFixedVector2Internal *p_segment) {
+	SGFixedVector2Internal p = p_point - p_segment[0];
+	SGFixedVector2Internal n = p_segment[1] - p_segment[0];
+	fixed l2 = n.length();
+	if (l2 == fixed::ZERO) {
+		return p_segment[0]; // Both points are the same, just give any.
+	}
+
+	fixed d = (n / l2).dot(p / l2);
+
+	if (d <= fixed::ZERO) {
+		return p_segment[0]; // Before first point.
+	} else if (d >= fixed::ONE) {
+		return p_segment[1]; // After first point.
+	} else {
+		return p_segment[0] + n * d; // Inside.
+	}
 }

@@ -171,6 +171,7 @@ struct SGFixedVector2Internal {
 
 	SGFixedVector2Internal cubic_interpolate(const SGFixedVector2Internal& p_b, const SGFixedVector2Internal& p_pre_a, const SGFixedVector2Internal& p_post_b, fixed p_weight) const;
 
+	static SGFixedVector2Internal get_closest_point_to_segment_2d(const SGFixedVector2Internal &p_point, const SGFixedVector2Internal *p_segment);
 };
 
 SGFixedVector2Internal SGFixedVector2Internal::direction_to(const SGFixedVector2Internal &p_to) const {
