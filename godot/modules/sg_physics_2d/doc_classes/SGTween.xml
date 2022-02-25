@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SGTween" inherits="Node" version="3.4">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="advance">
+			<return type="void" />
+			<argument index="0" name="arg0" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="follow_method">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="method" type="String" />
+			<argument index="2" name="initial_val" type="Variant" />
+			<argument index="3" name="target" type="Object" />
+			<argument index="4" name="target_method" type="String" />
+			<argument index="5" name="duration" type="int" />
+			<argument index="6" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="7" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="8" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="follow_property">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="property" type="NodePath" />
+			<argument index="2" name="initial_val" type="Variant" />
+			<argument index="3" name="target" type="Object" />
+			<argument index="4" name="target_property" type="NodePath" />
+			<argument index="5" name="duration" type="int" />
+			<argument index="6" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="7" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="8" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="get_runtime" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="interpolate_callback">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="duration" type="int" />
+			<argument index="2" name="callback" type="String" />
+			<argument index="3" name="arg1" type="Variant" default="null" />
+			<argument index="4" name="arg2" type="Variant" default="null" />
+			<argument index="5" name="arg3" type="Variant" default="null" />
+			<argument index="6" name="arg4" type="Variant" default="null" />
+			<argument index="7" name="arg5" type="Variant" default="null" />
+			<description>
+			</description>
+		</method>
+		<method name="interpolate_deferred_callback">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="duration" type="int" />
+			<argument index="2" name="callback" type="String" />
+			<argument index="3" name="arg1" type="Variant" default="null" />
+			<argument index="4" name="arg2" type="Variant" default="null" />
+			<argument index="5" name="arg3" type="Variant" default="null" />
+			<argument index="6" name="arg4" type="Variant" default="null" />
+			<argument index="7" name="arg5" type="Variant" default="null" />
+			<description>
+			</description>
+		</method>
+		<method name="interpolate_method">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="method" type="String" />
+			<argument index="2" name="initial_val" type="Variant" />
+			<argument index="3" name="final_val" type="Variant" />
+			<argument index="4" name="duration" type="int" />
+			<argument index="5" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="6" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="7" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="interpolate_property">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="property" type="NodePath" />
+			<argument index="2" name="initial_val" type="Variant" />
+			<argument index="3" name="final_val" type="Variant" />
+			<argument index="4" name="duration" type="int" />
+			<argument index="5" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="6" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="7" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="is_active" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="load_state">
+			<return type="void" />
+			<argument index="0" name="state" type="Dictionary" />
+			<description>
+			</description>
+		</method>
+		<method name="remove">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="String" default="&quot;&quot;" />
+			<description>
+			</description>
+		</method>
+		<method name="remove_all">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="reset">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="String" default="&quot;&quot;" />
+			<description>
+			</description>
+		</method>
+		<method name="reset_all">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="resume">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="String" default="&quot;&quot;" />
+			<description>
+			</description>
+		</method>
+		<method name="resume_all">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="save_state">
+			<return type="Dictionary" />
+			<description>
+			</description>
+		</method>
+		<method name="seek">
+			<return type="bool" />
+			<argument index="0" name="time" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="set_active">
+			<return type="void" />
+			<argument index="0" name="active" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="start">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="stop">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="String" default="&quot;&quot;" />
+			<description>
+			</description>
+		</method>
+		<method name="stop_all">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="targeting_method">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="method" type="String" />
+			<argument index="2" name="initial" type="Object" />
+			<argument index="3" name="initial_method" type="String" />
+			<argument index="4" name="final_val" type="Variant" />
+			<argument index="5" name="duration" type="int" />
+			<argument index="6" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="7" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="8" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="targeting_property">
+			<return type="bool" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="property" type="NodePath" />
+			<argument index="2" name="initial" type="Object" />
+			<argument index="3" name="initial_val" type="NodePath" />
+			<argument index="4" name="final_val" type="Variant" />
+			<argument index="5" name="duration" type="int" />
+			<argument index="6" name="trans_type" type="int" enum="SGTween.TransitionType" default="0" />
+			<argument index="7" name="ease_type" type="int" enum="SGTween.EaseType" default="2" />
+			<argument index="8" name="delay" type="int" default="0" />
+			<description>
+			</description>
+		</method>
+		<method name="tell" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="playback_process_mode" type="int" setter="set_tween_process_mode" getter="get_tween_process_mode" enum="SGTween.TweenProcessMode" default="0">
+		</member>
+		<member name="playback_speed" type="int" setter="set_speed_scale" getter="get_speed_scale" default="65536">
+		</member>
+		<member name="repeat" type="bool" setter="set_repeat" getter="is_repeat" default="false">
+		</member>
+		<member name="wait_before_remove" type="int" setter="set_wait_before_remove" getter="get_wait_before_remove" default="0">
+		</member>
+	</members>
+	<signals>
+		<signal name="tween_all_completed">
+			<description>
+			</description>
+		</signal>
+		<signal name="tween_completed">
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="NodePath" />
+			<description>
+			</description>
+		</signal>
+		<signal name="tween_started">
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="NodePath" />
+			<description>
+			</description>
+		</signal>
+		<signal name="tween_step">
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="key" type="NodePath" />
+			<argument index="2" name="elapsed" type="int" />
+			<argument index="3" name="value" type="Object" />
+			<description>
+			</description>
+		</signal>
+	</signals>
+	<constants>
+		<constant name="TWEEN_PROCESS_PHYSICS" value="0" enum="TweenProcessMode">
+		</constant>
+		<constant name="TWEEN_PROCESS_MANUAL" value="1" enum="TweenProcessMode">
+		</constant>
+		<constant name="TRANS_LINEAR" value="0" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_SINE" value="1" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_QUAD" value="2" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_CUBIC" value="3" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_CIRC" value="4" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_BOUNCE" value="5" enum="TransitionType">
+		</constant>
+		<constant name="TRANS_BACK" value="6" enum="TransitionType">
+		</constant>
+		<constant name="EASE_IN" value="0" enum="EaseType">
+		</constant>
+		<constant name="EASE_OUT" value="1" enum="EaseType">
+		</constant>
+		<constant name="EASE_IN_OUT" value="2" enum="EaseType">
+		</constant>
+		<constant name="EASE_OUT_IN" value="3" enum="EaseType">
+		</constant>
+	</constants>
+</class>

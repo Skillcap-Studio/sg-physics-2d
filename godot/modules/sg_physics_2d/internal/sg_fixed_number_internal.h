@@ -103,8 +103,9 @@ struct fixed {
 		return fixed(value + p_other.value);
 	}
 
-	_FORCE_INLINE_ void operator+=(const fixed& p_other) {
+	_FORCE_INLINE_ fixed& operator+=(const fixed& p_other) {
 		value = (*this + p_other).value;
+		return *this;
 	}
 
 	_FORCE_INLINE_ fixed operator-(const fixed& p_other) const {
@@ -118,8 +119,9 @@ struct fixed {
 		return fixed(value - p_other.value);
 	}
 
-	_FORCE_INLINE_ void operator-=(const fixed& p_other) {
+	_FORCE_INLINE_ fixed& operator-=(const fixed& p_other) {
 		value = (*this - p_other).value;
+		return *this;
 	}
 
 	_FORCE_INLINE_ fixed operator*(const fixed& p_other) const {
@@ -137,8 +139,9 @@ struct fixed {
 		return fixed((value * p_other.value) >> 16);
 	}
 
-	_FORCE_INLINE_ void operator*=(const fixed& p_other) {
+	_FORCE_INLINE_ fixed& operator*=(const fixed& p_other) {
 		value = (*this * p_other).value;
+		return *this;
 	}
 
 	_FORCE_INLINE_ fixed operator/(const fixed& p_other) const {
@@ -152,8 +155,9 @@ struct fixed {
 		return fixed((value << 16) / p_other.value);
 	}
 
-	_FORCE_INLINE_ void operator/=(const fixed& p_other) {
+	_FORCE_INLINE_ fixed& operator/=(const fixed& p_other) {
 		value = (*this / p_other).value;
+		return *this;
 	}
 
 	_FORCE_INLINE_ fixed operator<<(size_t pos) const {

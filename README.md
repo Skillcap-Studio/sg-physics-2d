@@ -200,6 +200,7 @@ Other nodes
 -----------
 - `SGYSort` provides the same functionality as `YSort`, and inherits its parent's `fixed_position`.
 - `SGPath2D` and `SGPathFollow2D` provide the same functionality as `Path2D` and `PathFollow2D`, replacing the use of floating point numbers by fixed point numbers.
+- `SGTween` provides similar functionality to `Tween`, replacing the use of floating point numbers by fixed point numbers. The only type that can be interpolated is int, representing a fixed point value.
 
 
 Compiling from source

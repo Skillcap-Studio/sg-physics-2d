@@ -12,6 +12,7 @@ sg_physics_2d_subdirs = [
     "servers/",
     "scene/2d/",
     "scene/resources/",
+    "scene/animation/",
 ]
 
 # Add the sources for libfixmath

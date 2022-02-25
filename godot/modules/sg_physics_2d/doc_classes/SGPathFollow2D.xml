@@ -15,7 +15,7 @@
 		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
 		<member name="h_offset" type="int" setter="set_h_offset" getter="get_h_offset" default="0">
 		</member>
-		<member name="lookahead" type="int" setter="set_lookahead" getter="get_lookahead" default="4">
+		<member name="lookahead" type="int" setter="set_lookahead" getter="get_lookahead" default="262144">
 		</member>
 		<member name="loop" type="bool" setter="set_loop" getter="has_loop" default="true">
 		</member>
