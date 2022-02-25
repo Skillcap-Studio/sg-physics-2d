@@ -86,8 +86,10 @@ bool SGCollisionDetector2DInternal::overlaps_on_axis(const SGShape2DInternal &sh
 
 	fixed d1 = i1.max - i2.min;
 	fixed d2 = i2.max - i1.min;
+	
 	if (d1 > fixed::ZERO && d2 > fixed::ZERO) {
 		separation = (d1 < d2) ? d1 : d2;
+
 		// Attempt to make the seperation relative to shape1.
 		if (i1.min < i2.min) {
 			separation = -separation;
@@ -98,25 +100,29 @@ bool SGCollisionDetector2DInternal::overlaps_on_axis(const SGShape2DInternal &sh
 	return false;
 }
 
-bool SGCollisionDetector2DInternal::sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes, fixed p_margin, SGFixedVector2Internal &best_separation_vector, SGFixedVector2Internal &collision_normal) {
+bool SGCollisionDetector2DInternal::sat_test(const SGShape2DInternal &shape1, const SGShape2DInternal &shape2, const Vector<SGFixedVector2Internal> &axes,
+fixed p_margin, SGFixedVector2Internal &best_separation_vector, fixed &best_separation_length, SGFixedVector2Internal &collision_normal) {
 	fixed separation_component;
 
 	for (int i = 0; i < axes.size(); i++) {
-		if (overlaps_on_axis(shape1, shape2, axes[i], p_margin, separation_component)) {
-			SGFixedVector2Internal separation_vector = (axes[i] * separation_component);
+		const SGFixedVector2Internal &axis = axes[i];
+		if (overlaps_on_axis(shape1, shape2, axis, p_margin, separation_component)) {
+			SGFixedVector2Internal separation_vector = (axis * separation_component);
 
-			// Multiplying small numbers can sometimes just round to zero, but
-			// we don't ever want a separation vector that is zero.
-			if (separation_vector.x == fixed::ZERO && axes[i].x != fixed::ZERO) {
-				separation_vector.x = fixed((axes[i].x >= fixed::ZERO ? 1 : -1) * (separation_component >= fixed::ZERO ? 1 : -1));
+			// if the correction is too small it will be set to 0 and the overlap won't be corrected
+			// in that case we don't consider it an overlap
+			if ((axis.x == fixed::ZERO || separation_vector.x != fixed::ZERO) && (axis.y == fixed::ZERO || separation_vector.y != fixed::ZERO))
+			{
+				fixed separation_length = separation_component.abs();
+				if (best_separation_vector == SGFixedVector2Internal::ZERO || separation_length < best_separation_length) {
+					best_separation_vector = separation_vector;
+					best_separation_length = separation_length;
+					collision_normal = axes[i] * FIXED_SGN(separation_component);
+				}
 			}
-			if (separation_vector.y == fixed::ZERO && axes[i].y != fixed::ZERO) {
-				separation_vector.y = fixed((axes[i].y >= fixed::ZERO ? 1 : -1) * (separation_component >= fixed::ZERO ? 1 : -1));
-			}
-
-			if (best_separation_vector == SGFixedVector2Internal::ZERO || separation_vector.length_squared() < best_separation_vector.length_squared()) {
-				best_separation_vector = separation_vector;
-				collision_normal = axes[i] * FIXED_SGN(separation_component);
+			else {
+				// Consider this as a separation axis
+				return false;
 			}
 		}
 		else {
@@ -131,13 +137,14 @@ bool SGCollisionDetector2DInternal::sat_test(const SGShape2DInternal &shape1, co
 
 bool SGCollisionDetector2DInternal::Rectangle_overlaps_Rectangle(const SGRectangle2DInternal &rectangle1, const SGRectangle2DInternal &rectangle2, fixed p_margin, OverlapInfo *p_info) {
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 
-	if (!sat_test(rectangle1, rectangle2, rectangle1.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(rectangle1, rectangle2, rectangle1.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
-	if (!sat_test(rectangle1, rectangle2, rectangle2.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(rectangle1, rectangle2, rectangle2.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -154,103 +161,78 @@ bool SGCollisionDetector2DInternal::Circle_overlaps_Circle(const SGCircle2DInter
 	SGFixedTransform2DInternal t2 = circle2.get_global_transform();
 
 	SGFixedVector2Internal line = t1.get_origin() - t2.get_origin();
-	fixed line_length_squared = line.length_squared();
+	fixed line_length = line.length();
 	// We only multiply by the scale.x because we don't support non-uniform scaling.
 	fixed combined_radius = (circle1.get_radius() * t1.get_scale().x + circle2.get_radius() * t2.get_scale().x) + p_margin;
-	bool overlapping = false;
 
-	if (line_length_squared == fixed::ZERO) {
+	// A separation of fixed(1) is not considered an overlap
+	// as in further computations normalized_vector * fixed(1) = (0, 0)
+	fixed separation = combined_radius - line_length;
+	bool overlapping;
+	SGFixedVector2Internal collision_normal;
+	SGFixedVector2Internal separation_vector;
+	if (line_length == fixed::ZERO) {
+		// If circles share an origin, then we arbitrarily decide that we
+		// separate them by moving up.
 		overlapping = true;
-
-		if (p_info) {
-			// If circles share an origin, then we arbitrarily decide that we
-			// separate them by moving up.
-			p_info->collision_normal = SGFixedVector2Internal(fixed::ZERO, fixed::NEG_ONE);
-			p_info->separation = SGFixedVector2Internal(fixed::ZERO, -combined_radius);
-		}
+		collision_normal = SGFixedVector2Internal(fixed::ZERO, fixed::NEG_ONE);
+		separation_vector = collision_normal * separation;
 	}
 	else {
-		overlapping = (line_length_squared < combined_radius * combined_radius);
-
-		if (overlapping && p_info) {
-			SGFixedVector2Internal collision_normal = line.normalized();
-			p_info->collision_normal = collision_normal;
-			p_info->separation = collision_normal * (combined_radius - line.length());
-		}
+		collision_normal = line.normalized();
+		separation_vector = collision_normal * separation;
+		// if the correction is too small it will be set to 0 and the overlap won't be corrected
+		// in that case we don't consider it an overlap
+		overlapping = (separation > fixed::ZERO) && (collision_normal.x == fixed::ZERO || separation_vector.x != fixed::ZERO)
+			&& (collision_normal.y == fixed::ZERO || separation_vector.y != fixed::ZERO);
 	}
 
-	return overlapping;
-}
-
-bool SGCollisionDetector2DInternal::Circle_overlaps_AABB(const SGCircle2DInternal &circle, const SGFixedRect2Internal &aabb, fixed p_margin, OverlapInfo *p_info) {
-	SGFixedVector2Internal min = aabb.get_min();
-	SGFixedVector2Internal max = aabb.get_max();
-
-	SGFixedTransform2DInternal t = circle.get_global_transform();
-
-	const SGFixedVector2Internal center = t.get_origin();
-	SGFixedVector2Internal closest_point = center;
-	closest_point.x = CLAMP(closest_point.x, min.x, max.x);
-	closest_point.y = CLAMP(closest_point.y, min.y, max.y);
-
-	SGFixedVector2Internal line = center - closest_point;
-	// We only multiply by the scale.x because we don't support non-uniform scaling.
-	const fixed radius = (circle.get_radius() * t.get_scale().x) + p_margin;
-	bool overlapping = false;
-
-	// Case where the center of the circle is inside the rectangle
-	if (line == SGFixedVector2Internal::ZERO) {
-		const SGFixedVector2Internal right_up = max - center;
-		const SGFixedVector2Internal left_down = center - min;
-		const fixed min_value = std::min({ right_up.y, right_up.x, left_down.y, left_down.x });
-		if (min_value == right_up.y) {
-			line = SGFixedVector2Internal(fixed::ZERO, fixed::ONE);
-		}
-		else if (min_value == right_up.x) {
-			line = SGFixedVector2Internal(fixed::ONE, fixed::ZERO);
-		}
-		else if (min_value == left_down.y) {
-			line = SGFixedVector2Internal(fixed::ZERO, fixed::NEG_ONE);
-		}
-		else {
-			line = SGFixedVector2Internal(fixed::NEG_ONE, fixed::ZERO);
-		}
-		if (p_info) {
-			p_info->separation = line * (radius + min_value);
-		}
-		overlapping = true;
-	}
-	else {
-		overlapping = (line.length_squared() < (radius * radius));
-		if (overlapping && p_info) {
-			SGFixedVector2Internal collision_normal = line.normalized();
-			p_info->collision_normal = collision_normal;
-			p_info->separation = collision_normal * (radius - line.length());
-		}
+	if (overlapping && p_info) {
+		p_info->collision_normal = collision_normal;
+		p_info->separation = separation_vector;
 	}
 
 	return overlapping;
 }
 
 bool SGCollisionDetector2DInternal::Circle_overlaps_Rectangle(const SGCircle2DInternal &circle, const SGRectangle2DInternal &rectangle, fixed p_margin, OverlapInfo *p_info) {
-	// Transform the circle into the local space of the rectangle.
-	SGFixedTransform2DInternal t = rectangle.get_global_transform();
-	SGCircle2DInternal localized_circle(circle.get_radius());
-	localized_circle.set_transform(t.affine_inverse() * circle.get_global_transform());
+	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
+	SGFixedVector2Internal collision_normal;
 
-	// Get the AABB from the rectangle
-	SGFixedRect2Internal aabb(-rectangle.get_extents(), rectangle.get_extents() * fixed::TWO);
-
-	const bool overlapping = Circle_overlaps_AABB(localized_circle, aabb, p_margin, p_info);
-
-	if (overlapping && p_info) {
-		// Transform the separation vector and collision normal back into
-		// global space (but don't translate because this is relative vector).
-		p_info->collision_normal = t.xform(p_info->collision_normal) - t.elements[2];
-		p_info->separation = t.xform(p_info->separation) - t.elements[2];
+	// First, we see if the circle has any seperation from the rectangle's axes.
+	if (!sat_test(rectangle, circle, rectangle.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
+		return false;
 	}
 
-	return overlapping;
+	// Next, we need to find the axis to check for the circle (it's a vector
+	// from the closest vertex to the circle center).
+
+	Vector<SGFixedVector2Internal> vertices = rectangle.get_global_vertices();
+	SGFixedTransform2DInternal ct = circle.get_global_transform();
+	SGFixedVector2Internal closest_vertex = vertices[0];
+	fixed closest_distance = (ct.get_origin() - vertices[0]).length();
+
+	for (int i = 1; i < vertices.size(); i++) {
+		fixed distance = (ct.get_origin() - vertices[i]).length();
+		if (distance < closest_distance) {
+			closest_distance = distance;
+			closest_vertex = vertices[i];
+		}
+	}
+
+	Vector<SGFixedVector2Internal> circle_axes;
+	circle_axes.push_back((ct.get_origin() - closest_vertex).normalized());
+	if (!sat_test(rectangle, circle, circle_axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
+		return false;
+	}
+
+	if (p_info) {
+		p_info->collision_normal = -collision_normal;
+		p_info->separation = -best_separation_vector;
+	}
+
+	return true;
 }
 
 bool SGCollisionDetector2DInternal::Polygon_overlaps_Polygon(const SGPolygon2DInternal &polygon1, const SGPolygon2DInternal &polygon2, fixed p_margin, OverlapInfo *p_info) {
@@ -262,13 +244,14 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Polygon(const SGPolygon2DIn
 	}
 
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 
-	if (!sat_test(polygon1, polygon2, polygon1.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon1, polygon2, polygon1.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
-	if (!sat_test(polygon1, polygon2, polygon2.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon1, polygon2, polygon2.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -286,10 +269,11 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Circle(const SGPolygon2DInt
 	}
 
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 
 	// First, we see if the circle has any seperation from the polygon's axes.
-	if (!sat_test(polygon, circle, polygon.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon, circle, polygon.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -299,10 +283,10 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Circle(const SGPolygon2DInt
 	Vector<SGFixedVector2Internal> vertices = polygon.get_global_vertices();
 	SGFixedTransform2DInternal ct = circle.get_global_transform();
 	SGFixedVector2Internal closest_vertex = vertices[0];
-	fixed closest_distance = (ct.get_origin() - vertices[0]).length_squared();
+	fixed closest_distance = (ct.get_origin() - vertices[0]).length();
 
 	for (int i = 1; i < vertices.size(); i++) {
-		fixed distance = (ct.get_origin() - vertices[i]).length_squared();
+		fixed distance = (ct.get_origin() - vertices[i]).length();
 		if (distance < closest_distance) {
 			closest_distance = distance;
 			closest_vertex = vertices[i];
@@ -311,7 +295,7 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Circle(const SGPolygon2DInt
 
 	Vector<SGFixedVector2Internal> circle_axes;
 	circle_axes.push_back((ct.get_origin() - closest_vertex).normalized());
-	if (!sat_test(polygon, circle, circle_axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon, circle, circle_axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -329,13 +313,14 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Rectangle(const SGPolygon2D
 	}
 	
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 
-	if (!sat_test(polygon, rectangle, polygon.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon, rectangle, polygon.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
-	if (!sat_test(polygon, rectangle, rectangle.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(polygon, rectangle, rectangle.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -349,6 +334,7 @@ bool SGCollisionDetector2DInternal::Polygon_overlaps_Rectangle(const SGPolygon2D
 
 bool SGCollisionDetector2DInternal::Capsule_overlaps_Circle(const SGCapsule2DInternal& capsule, const SGCircle2DInternal& circle, fixed p_margin, OverlapInfo* p_info) {
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 	Vector<SGFixedVector2Internal> axes;
 	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
@@ -360,7 +346,7 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Circle(const SGCapsule2DInt
 	const SGFixedVector2Internal circle_center = circle.get_global_transform().get_origin();
 	axes.push_back((circle_center - verts[0]).normalized());
 	axes.push_back((circle_center - verts[1]).normalized());
-	if (!sat_test(capsule, circle, axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule, circle, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -375,10 +361,11 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Circle(const SGCapsule2DInt
 
 bool SGCollisionDetector2DInternal::Capsule_overlaps_Rectangle(const SGCapsule2DInternal& capsule, const SGRectangle2DInternal& rectangle, fixed p_margin, OverlapInfo* p_info) {
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
 	// Rectangle edges 
-	if (!sat_test(capsule, rectangle, rectangle.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule, rectangle, rectangle.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -391,7 +378,7 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Rectangle(const SGCapsule2D
 	axes.push_back((rectangle.get_closest_vertex(capsule_endpoints[0]) - capsule_endpoints[0]).normalized());
 	axes.push_back((rectangle.get_closest_vertex(capsule_endpoints[1]) - capsule_endpoints[1]).normalized());
 
-	if (!sat_test(capsule, rectangle, axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule, rectangle, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -406,17 +393,18 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Rectangle(const SGCapsule2D
 
 bool SGCollisionDetector2DInternal::Capsule_overlaps_Polygon(const SGCapsule2DInternal& capsule, const SGPolygon2DInternal& polygon, fixed p_margin, OverlapInfo* p_info) {
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 	const SGFixedTransform2DInternal capsule_transform = capsule.get_global_transform();
 	// Polygon edges 
-	if (!sat_test(capsule, polygon, polygon.get_global_axes(), p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule, polygon, polygon.get_global_axes(), p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
 	Vector<SGFixedVector2Internal> axes;
 	// Capsule width axis
 	axes.push_back(capsule_transform.elements[0].normalized());
-	if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -428,7 +416,7 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Polygon(const SGCapsule2DIn
 		axes.push_back((polygon_vertices[i] - capsule_endpoints[0]).normalized());
 		axes.push_back((polygon_vertices[i] - capsule_endpoints[1]).normalized());
 
-		if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, collision_normal)) {
+		if (!sat_test(capsule, polygon, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 			return false;
 		}
 	}
@@ -443,12 +431,13 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Polygon(const SGCapsule2DIn
 
 bool SGCollisionDetector2DInternal::Capsule_overlaps_Capsule(const SGCapsule2DInternal& capsule1, const SGCapsule2DInternal& capsule2, fixed p_margin, OverlapInfo* p_info) {
 	SGFixedVector2Internal best_separation_vector;
+	fixed best_separation_length;
 	SGFixedVector2Internal collision_normal;
 	Vector<SGFixedVector2Internal> axes;
 	// Capsule width axis
 	axes.push_back(capsule1.get_global_transform().elements[0].normalized());
 	axes.push_back(capsule2.get_global_transform().elements[0].normalized());
-	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -461,7 +450,7 @@ bool SGCollisionDetector2DInternal::Capsule_overlaps_Capsule(const SGCapsule2DIn
 	axes.push_back((capsule1_endpoints[1] - capsule2_endpoints[0]).normalized());
 	axes.push_back((capsule1_endpoints[1] - capsule2_endpoints[1]).normalized());
 
-	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, collision_normal)) {
+	if (!sat_test(capsule1, capsule2, axes, p_margin, best_separation_vector, best_separation_length, collision_normal)) {
 		return false;
 	}
 
@@ -568,7 +557,7 @@ bool SGCollisionDetector2DInternal::segment_intersects_Polygon(const SGFixedVect
 
 	SGFixedVector2Internal closest_intersection_point;
 	SGFixedVector2Internal closest_collision_normal;
-	fixed closest_distance_squared;
+	fixed closest_distance;
 
 	SGFixedVector2Internal previous = verts[verts.size() - 1];
 	for (int i = 0; i < verts.size(); i++) {
@@ -576,9 +565,9 @@ bool SGCollisionDetector2DInternal::segment_intersects_Polygon(const SGFixedVect
 		SGFixedVector2Internal edge = cur - previous;
 		SGFixedVector2Internal intersection_point;
 		if (segment_intersects_segment(p_start, p_cast_to, previous, edge, intersection_point)) {
-			fixed distance_squared = (intersection_point - p_start).length_squared();
-			if (!intersecting || distance_squared < closest_distance_squared) {
-				closest_distance_squared = distance_squared;
+			fixed distance = (intersection_point - p_start).length();
+			if (!intersecting || distance < closest_distance) {
+				closest_distance = distance;
 				closest_intersection_point = intersection_point;
 				closest_collision_normal = SGFixedVector2Internal(edge.y, -edge.x).normalized();
 			}

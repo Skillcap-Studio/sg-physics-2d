@@ -98,3 +98,16 @@ func test_move_and_collide_slide_on_big_polygon() -> void:
 
 	remove_child(scene)
 	scene.queue_free()
+
+func test_small_separation() -> void:
+	var small_separation = load("res://tests/functional/SGKinematicBody2D/SmallSeparation.tscn")
+	
+	var scene = small_separation.instance()
+	add_child(scene)
+	
+	assert_eq(scene.test_with_circle(), null)
+	assert_eq(scene.test_with_square(), null)
+	assert_eq(scene.test_with_polygon(), null)
+	
+	remove_child(scene)
+	scene.queue_free()

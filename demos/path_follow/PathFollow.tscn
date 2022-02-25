@@ -58,6 +58,7 @@ curve = SubResource( 1 )
 
 [node name="SGPathFollow2D" type="SGPathFollow2D" parent="SGPath2D"]
 position = Vector2( 483, 132 )
+scale = Vector2( 1, 1 )
 fixed_position_x = 31653888
 fixed_position_y = 8650752
 
