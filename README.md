@@ -175,7 +175,7 @@ or change shape/size.
 Any floating point calculation you do in game could give a non-determistic
 result.
 
-So, any math wath a fractional component that is important to your game logic
+So, any math with a fractional component that is important to your game logic
 will need to be done in fixed-point. You'll need to get very used to the look of
 fixed-point numbers. :-)
 
