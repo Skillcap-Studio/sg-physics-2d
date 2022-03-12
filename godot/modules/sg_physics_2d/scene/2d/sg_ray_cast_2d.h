@@ -34,6 +34,8 @@ class SGRayCast2D : public SGFixedNode2D {
 
 	Ref<SGFixedVector2> cast_to;
 	uint32_t collision_mask;
+	bool collide_with_areas = false;
+	bool collide_with_bodies = true;
 
 	bool colliding;
 	ObjectID collider;
@@ -59,6 +61,11 @@ public:
 	void set_collision_mask(uint32_t p_collision_mask);
 
 	void set_collision_mask_bit(int p_bit, bool p_value);
+
+	void set_collide_with_areas(bool p_collide_with_areas);
+	bool get_collide_with_areas();
+	void set_collide_with_bodies(bool p_collide_with_bodies);
+	bool get_collide_with_bodies();
 
 	void update_raycast_collision();
 

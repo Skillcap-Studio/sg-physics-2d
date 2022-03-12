@@ -348,13 +348,21 @@ public:
 
 };
 
-bool SGWorld2DInternal::cast_ray(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, uint32_t p_collision_mask, Set<SGCollisionObject2DInternal *> *p_exceptions, SGWorld2DInternal::RayCastInfo *p_info) const {
+bool SGWorld2DInternal::cast_ray(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, uint32_t p_collision_mask, Set<SGCollisionObject2DInternal *> *p_exceptions,
+		bool collide_with_areas, bool collide_with_bodies, SGWorld2DInternal::RayCastInfo *p_info) const {
 	SGRayCastResultHandler result_handler(this, p_start, p_cast_to, p_collision_mask, p_exceptions);
 
 	SGFixedRect2Internal bounds(p_start, SGFixedVector2Internal());
 	bounds.expand_to(p_start + p_cast_to);
 
-	broadphase->find_nearby(bounds, &result_handler, SGCollisionObject2DInternal::OBJECT_BODY);
+	int collide_with = 0;
+	if (collide_with_areas) {
+		collide_with |= SGCollisionObject2DInternal::OBJECT_AREA;
+	}
+	if (collide_with_bodies) {
+		collide_with |= SGCollisionObject2DInternal::OBJECT_BODY;
+	}
+	broadphase->find_nearby(bounds, &result_handler, collide_with);
 	if (p_info) {
 		result_handler.populate_info(p_info);
 	}
