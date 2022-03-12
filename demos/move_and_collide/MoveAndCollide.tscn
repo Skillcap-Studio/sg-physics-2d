@@ -84,6 +84,7 @@ texture = ExtResource( 2 )
 fixed_polygon_pairs = [ [ 786416, -1376264 ], [ 1245176, -655372 ], [ 1245190, 720884 ], [ 786446, 1376248 ], [ -1179634, 1376268 ], [ -1507318, 983056 ], [ -1507340, -983024 ], [ -1179664, -1376244 ] ]
 
 [node name="SGRayCast2D" type="SGRayCast2D" parent="Character"]
+collide_with_areas = true
 cast_to_x = 3276800
 cast_to_y = 0
 
