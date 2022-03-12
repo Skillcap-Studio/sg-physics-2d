@@ -33,6 +33,11 @@
 void SGArea2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_overlapping_areas", "sort"), &SGArea2D::get_overlapping_areas, DEFVAL(true));
 	ClassDB::bind_method(D_METHOD("get_overlapping_bodies", "sort"), &SGArea2D::get_overlapping_bodies, DEFVAL(true));
+
+	ClassDB::bind_method(D_METHOD("set_monitorable", "monitorable"), &SGArea2D::set_monitorable);
+	ClassDB::bind_method(D_METHOD("get_monitorable"), &SGArea2D::get_monitorable);
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "monitorable"), "set_monitorable", "get_monitorable");
 }
 
 struct SGCollisionObjectComparator {
@@ -112,6 +117,19 @@ Array SGArea2D::get_overlapping_bodies(bool sort) const {
 	SGArrayResultHandler result_handler;
 	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
 	return result_handler.get_array();
+}
+
+void SGArea2D::set_monitorable(bool p_monitorable) {
+	if (monitorable == p_monitorable) {
+		return;
+	}
+
+	monitorable = p_monitorable;
+	internal->set_monitorable(p_monitorable);
+}
+
+bool SGArea2D::get_monitorable() const {
+	return monitorable;
 }
 
 SGArea2D::SGArea2D()

@@ -47,6 +47,7 @@ private:
 
 	uint32_t collision_layer;
 	uint32_t collision_mask;
+	bool monitorable;
 	
 public:
 	_FORCE_INLINE_ ObjectType get_object_type() const { return object_type; }
@@ -74,6 +75,9 @@ public:
 
 	_FORCE_INLINE_ void set_collision_mask(uint32_t p_collision_mask) { collision_mask = p_collision_mask; }
 	_FORCE_INLINE_ uint32_t get_collision_mask() const { return collision_mask; }
+
+	void set_monitorable(bool p_monitorable);
+	_FORCE_INLINE_ bool get_monitorable() { return monitorable; }
 
 	_FORCE_INLINE_ bool test_collision_layers(SGCollisionObject2DInternal *p_other) const {
 		return (collision_layer & p_other->collision_mask) || (p_other->collision_layer & collision_mask);

@@ -32,7 +32,7 @@ void SGCollisionObject2DInternal::set_transform(const SGFixedTransform2DInternal
 		E->get()->mark_global_xform_dirty();
 	}
 
-	if (broadphase) {
+	if (broadphase && monitorable) {
 		if (broadphase_element) {
 			broadphase->update_element(broadphase_element);
 		}
@@ -46,7 +46,7 @@ void SGCollisionObject2DInternal::add_shape(SGShape2DInternal *p_shape) {
 	p_shape->set_owner(this);
 	shapes.push_back(p_shape);
 
-	if (broadphase && broadphase_element) {
+	if (broadphase && monitorable && broadphase_element) {
 		broadphase->update_element(broadphase_element);
 	}
 }
@@ -55,7 +55,7 @@ void SGCollisionObject2DInternal::remove_shape(SGShape2DInternal *p_shape) {
 	p_shape->set_owner(nullptr);
 	shapes.erase(p_shape);
 
-	if (broadphase && broadphase_element) {
+	if (broadphase && monitorable && broadphase_element) {
 		broadphase->update_element(broadphase_element);
 	}
 }
@@ -84,12 +84,29 @@ void SGCollisionObject2DInternal::add_to_broadphase(SGBroadphase2DInternal *p_br
 
 void SGCollisionObject2DInternal::remove_from_broadphase() {
 	if (broadphase) {
-		if (broadphase_element) {
+		if (monitorable && broadphase_element) {
 			broadphase->delete_element(broadphase_element);
 		}
 		broadphase = nullptr;
 		broadphase_element = nullptr;
 	}
+}
+
+void SGCollisionObject2DInternal::set_monitorable(bool p_monitorable) {
+	if (monitorable == p_monitorable) {
+		return;
+	}
+
+	if (broadphase) {
+		if (!monitorable) {
+			broadphase_element = broadphase->create_element(this);
+		}
+		else if (broadphase_element) {
+			broadphase->delete_element(broadphase_element);
+			broadphase_element = nullptr;
+		}
+	}
+	monitorable = p_monitorable;
 }
 
 SGCollisionObject2DInternal::SGCollisionObject2DInternal(ObjectType p_type) {
@@ -99,6 +116,7 @@ SGCollisionObject2DInternal::SGCollisionObject2DInternal(ObjectType p_type) {
 	data = nullptr;
 	collision_layer = 1;
 	collision_mask = 1;
+	monitorable = true;
 }
 
 SGCollisionObject2DInternal::~SGCollisionObject2DInternal() {

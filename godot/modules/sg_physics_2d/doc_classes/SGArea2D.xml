@@ -29,6 +29,8 @@
 	<members>
 		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" override="true" />
 		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
+		<member name="monitorable" type="bool" setter="set_monitorable" getter="get_monitorable" default="true">
+		</member>
 	</members>
 	<constants>
 	</constants>
