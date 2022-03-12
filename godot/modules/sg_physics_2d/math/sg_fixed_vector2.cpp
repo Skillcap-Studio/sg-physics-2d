@@ -76,7 +76,7 @@ void SGFixedVector2::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("to_float"), &SGFixedVector2::to_float);
 }
 
-Variant SGFixedVector2::add(const Variant &p_other) const {
+Ref<SGFixedVector2> SGFixedVector2::add(const Variant &p_other) const {
 	if (p_other.get_type() == Variant::INT) {
 		return SGFixedVector2::from_internal(value + fixed(p_other));
 	}
@@ -102,7 +102,7 @@ void SGFixedVector2::iadd(const Variant &p_other) {
 	}
 }
 
-Variant SGFixedVector2::sub(const Variant &p_other) const {
+Ref<SGFixedVector2> SGFixedVector2::sub(const Variant &p_other) const {
 	if (p_other.get_type() == Variant::INT) {
 		return SGFixedVector2::from_internal(value - fixed(p_other));
 	}
@@ -128,7 +128,7 @@ void SGFixedVector2::isub(const Variant &p_other) {
 	}
 }
 
-Variant SGFixedVector2::mul(const Variant &p_other) const {
+Ref<SGFixedVector2> SGFixedVector2::mul(const Variant &p_other) const {
 	if (p_other.get_type() == Variant::INT) {
 		return SGFixedVector2::from_internal(value * fixed(p_other));
 	}
@@ -154,7 +154,7 @@ void SGFixedVector2::imul(const Variant &p_other) {
 	}
 }
 
-Variant SGFixedVector2::div(const Variant &p_other) const {
+Ref<SGFixedVector2> SGFixedVector2::div(const Variant &p_other) const {
 	if (p_other.get_type() == Variant::INT) {
 		return SGFixedVector2::from_internal(value / fixed(p_other));
 	}

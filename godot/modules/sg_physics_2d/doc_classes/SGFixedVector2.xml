@@ -20,7 +20,7 @@
 			</description>
 		</method>
 		<method name="add" qualifiers="const">
-			<return type="Variant" />
+			<return type="SGFixedVector2" />
 			<argument index="0" name="value" type="Variant" />
 			<description>
 				Returns a new vector that is the result of adding this vector to another SGFixedVector2 or fixed-point number.
@@ -96,7 +96,7 @@
 			</description>
 		</method>
 		<method name="div" qualifiers="const">
-			<return type="Variant" />
+			<return type="SGFixedVector2" />
 			<argument index="0" name="value" type="Variant" />
 			<description>
 			</description>
@@ -166,7 +166,7 @@
 			</description>
 		</method>
 		<method name="mul" qualifiers="const">
-			<return type="Variant" />
+			<return type="SGFixedVector2" />
 			<argument index="0" name="value" type="Variant" />
 			<description>
 			</description>
@@ -201,7 +201,7 @@
 			</description>
 		</method>
 		<method name="sub" qualifiers="const">
-			<return type="Variant" />
+			<return type="SGFixedVector2" />
 			<argument index="0" name="value" type="Variant" />
 			<description>
 			</description>

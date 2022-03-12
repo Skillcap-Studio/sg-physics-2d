@@ -79,13 +79,13 @@ public:
 		watcher = p_watcher;
 	}
 
-	Variant add(const Variant &p_other) const;
+	Ref<SGFixedVector2> add(const Variant &p_other) const;
 	void iadd(const Variant &p_other);
-	Variant sub(const Variant &p_other) const;
+	Ref<SGFixedVector2> sub(const Variant &p_other) const;
 	void isub(const Variant &p_other);
-	Variant mul(const Variant &p_other) const;
+	Ref<SGFixedVector2> mul(const Variant &p_other) const;
 	void imul(const Variant &p_other);
-	Variant div(const Variant &p_other) const;
+	Ref<SGFixedVector2> div(const Variant &p_other) const;
 	void idiv(const Variant &p_other);
 
 	Ref<SGFixedVector2> copy() const;
