@@ -28,3 +28,16 @@ func test_get_overlapping_bodies() -> void:
 		remove_child(scene)
 		scene.queue_free()
 
+func test_get_overlapping_areas() -> void:
+	var GetOverlappingAreas = load("res://tests/functional/SGArea2D/GetOverlappingAreas.tscn")
+	
+	var scene = GetOverlappingAreas.instance()
+	add_child(scene)
+	
+	# Ensure only the monitorable area is returned.
+	var result = scene.do_get_overlapping_areas()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0], scene.area2)
+	
+	remove_child(scene)
+	scene.queue_free()
