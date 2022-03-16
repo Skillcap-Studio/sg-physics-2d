@@ -14,7 +14,7 @@ build:
   tags:
     - multicore
   variables:
-    GODOT_DOWNLOAD_URL: "https://github.com/godotengine/godot/archive/3.4-stable.tar.gz"
+    GODOT_DOWNLOAD_URL: "https://github.com/godotengine/godot/archive/3.4.3-stable.tar.gz"
   parallel:
     matrix:
       - BUILD_TYPE:
