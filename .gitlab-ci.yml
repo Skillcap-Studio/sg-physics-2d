@@ -2,9 +2,12 @@ image: registry.gitlab.com/snopek-games/godot-builder-docker:latest
 
 variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/precompiled-binaries/${CI_COMMIT_TAG}"
+  APPLICATION_NAME: "SG Physics 2D"
+  APPLICATION_URL: "https://www.snopekgames.com"
 
 stages:
   - build
+  - sign
   - upload
   - release
 
@@ -44,6 +47,54 @@ build:
     paths:
       - build/godot/bin
 
+macosx-signed:
+  stage: sign
+  tags:
+    - osx
+    - shell
+  dependencies:
+    - build
+  script:
+    - mkdir -p build/macosx-signed
+    - (cd build/macosx-signed && unzip -a ../godot/bin/macosx-editor-universal.zip)
+    - ./scripts/macosx-notarize.sh "./build/macosx-signed/Editor.app"
+    - (cd build/macosx-signed && zip -r macosx-editor-universal.zip Editor.app && rm -rf Editor.app)
+  artifacts:
+    name: sg-physics-2d-$CI_JOB_NAME
+    paths:
+      - build/macosx-signed
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[build godot\]/'
+      when: manual
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
+    - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
+      when: manual
+      changes:
+        - godot/**/*
+
+windows-signed:
+  stage: sign
+  image: ubuntu:20.04
+  dependencies:
+    - build
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends osslsigncode
+  script:
+    - mkdir -p build/windows-signed
+    - cp ./build/godot/bin/windows-editor-64.exe ./build/windows-signed/
+    - ./scripts/windows-sign.sh ./build/windows-signed/windows-editor-64.exe "$APPLICATION_NAME" "$APPLICATION_URL"
+  artifacts:
+    name: sg-physics-2d-$CI_JOB_NAME
+    paths:
+      - build/windows-signed
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[build godot\]/'
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
+    - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
+      changes:
+        - godot/**/*
+
 upload:
   stage: upload
   image: ubuntu:20.04
@@ -53,6 +104,8 @@ upload:
     - apt-get update
     - apt-get install -y --no-install-recommends curl zip ca-certificates
   script:
+    - cp build/macosx-signed/macosx-editor-universal.zip build/godot/bin/
+    - cp build/windows-signed/windows-editor-64.exe build/godot/bin/
     - cd build/godot/bin
     - |
       for platform in $PLATFORMS; do fn="sg-physics-2d-$platform-$CI_COMMIT_TAG.zip"; zip $fn $platform-* && curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $fn ${PACKAGE_REGISTRY_URL}/$fn && rm $fn; done

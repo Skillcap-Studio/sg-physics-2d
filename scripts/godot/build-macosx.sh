@@ -30,21 +30,21 @@ if [ "$ARCH" = arm64 -o "$ARCH" = universal ]; then
 		|| exit 1
 fi
 if [ "$ARCH" = universal ]; then
-	lipo -create bin/godot.osx${FN_OPT}.x86_64 bin/godot.osx${FN_OPT}.arm64 -output bin/godot.osx${FN_OPT}.universal
-	rm -f bin/godot.osx${FN_OPT}.x86_64
-	rm -f bin/godot.osx${FN_OPT}.arm64
+	lipo -create bin/godot.osx${FN_OPT}${FN_TOOLS}.x86_64 bin/godot.osx${FN_OPT}${FN_TOOLS}.arm64 -output bin/godot.osx${FN_OPT}${FN_TOOLS}.universal
+	rm -f bin/godot.osx${FN_OPT}${FN_TOOLS}.x86_64
+	rm -f bin/godot.osx${FN_OPT}${FN_TOOLS}.arm64
 fi
-$STRIP bin/godot.osx${FN_OPT}.$ARCH
+$STRIP bin/godot.osx${FN_OPT}${FN_TOOLS}.$ARCH
 
 pushd bin
 
 if [ "$TARGET" = "editor" ]; then
-	rm -rf osx_tools.app
-	cp -r ../misc/dist/osx_tools.app ./
-	mkdir osx_tools.app/Contents/MacOS
-	mv godot.osx${FN_OPT}.tools.$ARCH osx_template.app/Contents/MacOS/godot_osx_release.64
-	zip $BUILD_TYPE.zip $(find osx_tools.app)
-	rm -rf osx_tools.app
+	rm -rf Editor.app
+	cp -r ../misc/dist/osx_tools.app Editor.app
+	mkdir Editor.app/Contents/MacOS
+	mv godot.osx${FN_OPT}.tools.$ARCH Editor.app/Contents/MacOS/Godot
+	zip $BUILD_TYPE.zip $(find Editor.app)
+	rm -rf Editor.app
 else
 	rm -rf osx_template.app
 	cp -r ../misc/dist/osx_template.app ./
