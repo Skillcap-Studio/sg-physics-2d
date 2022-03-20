@@ -203,7 +203,6 @@ Other nodes
 - `SGTween` provides similar functionality to `Tween`, replacing the use of floating point numbers by fixed point numbers. The only type that can be interpolated is int, representing a fixed point value.
 - `SGAStar2D` provides the same functionality as `AStar2D`, replacing the use of floating point numbers by fixed point numbers.
 
-
 Compiling from source
 ---------------------
 
@@ -251,6 +250,28 @@ scons platform=PLATFORM tools=no target=release production=yes custom_modules=/P
 
 For more information about compiling Godot, see [the official
 documentation](https://docs.godotengine.org/en/stable/development/compiling/index.html#toc-devel-compiling).
+
+Exporting your game
+-------------------
+
+When you export your game, you need to use an export template that is built
+with SG Physics 2D. If you don't, your game will crash with an error like:
+
+```
+SCRIPT ERROR: Parse Error: Unknown class: "SGKinematicBody2D"
+```
+
+Each [release build](https://gitlab.com/snopek-games/sg-physics-2d/-/releases)
+includes not only the Godot editor, but also debug and release export templates
+for that platform. Alternatively, you can compile the export templates yourself
+as described in the previous section.
+
+When setting up your export preset (under **Project** -> **Export...**) you
+need put the path to each export template in the "Custom Template" section.
+
+This screenshot shows configuring an export to run on Linux systems:
+
+![Configuring "Custom Template" when exporting for Linux](assets/screenshots/export-templates.png)
 
 License
 -------
