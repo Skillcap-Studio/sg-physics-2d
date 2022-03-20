@@ -13,7 +13,7 @@
 			<return type="Array" />
 			<argument index="0" name="sort" type="bool" default="true" />
 			<description>
-				Returns a list of overlapping [SGCollisionObject2D]s.
+				Returns a list of overlapping [SGArea2D]s.
 				If the [code]sort[/code] argument is set to [code]true[/code], the list will be sorted by scene tree order. Normally, this is what you want because it ensures the results are in a deterministic order, however, there is a performance cost. So, if the order of the results isn't important in a particular case (ex. if you are simply checking the number of results) then you can set it to [code]false[/code].
 			</description>
 		</method>
@@ -21,7 +21,7 @@
 			<return type="Array" />
 			<argument index="0" name="sort" type="bool" default="true" />
 			<description>
-				Returns a list of overlapping [SGArea2D]s.
+				Returns a list of overlapping [SGStaticBody2D]s ond [SGKinematicBody2D]s.
 				If the [code]sort[/code] argument is set to [code]true[/code], the list will be sorted by scene tree order. Normally, this is what you want because it ensures the results are in a deterministic order, however, there is a performance cost. So, if the order of the results isn't important in a particular case (ex. if you are simply checking the number of results) then you can set it to [code]false[/code].
 			</description>
 		</method>
