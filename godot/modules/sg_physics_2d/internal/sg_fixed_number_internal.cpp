@@ -153,6 +153,9 @@ fixed fixed::atan() const {
 }
 
 fixed fixed::atan2(const fixed &inY) const {
+	if (value == 0 && inY.value == 0) {
+		return fixed::ZERO;
+	}
 	if (value < fix16_maximum && value > fix16_minimum) {
 		return fixed(fix16_atan2(value, inY.value));
 	}
