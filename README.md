@@ -154,6 +154,8 @@ So, for example, if you change the `fixed_position` on a physics node (ie.
 `sync_to_physics_engine()` method so the physics engine knows about its new
 position. The same goes for changing its rotation, scale or any of its shapes.
 
+> **Note:** if you are also using the [Godot Rollback Netcode addon](https://gitlab.com/snopek-games/godot-rollback-netcode), you will need to call `sync_to_physics_engine()` at the end of any `_load_state` implementation that loads physics-related state!
+
 And no signals will be emitted in the case of a body entering an area! Instead,
 you need to explicitly call `area.get_overlapping_bodies()`.
 
