@@ -27,10 +27,39 @@
 #include <editor/editor_plugin.h>
 #include <editor/editor_properties.h>
 
+class FixedEditorSpinSlider : public EditorSpinSlider {
+	GDCLASS(FixedEditorSpinSlider, EditorSpinSlider);
+
+	void _evaluate_input_text();
+
+protected:
+	static void _bind_methods();
+
+public:
+	Control *make_custom_tooltip(const String &p_text) const override;
+	void _value_focus_exited();
+	FixedEditorSpinSlider();
+};
+
+class EditorPropertyFixed : public EditorProperty {
+	GDCLASS(EditorPropertyFixed, EditorProperty);
+	FixedEditorSpinSlider *spin;
+	bool setting;
+	void _value_changed(double p_val);
+
+protected:
+	static void _bind_methods();
+
+public:
+	virtual void update_property();
+	void setup(int64_t p_min, int64_t p_max, int64_t p_step, bool p_allow_greater, bool p_allow_lesser);
+	EditorPropertyFixed();
+};
+
 class EditorPropertySGFixedVector2 : public EditorProperty {
 	GDCLASS(EditorPropertySGFixedVector2, EditorProperty);
 
-	EditorSpinSlider *spin[2];
+	FixedEditorSpinSlider *spin[2];
 	bool setting;
 	void _value_changed(double p_val, const String &p_name);
 
