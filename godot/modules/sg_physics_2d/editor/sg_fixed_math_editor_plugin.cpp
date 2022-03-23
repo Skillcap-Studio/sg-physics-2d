@@ -224,7 +224,7 @@ bool SGFixedMathEditorInspectorPlugin::parse_property(Object *p_object, Variant:
 		add_property_editor(p_path, editor);
 		return true;
 	}
-	if (p_type == Variant::INT) {
+	if (p_type == Variant::INT && p_hint == PROPERTY_HINT_NONE) {
 		EditorPropertyFixed *editor = memnew(EditorPropertyFixed);
 		add_property_editor(p_path, editor);
 		return true;
