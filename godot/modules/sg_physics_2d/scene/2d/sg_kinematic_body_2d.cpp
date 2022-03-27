@@ -162,6 +162,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 	ERR_FAIL_COND_V(!p_linear_velocity.is_valid(), Ref<SGFixedVector2>());
 	
 	SGFixedVector2Internal motion = p_linear_velocity->get_internal();
+	SGFixedVector2Internal body_velocity = motion;
 	SGFixedVector2Internal up_direction;
 	fixed floor_max_angle = fixed(p_floor_max_angle);
 
@@ -186,7 +187,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 		if (collision.normal == SGFixedVector2Internal::ZERO) {
 			// This means we couldn't unstuck the body. Clear out the motion
 			// vector and bail.
-			motion = SGFixedVector2Internal::ZERO;
+			body_velocity = SGFixedVector2Internal::ZERO;
 			break;
 		}
 
@@ -210,6 +211,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 		}
 
 		motion = collision.remainder.slide(collision.normal);
+		body_velocity = body_velocity.slide(collision.normal);
 
 		if (motion == SGFixedVector2Internal::ZERO) {
 			// No remaining motion, so we're good - bail!
@@ -219,7 +221,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 		p_max_slides--;
 	}
 
-	return Ref<SGFixedVector2>(memnew(SGFixedVector2(motion)));
+	return Ref<SGFixedVector2>(memnew(SGFixedVector2(body_velocity)));
 }
 
 bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
