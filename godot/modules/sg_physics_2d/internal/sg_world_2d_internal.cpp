@@ -371,8 +371,10 @@ bool SGWorld2DInternal::cast_ray(const SGFixedVector2Internal &p_start, const SG
 
 SGWorld2DInternal::SGWorld2DInternal()
 {
-	// @todo Allow configuring the broadphase cell size in project settings!
 	int cell_size = 128;
+	if (ProjectSettings::get_singleton()->has_setting("physics/2d/cell_size")) {
+		cell_size = ProjectSettings::get_singleton()->get_setting("physics/2d/cell_size");
+	}
 
 	broadphase = memnew(SGBroadphase2DInternal(cell_size));
 	singleton = this;
