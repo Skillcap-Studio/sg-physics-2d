@@ -106,6 +106,9 @@ fixed p_margin, SGFixedVector2Internal &best_separation_vector, fixed &best_sepa
 
 	for (int i = 0; i < axes.size(); i++) {
 		const SGFixedVector2Internal &axis = axes[i];
+		if (axis == SGFixedVector2Internal::ZERO) {
+			continue;
+		}
 		if (overlaps_on_axis(shape1, shape2, axis, p_margin, separation_component)) {
 			SGFixedVector2Internal separation_vector = (axis * separation_component);
 
