@@ -72,6 +72,8 @@ protected:
 	int64_t _get_fixed_scale_y() const;
 	void _set_fixed_scale_y(int64_t p_y);
 
+	void transform_changed();
+
 public:
 	void set_fixed_transform(const Ref<SGFixedTransform2D> &p_transform);
 	Ref<SGFixedTransform2D> get_fixed_transform() const;
