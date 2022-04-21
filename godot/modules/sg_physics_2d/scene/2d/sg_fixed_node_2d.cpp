@@ -79,6 +79,10 @@ void SGFixedNode2D::_notification(int p_what) {
 		case NOTIFICATION_TRANSFORM_CHANGED:
 			update_float_transform();
 			break;
+		
+		case NOTIFICATION_ENTER_TREE:
+			get_global_transform();
+			break;
 	}
 }
 
@@ -307,8 +311,8 @@ void SGFixedNode2D::update_float_transform() {
 #endif
 
 		fixed_xform_dirty = false;
-		get_global_transform();
 	}
+	get_global_transform();
 }
 
 void SGFixedNode2D::fixed_vector2_changed(SGFixedVector2 *p_vector) {
