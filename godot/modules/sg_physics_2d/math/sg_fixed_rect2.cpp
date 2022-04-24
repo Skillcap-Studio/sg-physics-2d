@@ -29,8 +29,8 @@ void SGFixedRect2::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_size"), &SGFixedRect2::get_size);
 	ClassDB::bind_method(D_METHOD("set_size", "size"), &SGFixedRect2::set_size);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "position", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "set_position", "get_position");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "size", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "set_size", "get_size");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "position", PROPERTY_HINT_NONE, "", 0), "set_position", "get_position");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "size", PROPERTY_HINT_NONE, "", 0), "set_size", "get_size");
 
 	ClassDB::bind_method(D_METHOD("has_point", "point"), &SGFixedRect2::has_point);
 	ClassDB::bind_method(D_METHOD("intersects", "rect"), &SGFixedRect2::intersects);

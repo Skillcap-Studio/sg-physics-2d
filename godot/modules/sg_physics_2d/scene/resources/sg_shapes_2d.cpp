@@ -39,21 +39,17 @@ SGShape2D::~SGShape2D() {
 void SGRectangleShape2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_extents"), &SGRectangleShape2D::get_extents);
 	ClassDB::bind_method(D_METHOD("set_extents", "extents"), &SGRectangleShape2D::set_extents);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "extents", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2", PROPERTY_USAGE_EDITOR), "set_extents", "get_extents");
-
-	//
-	// For storage in TSCN and SCN files only.
-	//
-
 	ClassDB::bind_method(D_METHOD("_get_extents_x"), &SGRectangleShape2D::_get_extents_x);
 	ClassDB::bind_method(D_METHOD("_set_extents_x", "x"), &SGRectangleShape2D::_set_extents_x);
 	ClassDB::bind_method(D_METHOD("_get_extents_y"), &SGRectangleShape2D::_get_extents_y);
 	ClassDB::bind_method(D_METHOD("_set_extents_y", "y"), &SGRectangleShape2D::_set_extents_y);
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "extents_x", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_extents_x", "_get_extents_x");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "extents_y", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_extents_y", "_get_extents_y");
+	// For editor and storage.
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "extents_x"), "_set_extents_x", "_get_extents_x");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "extents_y"), "_set_extents_y", "_get_extents_y");
 
+	// For code only.
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "extents", PROPERTY_HINT_NONE, "", 0), "set_extents", "get_extents");
 }
 
 void SGRectangleShape2D::set_extents(const Ref<SGFixedVector2>& p_extents) {

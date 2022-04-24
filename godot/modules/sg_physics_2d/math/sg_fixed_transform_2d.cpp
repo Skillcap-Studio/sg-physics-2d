@@ -31,9 +31,9 @@ void SGFixedTransform2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_origin"), &SGFixedTransform2D::get_origin);
 	ClassDB::bind_method(D_METHOD("set_origin", "origin"), &SGFixedTransform2D::set_origin);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "x", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "set_x", "get_x");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "y", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "set_y", "get_y");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "origin", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "set_origin", "get_origin");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "x", PROPERTY_HINT_NONE, "", 0), "set_x", "get_x");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "y", PROPERTY_HINT_NONE, "", 0), "set_y", "get_y");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "origin", PROPERTY_HINT_NONE, "", 0), "set_origin", "get_origin");
 
 	ClassDB::bind_method(D_METHOD("inverse"), &SGFixedTransform2D::inverse);
 	ClassDB::bind_method(D_METHOD("affine_inverse"), &SGFixedTransform2D::affine_inverse);

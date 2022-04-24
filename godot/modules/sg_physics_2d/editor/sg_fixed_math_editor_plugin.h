@@ -56,22 +56,6 @@ public:
 	EditorPropertyFixed();
 };
 
-class EditorPropertySGFixedVector2 : public EditorProperty {
-	GDCLASS(EditorPropertySGFixedVector2, EditorProperty);
-
-	FixedEditorSpinSlider *spin[2];
-	bool setting;
-	void _value_changed(double p_val, const String &p_name);
-
-protected:
-	void _notification(int p_what);
-	static void _bind_methods();
-
-public:
-	virtual void update_property();
-	EditorPropertySGFixedVector2();
-};
-
 class SGFixedMathEditorInspectorPlugin : public EditorInspectorPlugin {
 	GDCLASS(SGFixedMathEditorInspectorPlugin, EditorInspectorPlugin);
 

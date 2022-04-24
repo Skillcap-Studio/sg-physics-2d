@@ -284,9 +284,9 @@ void SGKinematicCollision2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_normal"), &SGKinematicCollision2D::get_normal);
 	ClassDB::bind_method(D_METHOD("get_remainder"), &SGKinematicCollision2D::get_remainder);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "collider"), "", "get_collider");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "", "get_normal");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "remainder", PROPERTY_HINT_TYPE_STRING, "SGFixedVector2"), "", "get_remainder");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "collider", PROPERTY_HINT_NONE, "", 0), "", "get_collider");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal", PROPERTY_HINT_NONE, "", 0), "", "get_normal");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "remainder", PROPERTY_HINT_NONE, "", 0), "", "get_remainder");
 }
 
 Object *SGKinematicCollision2D::get_collider() const {
