@@ -9,6 +9,11 @@ if [ -z "$MACOSX_SIGNATURE_IDENTITY" -o -z "$MACOSX_BUNDLE_ID" -o -z "$MACOSX_AP
 	die "Missing required variable"
 fi
 
+XCRUN_NOTARIZE_PROVIDER_ID=""
+if [ -n "$MACOSX_APPLE_PROVIDER_ID" ]; then
+	XCRUN_NOTARIZE_PROVIDER_ID="--asc-provider $MACOSX_APPLE_PROVIDER_ID"
+fi
+
 NAME=$(basename "$1")
 WORKDIR=$(dirname "$1")
 
@@ -27,7 +32,7 @@ codesign -vvv --force --deep --strict --sign "$MACOSX_SIGNATURE_IDENTITY" --opti
 
 echo "Uploading for notarization..."
 zip -r "$NAME.zip" "$NAME"
-xcrun altool --notarize-app -t osx -f "$NAME.zip" --primary-bundle-id "$MACOSX_BUNDLE_ID" -u "$MACOSX_APPLE_ID" -p "$MACOSX_APPLE_PASSWORD" --output-format xml > /tmp/notarize-app.xml
+xcrun altool --notarize-app -t osx -f "$NAME.zip" --primary-bundle-id "$MACOSX_BUNDLE_ID" -u "$MACOSX_APPLE_ID" -p "$MACOSX_APPLE_PASSWORD" $XCRUN_NOTARIZE_PROVIDER_ID --output-format xml > /tmp/notarize-app.xml
 rm -f "$NAME.zip"
 NUUID=`/usr/libexec/PlistBuddy -c 'Print :notarization-upload:RequestUUID' /tmp/notarize-app.xml`
 if [ -z "${NUUID}" ]; then
