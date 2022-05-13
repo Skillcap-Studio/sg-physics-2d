@@ -31,8 +31,11 @@
 #include "../../internal/sg_world_2d_internal.h"
 
 void SGArea2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_overlapping_areas", "sort"), &SGArea2D::get_overlapping_areas, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("get_overlapping_bodies", "sort"), &SGArea2D::get_overlapping_bodies, DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("get_overlapping_areas"), &SGArea2D::get_overlapping_areas);
+	ClassDB::bind_method(D_METHOD("get_overlapping_bodies"), &SGArea2D::get_overlapping_bodies);
+
+	ClassDB::bind_method(D_METHOD("get_overlapping_area_count"), &SGArea2D::get_overlapping_area_count);
+	ClassDB::bind_method(D_METHOD("get_overlapping_body_count"), &SGArea2D::get_overlapping_body_count);
 
 	ClassDB::bind_method(D_METHOD("set_monitorable", "monitorable"), &SGArea2D::set_monitorable);
 	ClassDB::bind_method(D_METHOD("get_monitorable"), &SGArea2D::get_monitorable);
@@ -95,28 +98,28 @@ public:
 
 };
 
-Array SGArea2D::get_overlapping_areas(bool sort) const {
-	if (sort) {
-		SGSortedArrayResultHandler result_handler;
-		SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
-		return result_handler.get_array();
-	}
-
-	SGArrayResultHandler result_handler;
+Array SGArea2D::get_overlapping_areas() const {
+	SGSortedArrayResultHandler result_handler;
 	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
 	return result_handler.get_array();
 }
 
-Array SGArea2D::get_overlapping_bodies(bool sort) const {
-	if (sort) {
-		SGSortedArrayResultHandler result_handler;
-		SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
-		return result_handler.get_array();
-	}
-
-	SGArrayResultHandler result_handler;
+Array SGArea2D::get_overlapping_bodies() const {
+	SGSortedArrayResultHandler result_handler;
 	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
 	return result_handler.get_array();
+}
+
+int SGArea2D::get_overlapping_area_count() const {
+	SGArrayResultHandler result_handler;
+	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
+	return result_handler.get_array().size();
+}
+
+int SGArea2D::get_overlapping_body_count() const {
+	SGArrayResultHandler result_handler;
+	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
+	return result_handler.get_array().size();
 }
 
 void SGArea2D::set_monitorable(bool p_monitorable) {

@@ -37,8 +37,11 @@ protected:
 	static void _bind_methods();
 
 public:
-	Array get_overlapping_areas(bool sort = true) const;
-	Array get_overlapping_bodies(bool sort = true) const;
+	Array get_overlapping_areas() const;
+	Array get_overlapping_bodies() const;
+
+	int get_overlapping_area_count() const;
+	int get_overlapping_body_count() const;
 
 	void set_monitorable(bool p_monitorable);
 	bool get_monitorable() const;
