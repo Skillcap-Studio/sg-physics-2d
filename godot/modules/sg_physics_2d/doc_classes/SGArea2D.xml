@@ -18,7 +18,7 @@
 		<method name="get_overlapping_bodies" qualifiers="const">
 			<return type="Array" />
 			<description>
-				Returns a list of overlapping [SGStaticBody2D]s ond [SGKinematicBody2D]s.
+				Returns a list of overlapping [SGStaticBody2D]s and [SGKinematicBody2D]s.
 			</description>
 		</method>
 		<method name="get_overlapping_area_count" qualifiers="const">
@@ -30,7 +30,7 @@
 		<method name="get_overlapping_body_count" qualifiers="const">
 			<return type="int" />
 			<description>
-				Returns the number of overlapping [SGStaticBody2D]s ond [SGKinematicBody2D]s. If you only need the count, this method is somewhat faster than counting the elements in the array returned by [method get_overlapping_bodies].
+				Returns the number of overlapping [SGStaticBody2D]s and [SGKinematicBody2D]s. If you only need the count, this method is somewhat faster than counting the elements in the array returned by [method get_overlapping_bodies].
 			</description>
 		</method>
 	</methods>
