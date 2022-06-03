@@ -65,6 +65,7 @@ void register_sg_physics_2d_types() {
 	ClassDB::register_class<SGFixedPosition2D>();
 	ClassDB::register_virtual_class<SGCollisionObject2D>();
 	ClassDB::register_class<SGArea2D>();
+	ClassDB::register_class<SGAreaCollision2D>();
 	ClassDB::register_class<SGStaticBody2D>();
 	ClassDB::register_class<SGKinematicBody2D>();
 	ClassDB::register_class<SGKinematicCollision2D>();

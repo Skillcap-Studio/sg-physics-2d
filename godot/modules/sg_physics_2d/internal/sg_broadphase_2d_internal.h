@@ -30,8 +30,6 @@
 #include "sg_fixed_rect2_internal.h"
 #include "sg_result_handler_internal.h"
 
-class SGCollisionObject2DInternal;
-
 class SGBroadphase2DInternal {
 public:
 

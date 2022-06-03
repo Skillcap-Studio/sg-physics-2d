@@ -78,14 +78,14 @@ void SGCollisionPolygon2D::_notification(int p_what) {
 				draw_colored_polygon(polygon, get_tree()->get_debug_collisions_color());
 			}
 		} break;
-		
+
 		case NOTIFICATION_PARENTED:
 			collision_object = Object::cast_to<SGCollisionObject2D>(get_parent());
 			if (collision_object && !disabled && !concave) {
 				collision_object->add_shape(internal_shape);
 			}
 			break;
-		
+
 		case NOTIFICATION_UNPARENTED:
 			if (collision_object && !disabled && !concave) {
 				collision_object->remove_shape(internal_shape);
@@ -183,7 +183,7 @@ bool SGCollisionPolygon2D::is_convex(const Array &p_vertices) {
 	int x_sign = 0;
 	int x_first_sign = 0;
 	int x_flips = 0;
-	
+
 	int y_sign = 0;
 	int y_first_sign = 0;
 	int y_flips = 0;
@@ -415,6 +415,7 @@ SGCollisionPolygon2D::SGCollisionPolygon2D() {
 	concave = false;
 	collision_object = nullptr;
 	internal_shape = memnew(SGPolygon2DInternal);
+	internal_shape->set_data((void *)this);
 }
 
 SGCollisionPolygon2D::~SGCollisionPolygon2D() {

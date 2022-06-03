@@ -41,3 +41,88 @@ func test_get_overlapping_areas() -> void:
 	
 	remove_child(scene)
 	scene.queue_free()
+
+func test_get_overlapping_area_shape_collisions() -> void:
+	var GetOverlappingShapeCollisions = load("res://tests/functional/SGArea2D/GetOverlappingShapeCollisions.tscn")
+	
+	var scene = GetOverlappingShapeCollisions.instance()
+	add_child(scene)
+	
+	var result: Array
+	
+	result = scene.detector_area1.get_overlapping_area_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].shape, scene.colliding_area_shape1)
+	
+	result = scene.detector_area2.get_overlapping_area_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].shape, scene.colliding_area_shape2)
+	
+	remove_child(scene)
+	scene.queue_free()
+
+func test_get_overlapping_body_shape_collisions() -> void:
+	var GetOverlappingShapeCollisions = load("res://tests/functional/SGArea2D/GetOverlappingShapeCollisions.tscn")
+	
+	var scene = GetOverlappingShapeCollisions.instance()
+	add_child(scene)
+	
+	var result: Array
+	
+	result = scene.detector_area1.get_overlapping_body_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].shape, scene.colliding_body_shape1)
+	
+	result = scene.detector_area2.get_overlapping_body_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].shape, scene.colliding_body_shape2)
+	
+	remove_child(scene)
+	scene.queue_free()
+
+func test_get_overlapping_area_polygon_collisions() -> void:
+	var GetOverlappingPolygonCollisions = load("res://tests/functional/SGArea2D/GetOverlappingPolygonCollisions.tscn")
+	
+	var scene = GetOverlappingPolygonCollisions.instance()
+	add_child(scene)
+	
+	var result: Array
+	
+	result = scene.detector_area1.get_overlapping_area_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].shape, scene.colliding_area_shape1)
+	
+	result = scene.detector_area2.get_overlapping_area_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].shape, scene.colliding_area_shape2)
+	
+	remove_child(scene)
+	scene.queue_free()
+
+func test_get_overlapping_body_polygon_collisions() -> void:
+	var GetOverlappingPolygonCollisions = load("res://tests/functional/SGArea2D/GetOverlappingPolygonCollisions.tscn")
+	
+	var scene = GetOverlappingPolygonCollisions.instance()
+	add_child(scene)
+	
+	var result: Array
+	
+	result = scene.detector_area1.get_overlapping_body_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].shape, scene.colliding_body_shape1)
+	
+	result = scene.detector_area2.get_overlapping_body_collisions()
+	assert_eq(result.size(), 1)
+	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].shape, scene.colliding_body_shape2)
+	
+	remove_child(scene)
+	scene.queue_free()
+

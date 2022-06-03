@@ -164,7 +164,7 @@ void SGBroadphase2DInternal::find_nearby(const SGFixedRect2Internal &p_bounds, S
 				}
 				if ((element->object->get_object_type() & p_type) && p_bounds.intersects(element->bounds)) {
 					element->query_id = query_id;
-					p_result_handler->handle_result(element->object);
+					p_result_handler->handle_result(element->object, nullptr);
 				}
 			}
 		}

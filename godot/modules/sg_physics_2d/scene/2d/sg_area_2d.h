@@ -27,8 +27,29 @@
 #include "sg_collision_object_2d.h"
 
 #include "../../math/sg_fixed_vector2.h"
+#include "../../scene/2d/sg_collision_shape_2d.h"
+#include "core/reference.h"
 
-class SGArea2D : public SGCollisionObject2D {
+class SGAreaCollision2D : public Reference
+{
+	GDCLASS(SGAreaCollision2D, Reference);
+
+protected:
+	static void _bind_methods();
+
+	SGCollisionObject2D *object;
+	SGFixedNode2D *shape;
+
+public:
+	SGCollisionObject2D *get_object() const;
+	SGFixedNode2D *get_shape() const;
+
+	SGAreaCollision2D(SGCollisionObject2D *p_object, SGFixedNode2D *p_shape);
+	SGAreaCollision2D();
+};
+
+class SGArea2D : public SGCollisionObject2D
+{
 	GDCLASS(SGArea2D, SGCollisionObject2D);
 
 	bool monitorable = true;
@@ -40,6 +61,9 @@ public:
 	Array get_overlapping_areas() const;
 	Array get_overlapping_bodies() const;
 
+	Array get_overlapping_area_collisions() const;
+	Array get_overlapping_body_collisions() const;
+
 	int get_overlapping_area_count() const;
 	int get_overlapping_body_count() const;
 
@@ -48,7 +72,6 @@ public:
 
 	SGArea2D();
 	~SGArea2D();
-
 };
 
 #endif

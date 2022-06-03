@@ -31,9 +31,9 @@ collision_mask = 2
 [node name="Rectangle" type="SGCollisionShape2D" parent="StaticBody"]
 position = Vector2( -97.0001, -6 )
 rotation = -0.801315
-fixed_rotation = -52515
 fixed_position_x = -6356996
 fixed_position_y = -393216
+fixed_rotation = -52515
 shape = SubResource( 1 )
 
 [node name="ColorRect" type="ColorRect" parent="StaticBody/Rectangle"]
@@ -48,17 +48,17 @@ __meta__ = {
 [node name="Circle" type="SGCollisionShape2D" parent="StaticBody"]
 position = Vector2( -297, 86 )
 rotation = -0.781693
-fixed_rotation = -51229
 fixed_position_x = -19464196
 fixed_position_y = 5636096
+fixed_rotation = -51229
 shape = SubResource( 2 )
 
 [node name="Capsule" type="SGCollisionShape2D" parent="StaticBody"]
 position = Vector2( 31.0001, 98 )
 rotation = 2.25
-fixed_rotation = 147456
 fixed_position_x = 2031620
 fixed_position_y = 6422528
+fixed_rotation = 147456
 shape = SubResource( 4 )
 
 [node name="SGCollisionPolygon2D" type="SGCollisionPolygon2D" parent="StaticBody"]
@@ -70,9 +70,9 @@ fixed_polygon_pairs = [ [ -3080192, -2686976 ], [ 6291456, -917504 ], [ 1376256,
 [node name="Character" type="SGKinematicBody2D" parent="."]
 position = Vector2( 512, 363 )
 rotation = -1.57079
-fixed_rotation = -102943
 fixed_position_x = 33554432
 fixed_position_y = 23789570
+fixed_rotation = -102943
 collision_layer = 2
 collision_mask = 0
 
@@ -84,9 +84,9 @@ texture = ExtResource( 2 )
 fixed_polygon_pairs = [ [ 786416, -1376264 ], [ 1245176, -655372 ], [ 1245190, 720884 ], [ 786446, 1376248 ], [ -1179634, 1376268 ], [ -1507318, 983056 ], [ -1507340, -983024 ], [ -1179664, -1376244 ] ]
 
 [node name="SGRayCast2D" type="SGRayCast2D" parent="Character"]
-collide_with_areas = true
 cast_to_x = 3276800
 cast_to_y = 0
+collide_with_areas = true
 
 [node name="Area" type="SGArea2D" parent="."]
 position = Vector2( 406, 512 )

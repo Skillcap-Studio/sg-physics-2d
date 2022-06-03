@@ -182,7 +182,7 @@ private:
 
 public:
 
-	void handle_result(SGCollisionObject2DInternal *p_object) {
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
 		if (object == p_object) {
 			return;
 		}
@@ -235,7 +235,7 @@ private:
 
 public:
 
-	void handle_result(SGCollisionObject2DInternal *p_object) {
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
 		if (object == p_object) {
 			return;
 		}
@@ -244,8 +244,10 @@ public:
 			return;
 		}
 
-		if (world->overlaps(object, p_object, fixed::ZERO)) {
-			result_handler->handle_result(p_object);
+		SGWorld2DInternal::BodyOverlapInfo overlap_info;
+
+		if (world->overlaps(object, p_object, fixed::ZERO, &overlap_info)) {
+			result_handler->handle_result(p_object, overlap_info.collider_shape);
 		}
 	}
 
@@ -273,7 +275,7 @@ bool SGWorld2DInternal::segment_intersects_shape(const SGFixedVector2Internal &p
 		case ShapeType::SHAPE_RECTANGLE:
 		case ShapeType::SHAPE_POLYGON:
 			return SGCollisionDetector2DInternal::segment_intersects_Polygon(p_start, p_cast_to, *(SGShape2DInternal *)p_shape, p_intersection_point, p_collision_normal);
-		
+
 		case ShapeType::SHAPE_CIRCLE:
 			return SGCollisionDetector2DInternal::segment_intersects_Circle(p_start, p_cast_to, *(SGCircle2DInternal *)p_shape, p_intersection_point, p_collision_normal);
 
@@ -303,7 +305,7 @@ private:
 
 public:
 
-	void handle_result(SGCollisionObject2DInternal *p_object) {
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
 		if (exceptions && exceptions->has(p_object)) {
 			return;
 		}

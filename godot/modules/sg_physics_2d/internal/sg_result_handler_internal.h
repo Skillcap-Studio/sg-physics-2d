@@ -25,11 +25,12 @@
 #define SG_RESULT_HANDLER_INTERNAL_H
 
 class SGCollisionObject2DInternal;
+class SGShape2DInternal;
 
 class SGResultHandlerInternal {
 public:
 
-	virtual void handle_result(SGCollisionObject2DInternal *p_object) = 0;
+	virtual void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) = 0;
 
 };
 

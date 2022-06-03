@@ -30,9 +30,38 @@
 #include "../../internal/sg_bodies_2d_internal.h"
 #include "../../internal/sg_world_2d_internal.h"
 
+void SGAreaCollision2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_object"), &SGAreaCollision2D::get_object);
+	ClassDB::bind_method(D_METHOD("get_shape"), &SGAreaCollision2D::get_shape);
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "object"), "", "get_object");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape"), "", "get_shape");
+}
+
+SGCollisionObject2D *SGAreaCollision2D::get_object() const {
+	return object;
+}
+
+SGFixedNode2D *SGAreaCollision2D::get_shape() const {
+	return shape;
+}
+
+SGAreaCollision2D::SGAreaCollision2D(SGCollisionObject2D *p_object, SGFixedNode2D *p_shape) {
+	object = p_object;
+	shape = p_shape;
+}
+
+SGAreaCollision2D::SGAreaCollision2D() {
+	object = nullptr;
+	shape = nullptr;
+}
+
 void SGArea2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_overlapping_areas"), &SGArea2D::get_overlapping_areas);
 	ClassDB::bind_method(D_METHOD("get_overlapping_bodies"), &SGArea2D::get_overlapping_bodies);
+
+	ClassDB::bind_method(D_METHOD("get_overlapping_area_collisions"), &SGArea2D::get_overlapping_area_collisions);
+	ClassDB::bind_method(D_METHOD("get_overlapping_body_collisions"), &SGArea2D::get_overlapping_body_collisions);
 
 	ClassDB::bind_method(D_METHOD("get_overlapping_area_count"), &SGArea2D::get_overlapping_area_count);
 	ClassDB::bind_method(D_METHOD("get_overlapping_body_count"), &SGArea2D::get_overlapping_body_count);
@@ -51,13 +80,21 @@ struct SGCollisionObjectComparator {
 	}
 };
 
+struct SGAreaCollision2DComparator {
+	bool operator()(const SGAreaCollision2D *p_a, const SGAreaCollision2D *p_b) const {
+		SGCollisionObject2D *a = Object::cast_to<SGCollisionObject2D>((Object *)p_a->get_object());
+		SGCollisionObject2D *b = Object::cast_to<SGCollisionObject2D>((Object *)p_b->get_object());
+		return b->is_greater_than(a);
+	}
+};
+
 class SGArrayResultHandler : public SGResultHandlerInternal {
 private:
 
 	Array result;
 
 public:
-	void handle_result(SGCollisionObject2DInternal *p_object) {
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
 		SGCollisionObject2D *object = Object::cast_to<SGCollisionObject2D>((Object *)p_object->get_data());
 		if (object) {
 			result.push_back(object);
@@ -76,7 +113,7 @@ private:
 	List<SGCollisionObject2DInternal *> result;
 
 public:
-	void handle_result(SGCollisionObject2DInternal *p_object) {
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
 		result.push_back(p_object);
 	}
 
@@ -98,6 +135,32 @@ public:
 
 };
 
+class SGSortedCollisionArrayResultHandler : public SGResultHandlerInternal {
+private:
+
+	List<SGAreaCollision2D *> result;
+
+public:
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
+		SGAreaCollision2D *collision = memnew(SGAreaCollision2D((SGCollisionObject2D *)p_object->get_data(), (SGFixedNode2D *)p_shape->get_data()));
+		result.push_back(collision);
+	}
+
+	_FORCE_INLINE_ Array get_array() {
+		if (result.size() > 1) {
+			result.sort_custom<SGAreaCollision2DComparator>();
+		}
+
+		Array ret;
+		for (List<SGAreaCollision2D *>::Element *E = result.front(); E; E = E->next()) {
+			ret.push_back(E->get());
+		}
+
+		return ret;
+	}
+
+};
+
 Array SGArea2D::get_overlapping_areas() const {
 	SGSortedArrayResultHandler result_handler;
 	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
@@ -109,6 +172,19 @@ Array SGArea2D::get_overlapping_bodies() const {
 	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
 	return result_handler.get_array();
 }
+
+Array SGArea2D::get_overlapping_area_collisions() const {
+	SGSortedCollisionArrayResultHandler result_handler;
+	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
+	return result_handler.get_array();
+}
+
+Array SGArea2D::get_overlapping_body_collisions() const {
+	SGSortedCollisionArrayResultHandler result_handler;
+	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
+	return result_handler.get_array();
+}
+
 
 int SGArea2D::get_overlapping_area_count() const {
 	SGArrayResultHandler result_handler;

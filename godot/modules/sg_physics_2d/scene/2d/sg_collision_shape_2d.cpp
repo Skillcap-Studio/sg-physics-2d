@@ -64,14 +64,14 @@ void SGCollisionShape2D::_notification(int p_what) {
 
 			shape->draw(get_canvas_item(), draw_col);
 		} break;
-		
+
 		case NOTIFICATION_PARENTED:
 			collision_object = Object::cast_to<SGCollisionObject2D>(get_parent());
 			if (collision_object && internal_shape && !disabled) {
 				collision_object->add_shape(internal_shape);
 			}
 			break;
-		
+
 		case NOTIFICATION_UNPARENTED:
 			if (collision_object && internal_shape && !disabled) {
 				collision_object->remove_shape(internal_shape);
@@ -115,7 +115,9 @@ void SGCollisionShape2D::set_shape(const Ref<SGShape2D> &p_shape) {
 	if (shape.is_valid()) {
 		shape->connect("changed", this, "_shape_changed");
 		internal_shape = shape->create_internal_shape();
-		if (collision_object && !disabled) {
+		internal_shape->set_data((void *)this);
+		if (collision_object && !disabled)
+		{
 			collision_object->add_shape(internal_shape);
 		}
 	}
