@@ -28,7 +28,7 @@
 /**
  * Copied from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Binary_numeral_system_.28base_2.29
  * but modified to use 64-bit numbers.
- * 
+ *
  * Like fix16_sqrt(), for negative numbers we return the negated square root of
  * the absolute value (ie. sqrt(-x) = -sqrt(x)).
  */
@@ -48,7 +48,7 @@ int64_t sg_sqrt_64(int64_t num) {
 	while (bit > num) {
 		bit >>= 2;
 	}
-	
+
 	while (bit != 0) {
 		if (num >= res + bit) {
 			num -= res + bit;
@@ -64,53 +64,58 @@ int64_t sg_sqrt_64(int64_t num) {
 }
 
 const fixed fixed::ZERO = fixed(0);
-const fixed fixed::ONE  = fixed(fix16_one);
+const fixed fixed::ONE  = fixed(65536);
 const fixed fixed::HALF = fixed(32768);
 const fixed fixed::TWO  = fixed(131072);
-const fixed fixed::NEG_ONE = fixed(-fix16_one);
-const fixed fixed::PI = fixed(fix16_pi);
-const fixed fixed::TAU = fixed(fix16_pi << 1);
-const fixed fixed::PI_DIV_2 = fixed(fix16_pi >> 1);
-const fixed fixed::PI_DIV_4 = fixed(PI_DIV_4);
-const fixed fixed::EPSILON = fixed(fix16_eps);
+const fixed fixed::NEG_ONE = fixed(-65536);
+const fixed fixed::PI = fixed(205887);
+const fixed fixed::TAU = fixed(411774);
+const fixed fixed::PI_DIV_2 = fixed(102943);
+const fixed fixed::PI_DIV_4 = fixed(51472);
+const fixed fixed::EPSILON = fixed(1);
 const fixed fixed::ARITHMETIC_OVERFLOW = fixed(INT64_MIN);
 
+// Adapted form the fpm library: https://github.com/MikeLankamp
+// Copyright 2019 Mike Lankamp
+// License: MIT
 fixed fixed::sin() const {
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_sin(value));
-	}
+    // This sine uses a fifth-order curve-fitting approximation originally
+    // described by Jasper Vijn on coranac.com which has a worst-case
+    // relative error of 0.07% (over [-pi:pi]).
 
-	int64_t remainder = value % fixed::TAU.value;
-	return fixed(fix16_sin(remainder));
+    // Turn x from [0..2*PI] domain into [0..4] domain
+    fixed x = *this % fixed::TAU;
+    x = x / fixed::PI_DIV_2;
+
+    // Take x modulo one rotation, so [-4..+4].
+    if (x < fixed::from_int(0)) {
+        x += fixed::from_int(4);
+    }
+
+    fixed sign = fixed::from_int(+1);
+    if (x > fixed::from_int(2)) {
+        // Reduce domain to [0..2].
+        sign = fixed::from_int(-1);
+        x -= fixed::from_int(2);
+    }
+
+    if (x > fixed::from_int(1)) {
+        // Reduce domain to [0..1].
+        x = fixed::from_int(2) - x;
+    }
+
+    const fixed x2 = x*x;
+    return sign * x * (fixed::PI - x2*(fixed::TAU - fixed::from_int(5) - x2*(fixed::PI - fixed::from_int(3)))) >> 1;
 }
 
 fixed fixed::cos() const {
-	// libfixmath's fix16_cos(0) will return 65537, rather than the correct
-	// result of 65536. Because cos(0) is used when generating rotation
-	// matrices with a rotation of 0, we need cos(0) to be 65536 to match the
-	// identity matrix.
-	//
-	// @todo Remove after we've replaced libfixmatch per issue #4:
-	//       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
-	if (value == 0) {
-		return fixed(65536);
-	}
-
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_cos(value));
-	}
-
-	int64_t remainder = value % fixed::TAU.value;
-	return fixed(fix16_cos(remainder));
+	return (*this + fixed::PI_DIV_2).sin();
 }
 
 fixed fixed::tan() const {
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_tan(value));
-	}
-
-	int64_t remainder = value % fixed::PI.value;
-	return fixed(fix16_tan(remainder));
+	fixed cx = cos();
+	ERR_FAIL_COND_V_MSG(cx == fixed::ZERO, fixed::ZERO, "tan() of 90 degree angles is undefined");
+	return sin() / cx;
 }
 
 fixed fixed::asin() const {

@@ -44,38 +44,87 @@ func test_trig():
 	# Test some important "well known" values
 	#
 	
+	# sin()
 	var sin_0: int = SGFixed.sin(0)
 	assert_eq(sin_0, 0)
 	
-	# This should match cos(0), but it doesn't since we're temporarily
-	# hard-coding it.
-	#
-	# @todo Remove after we've replaced libfixmatch per issue #4:
-	#       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
-	#var sin_90deg: int = SGFixed.sin(SGFixed.PI / 2)
-	#assert_eq(sin_90deg, 65536)
+	var sin_90deg: int = SGFixed.sin(SGFixed.PI_DIV_2)
+	assert_eq(sin_90deg, 65536)
 	
+	var sin_180deg: int = SGFixed.sin(SGFixed.PI)
+	assert_eq(sin_180deg, 0)
+	
+	var sin_270deg: int = SGFixed.sin(SGFixed.PI + SGFixed.PI_DIV_2)
+	assert_eq(sin_270deg, -65536)
+	
+	var sin_360deg: int = SGFixed.sin(SGFixed.TAU)
+	assert_eq(sin_360deg, 0)
+	
+	# cos()
 	var cos_0: int = SGFixed.cos(0)
 	assert_eq(cos_0, 65536)
 	
-	var acos_65536: int = SGFixed.acos(65536)
-	assert_eq(acos_65536, 0)
+	var cos_90deg: int = SGFixed.cos(SGFixed.PI_DIV_2)
+	assert_eq(cos_90deg, 0)
 	
+	var cos_180deg: int = SGFixed.cos(SGFixed.PI)
+	assert_eq(cos_180deg, -65536)
+	
+	var cos_270deg: int = SGFixed.cos(SGFixed.PI + SGFixed.PI_DIV_2)
+	assert_eq(cos_270deg, 0)
+	
+	var cos_360deg: int = SGFixed.cos(SGFixed.TAU)
+	assert_eq(cos_360deg, 65536)
+	
+	# tan()
+	var tan_0: int = SGFixed.tan(0)
+	assert_eq(tan_0, 0)
+	
+	var tan_45deg: int = SGFixed.tan(SGFixed.PI_DIV_4)
+	assert_eq(tan_45deg, 65536)
+	
+	var tan_90deg: int = SGFixed.tan(SGFixed.PI_DIV_2)
+	assert_eq(tan_90deg, 0)
+	
+	var tan_135deg: int = SGFixed.tan(SGFixed.PI_DIV_2 + SGFixed.PI_DIV_4)
+	assert_eq(tan_135deg, -65536)
+	
+	var tan_180deg: int = SGFixed.tan(SGFixed.PI)
+	assert_eq(tan_180deg, 0)
+	
+	var tan_225deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_4)
+	assert_eq(tan_225deg, 65536)
+	
+	var tan_270deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_2)
+	assert_eq(tan_270deg, 0)
+	
+	var tan_315deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_2 + SGFixed.PI_DIV_4)
+	# Overshoots it a tiny bit, due to our SGFixed.PI_DIV_4 rounding up.
+	assert_eq(tan_315deg, -65538)
+	
+	var tan_360deg: int = SGFixed.tan(SGFixed.PI * 2)
+	assert_eq(tan_360deg, 0)
+	
+	# asin()
 	var asin_65536: int = SGFixed.asin(65536)
 	assert_eq(asin_65536, SGFixed.PI_DIV_2)
+	
+	# acos()
+	var acos_65536: int = SGFixed.acos(65536)
+	assert_eq(acos_65536, 0)
 	
 	#
 	# Test that big values loop around as expected
 	#
 	
 	var sin_10: int = SGFixed.sin(10*65536)
-	assert_eq(sin_10, -35653)
+	assert_eq(sin_10, -35665)
 	
 	var sin_50000: int = SGFixed.sin(50000*65536)
-	assert_eq(sin_50000, -65309)
+	assert_eq(sin_50000, -65313)
 
 	var cos_10: int = SGFixed.cos(10*65536)
-	assert_eq(cos_10, -54990)
+	assert_eq(cos_10, -55015)
 
 #	var cos_50000: int = SGFixed.cos(50000*65536)
 #	assert_eq(cos_50000, 1000)
