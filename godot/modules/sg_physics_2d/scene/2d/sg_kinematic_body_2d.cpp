@@ -91,8 +91,9 @@ bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_
 	SGWorld2DInternal::BodyOverlapInfo overlap_info;
 
 	// First, get our body unstuck, if it's stuck.
-	bool stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
+	bool stuck = world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects);
 	if (stuck) {
+		stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
 		for (int i = 0; i < 4; i++) {
 			SGFixedTransform2DInternal t = internal->get_transform();
 			t.set_origin(t.get_origin() + overlap_info.separation);
@@ -233,12 +234,13 @@ bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
 
 	bool stuck = world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects);
 	if (stuck) {
+		stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
 		for (int i = 0; i < p_max_slides; i++) {
 			SGFixedTransform2DInternal t = internal->get_transform();
 			t.set_origin(t.get_origin() + overlap_info.separation);
 			internal->set_transform(t);
 
-			stuck = world->get_best_overlapping_body(internal, fixed::ZERO, &overlap_info, &sg_compare_collision_objects);
+			stuck = world->get_best_overlapping_body(internal, safe_margin, &overlap_info, &sg_compare_collision_objects);
 			if (!stuck) {
 				break;
 			}

@@ -111,3 +111,20 @@ func test_small_separation() -> void:
 	
 	remove_child(scene)
 	scene.queue_free()
+
+func test_move_and_collide_concave() -> void:
+	var scene = load("res://tests/functional/SGKinematicBody2D/MoveAndCollideConcave.tscn").instance()
+	
+	add_child(scene)
+	for _i in range(200):
+		scene.slide_left()
+
+	for i in range(200):
+		var input = Vector2.RIGHT
+		var collider = scene.move(input)
+		if collider:
+			assert_ne(collider.normal.to_float(), Vector2.ZERO)
+
+	
+	remove_child(scene)
+	scene.queue_free()
