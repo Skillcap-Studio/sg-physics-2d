@@ -26,6 +26,9 @@
 
 #include <core/typedefs.h>
 #include <core/error_macros.h>
+#include <core/ustring.h>
+#include "core/vector.h"
+
 
 int64_t sg_sqrt_64(int64_t num);
 
@@ -59,6 +62,8 @@ struct fixed {
 	static const fixed PI_DIV_4;
 	static const fixed EPSILON;
 	static const fixed ARITHMETIC_OVERFLOW;
+	static const int64_t TENS[];
+	static const int TENS_SIZE;
 
 	static _FORCE_INLINE_ fixed from_int(int64_t p_int_value) {
 		return fixed(p_int_value << 16);
@@ -66,6 +71,25 @@ struct fixed {
 	
 	static _FORCE_INLINE_ fixed from_float(float p_float_value) {
 		return fixed(p_float_value * 65536);
+	}
+
+	static fixed from_string(String p_string_value) {
+		if (!(p_string_value.is_valid_float() || p_string_value.is_valid_integer())){
+			return fixed::ZERO;
+		}
+
+		int64_t value = 0;
+		Vector<String> str_values = p_string_value.split(".", false);		
+		if ( !str_values.empty()) {
+			value = str_values.get(0).to_int64() << 16;
+			if (str_values.size() > 1){
+				if(str_values.get(1).length() >= TENS_SIZE)
+					str_values.set(1, str_values.get(1).substr(0, TENS_SIZE-1));
+
+				value += (str_values.get(1).to_int64() << 16) / TENS[str_values.get(1).length()];
+			}
+		}
+		return fixed(value);
 	}
 
 	static _FORCE_INLINE_ bool is_equal_approx(fixed a, fixed b) {
@@ -92,6 +116,29 @@ struct fixed {
 
 	_FORCE_INLINE_ float to_float() const {
 		return (float)value / 65536.0f;
+	}
+
+	String format_string() const {
+		String str = String::num_int64(value >> 16);
+		int64_t decimal = value & 0xFFFF;
+		if(decimal != 0) {
+			decimal = (decimal * 10000000) >> 16;  //10.000.000 - for precision
+			
+			//add left zeros
+			String left_zeros = "";
+			int64_t left_zero_checker = 1000000;
+			while(left_zero_checker > decimal) {
+				left_zero_checker /= 10;
+				left_zeros += "0";
+			}
+
+			//right 0s, as decimals, are useless info: remove them
+			while (decimal % 10 == 0)
+				decimal /= 10;
+
+			str += "." + left_zeros + String::num_int64(decimal);
+		}
+		return str;
 	}
 
 	_FORCE_INLINE_ fixed operator+(const fixed& p_other) const {

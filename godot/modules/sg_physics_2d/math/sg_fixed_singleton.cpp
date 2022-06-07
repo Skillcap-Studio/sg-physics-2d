@@ -24,6 +24,8 @@
 #include "sg_fixed_singleton.h"
 
 #include "../internal/sg_fixed_number_internal.h"
+#include <core/ustring.h>
+
 
 SGFixed *SGFixed::singleton = NULL;
 
@@ -43,8 +45,10 @@ SGFixed *SGFixed::get_singleton() {
 void SGFixed::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("from_int", "int_value"), &SGFixed::from_int);
 	ClassDB::bind_method(D_METHOD("from_float", "float_value"), &SGFixed::from_float);
+	ClassDB::bind_method(D_METHOD("from_string", "string_value"), &SGFixed::from_string);
 	ClassDB::bind_method(D_METHOD("to_int", "fixed_value"), &SGFixed::to_int);
 	ClassDB::bind_method(D_METHOD("to_float", "fixed_value"), &SGFixed::to_float);
+	ClassDB::bind_method(D_METHOD("format_string", "fixed_value"), &SGFixed::format_string);
 	ClassDB::bind_method(D_METHOD("mul", "fixed_one", "fixed_two"), &SGFixed::mul);
 	ClassDB::bind_method(D_METHOD("div", "fixed_one", "fixed_two"), &SGFixed::div);
 
@@ -86,12 +90,20 @@ int64_t SGFixed::from_float(float p_float_value) const {
 	return fixed::from_float(p_float_value).value;
 }
 
+int64_t SGFixed::from_string(String p_string_value) const {
+	return fixed::from_string(p_string_value).value;
+}
+
 int64_t SGFixed::to_int(int64_t p_fixed_value) const {
 	return fixed(p_fixed_value).to_int();
 }
 
 float SGFixed::to_float(int64_t p_fixed_value) const {
 	return fixed(p_fixed_value).to_float();
+}
+
+String SGFixed::format_string(int64_t p_fixed_value) const {
+	return fixed(p_fixed_value).format_string();
 }
 
 int64_t SGFixed::mul(int64_t p_fixed_one, int64_t p_fixed_two) const {

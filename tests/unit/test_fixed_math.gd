@@ -159,3 +159,32 @@ func test_trig():
 #	var atan2_50000: int = SGFixed.atan2(50000*65536, 2*65536)
 #	assert_eq(atan2_50000, 1000)
 
+func test_from_string():
+	var one = SGFixed.from_string("1")
+	assert_eq(one, SGFixed.ONE)
+	var half = SGFixed.from_string("0.5")
+	assert_eq(half, SGFixed.HALF)
+	var n_one = SGFixed.from_string("-1")
+	assert_eq(n_one, SGFixed.NEG_ONE)
+	var quarter = SGFixed.from_string("0.25")
+	assert_eq(quarter, SGFixed.HALF/2)
+	var one_percent = SGFixed.from_string("0.01")
+	assert_eq(one_percent, SGFixed.ONE/100)
+	
+	var random = SGFixed.from_string("130.205")
+	assert_eq(random, 8533114) #manually calculated
+	var _invalid = SGFixed.from_string("buenas tardes")
+	assert_eq(_invalid, 0)
+	
+func test_format_string():
+	assert_eq( SGFixed.format_string(SGFixed.ONE), "1")
+	assert_eq( SGFixed.format_string(SGFixed.ONE*200), "200")
+	assert_eq( SGFixed.format_string(SGFixed.ONE*1024), "1024")
+	assert_eq( SGFixed.format_string(SGFixed.ONE*65423), "65423")
+	assert_eq( SGFixed.format_string(SGFixed.HALF), "0.5")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/4), "0.25")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/8), "0.125")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/16), "0.0625")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/32), "0.03125")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/64), "0.015625")
+	assert_eq( SGFixed.format_string(SGFixed.ONE/128), "0.0078125")

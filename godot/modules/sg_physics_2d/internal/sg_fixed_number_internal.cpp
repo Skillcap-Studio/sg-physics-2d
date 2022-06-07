@@ -74,6 +74,8 @@ const fixed fixed::PI_DIV_2 = fixed(102943);
 const fixed fixed::PI_DIV_4 = fixed(51472);
 const fixed fixed::EPSILON = fixed(1);
 const fixed fixed::ARITHMETIC_OVERFLOW = fixed(INT64_MIN);
+const int64_t fixed::TENS[] { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };
+const int fixed::TENS_SIZE = sizeof(TENS)/sizeof(TENS[0]);
 
 // Adapted form the fpm library: https://github.com/MikeLankamp
 // Copyright 2019 Mike Lankamp

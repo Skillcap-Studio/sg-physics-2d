@@ -85,6 +85,14 @@
 				Converts a normal integer into a fixed-point number.
 			</description>
 		</method>
+		<method name="from_string" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="string_value" type="String" />
+			<description>
+				Parses a String into a fixed-point number. 
+				[b]Note:[/b] string_value must represent number (decimal or not). If it isn't a valid number then it will return 0
+			</description>
+		</method>
 		<method name="move_toward" qualifiers="const">
 			<return type="int" />
 			<argument index="0" name="fixed_from_value" type="int" />
@@ -142,6 +150,13 @@
 			<argument index="0" name="fixed_value" type="int" />
 			<description>
 				Converts a fixed-point number into a normal int.
+			</description>
+		</method>
+		<method name="format_string" qualifiers="const">
+			<return type="string" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Formats a fixed-point number into a string.
 			</description>
 		</method>
 		<method name="transform2d" qualifiers="const">

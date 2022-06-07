@@ -29,6 +29,7 @@
 #include "sg_fixed_vector2.h"
 #include "sg_fixed_rect2.h"
 #include "sg_fixed_transform_2d.h"
+#include <core/ustring.h>
 
 class SGFixed : public Object {
 
@@ -57,9 +58,11 @@ public:
 
 	int64_t from_int(int64_t p_int_value) const;
 	int64_t from_float(float p_float_value) const;
+	int64_t from_string(String p_string_value) const;
 
 	int64_t to_int(int64_t p_fixed_value) const;
 	float to_float(int64_t p_fixed_value) const;
+	String format_string(int64_t p_fixed_value) const;
 
 	int64_t mul(int64_t p_fixed_one, int64_t p_fixed_two) const;
 	int64_t div(int64_t p_fixed_one, int64_t p_fixed_two) const;
