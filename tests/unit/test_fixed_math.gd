@@ -188,3 +188,61 @@ func test_format_string():
 	assert_eq( SGFixed.format_string(SGFixed.ONE/32), "0.03125")
 	assert_eq( SGFixed.format_string(SGFixed.ONE/64), "0.015625")
 	assert_eq( SGFixed.format_string(SGFixed.ONE/128), "0.0078125")
+	
+func test_deg2rad():
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(360)), SGFixed.TAU) #TAU is 2 PI, a loop
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(180)), SGFixed.PI)
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(90)), SGFixed.PI_DIV_2)
+	
+	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(45))+1, SGFixed.PI_DIV_4) 
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(30)), 34314)
+	assert_eq(SGFixed.deg2rad(806092), 14068) # deg2rad(12.3)
+	assert_eq(SGFixed.deg2rad(3279093), 57230) # deg2rad(50.035) Aprox
+	assert_almost_eq(SGFixed.deg2rad(4696650), 81972, SGFixed.EPSILON) # deg2rad(71.6652) Aprox some are not exact
+	
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(720)), SGFixed.TAU*2) #TAU is 2 PI, a loop
+	
+### Negative checks
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-360)), -SGFixed.TAU) #TAU is 2 PI, a loop
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-180)), -SGFixed.PI)
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-90)), -SGFixed.PI_DIV_2)
+	
+	#Same reason as before but in negative
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-45))-1, -SGFixed.PI_DIV_4) 
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-30)), -34314)
+	assert_eq(SGFixed.deg2rad(-806092), -14068) # deg2rad(12.3)
+	assert_eq(SGFixed.deg2rad(-3279093), -57230) # deg2rad(50.035) Aprox
+	assert_almost_eq(SGFixed.deg2rad(-4696650), -81972, SGFixed.EPSILON) # deg2rad(71.6652) Aprox, some are not exact
+	
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-720)), -SGFixed.TAU*2) #TAU is 2 PI, a loop
+	
+#Converting from rad 2 deg has more inaccuracy because the decimal limit
+func test_rad2deg():
+	var precision_valve = 70
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.TAU), SGFixed.from_int(360), precision_valve) #TAU is 2 PI, a loop
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI), SGFixed.from_int(180), precision_valve)
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI_DIV_2), SGFixed.from_int(90), precision_valve)
+	
+	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI_DIV_4), SGFixed.from_int(45) + 1, precision_valve) 
+	assert_almost_eq(SGFixed.rad2deg(34314), SGFixed.from_int(30), precision_valve)
+	assert_almost_eq(SGFixed.rad2deg(14068), 806092, precision_valve) # deg2rad(12.3)
+	assert_almost_eq(SGFixed.rad2deg(57230), 3279093, precision_valve) # deg2rad(50.035) Aprox
+	assert_almost_eq(SGFixed.rad2deg(81972), 4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
+	
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.TAU*2), SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop
+	
+### Negative checks
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU), SGFixed.from_int(-360), precision_valve) #TAU is 2 PI, a loop
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI), SGFixed.from_int(-180), precision_valve)
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI_DIV_2), SGFixed.from_int(-90), precision_valve)
+	
+	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI_DIV_4), -SGFixed.from_int(45) - 1, precision_valve) 
+	assert_almost_eq(SGFixed.rad2deg(-34314), -SGFixed.from_int(30), precision_valve)
+	assert_almost_eq(SGFixed.rad2deg(-14068), -806092, precision_valve) # deg2rad(12.3)
+	assert_almost_eq(SGFixed.rad2deg(-57230), -3279093, precision_valve) # deg2rad(50.035) Aprox
+	assert_almost_eq(SGFixed.rad2deg(-81972), -4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
+	
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU*2), -SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop

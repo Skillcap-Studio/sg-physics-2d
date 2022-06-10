@@ -60,6 +60,8 @@ void SGFixed::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("atan", "fixed_value"), &SGFixed::atan);
 	ClassDB::bind_method(D_METHOD("atan2", "fixed_y_value", "fixed_x_value"), &SGFixed::atan2);
 	ClassDB::bind_method(D_METHOD("sqrt", "fixed_value"), &SGFixed::sqrt);
+	ClassDB::bind_method(D_METHOD("deg2rad", "fixed_value"), &SGFixed::deg2rad);
+	ClassDB::bind_method(D_METHOD("rad2deg", "fixed_value"), &SGFixed::rad2deg);
 	ClassDB::bind_method(D_METHOD("move_toward", "fixed_from_value", "fixed_to_value", "fixed_delta_value"), &SGFixed::move_toward);
 
 	ClassDB::bind_method(D_METHOD("vector2", "fixed_x", "fixed_y"), &SGFixed::vector2);
@@ -144,6 +146,14 @@ int64_t SGFixed::atan2(int64_t p_fixed_y_value, int64_t p_fixed_x_value) const {
 
 int64_t SGFixed::sqrt(int64_t p_fixed_value) const {
 	return fixed(p_fixed_value).sqrt().value;
+}
+
+int64_t SGFixed::deg2rad(int64_t p_fixed_value) const {
+	return fixed(p_fixed_value).deg2rad().value;
+}
+
+int64_t SGFixed::rad2deg(int64_t p_fixed_value) const {
+	return fixed(p_fixed_value).rad2deg().value;
 }
 
 int64_t SGFixed::move_toward(int64_t p_from, int64_t p_to, int64_t p_delta) const {

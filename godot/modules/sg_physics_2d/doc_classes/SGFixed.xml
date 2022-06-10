@@ -175,6 +175,20 @@
 				Constructs an [SGFixedVector2].
 			</description>
 		</method>
+		<method name="deg2rad" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Fixed-point conversion of degree angles into radian angles
+			</description>
+		</method>
+		<method name="rad2deg" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Fixed-point conversion of radian angles into degree angles
+			</description>
+		</method>
 	</methods>
 	<constants>
 		<constant name="ONE" value="65536">

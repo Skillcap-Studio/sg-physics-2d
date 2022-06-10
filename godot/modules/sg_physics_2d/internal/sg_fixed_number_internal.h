@@ -62,6 +62,7 @@ struct fixed {
 	static const fixed PI_DIV_4;
 	static const fixed EPSILON;
 	static const fixed ARITHMETIC_OVERFLOW;
+	static const fixed DEG_180;
 	static const int64_t TENS[];
 	static const int TENS_SIZE;
 
@@ -108,6 +109,14 @@ struct fixed {
 			return true;
 		}
 		return (a - b).abs() < tolerance;
+	}
+	
+	_FORCE_INLINE_ fixed deg2rad(){
+		return *this * fixed::PI / fixed::DEG_180;
+	}
+	
+	_FORCE_INLINE_ fixed rad2deg(){
+		return *this * fixed::DEG_180 / fixed::PI;
 	}
 
 	_FORCE_INLINE_ int64_t to_int() const {
