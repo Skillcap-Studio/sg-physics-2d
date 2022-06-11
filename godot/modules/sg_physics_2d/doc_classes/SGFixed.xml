@@ -198,6 +198,27 @@
 				Fixed-point conversion of radian angles into degree angles
 			</description>
 		</method>
+		<method name="floor" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded down.
+			</description>
+		</method>
+		<method name="round" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded down if the decimal is lower than [code]SGFixed.HALF[/code], rounded up otherwise.
+			</description>
+		</method>
+		<method name="ceil" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded up.
+			</description>
+		</method>
 	</methods>
 	<constants>
 		<constant name="ONE" value="65536">

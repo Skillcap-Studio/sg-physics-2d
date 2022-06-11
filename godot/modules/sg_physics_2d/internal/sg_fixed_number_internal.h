@@ -119,6 +119,18 @@ struct fixed {
 		return *this * fixed::DEG_180 / fixed::PI;
 	}
 
+	_FORCE_INLINE_ fixed floor() {
+		return fixed(value & ~0xFFFF);
+	}
+
+	_FORCE_INLINE_ fixed round() {
+		return (*this + fixed::HALF).floor();
+	}
+	
+	_FORCE_INLINE_ fixed ceil() {
+		return (value & 0xFFFF)? (*this + fixed::ONE).floor() : *this; 
+	}
+
 	_FORCE_INLINE_ int64_t to_int() const {
 		return value >> 16;
 	}

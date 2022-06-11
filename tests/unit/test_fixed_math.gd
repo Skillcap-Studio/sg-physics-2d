@@ -265,3 +265,23 @@ func test_rad2deg():
 	assert_almost_eq(SGFixed.rad2deg(-81972), -4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
 
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU*2), -SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop
+	
+func test_floor():
+	assert_eq(SGFixed.floor(SGFixed.from_float(12.3)), SGFixed.from_int(12))
+	assert_eq(SGFixed.floor(SGFixed.from_float(0.999)), SGFixed.from_int(0))
+	assert_eq(SGFixed.floor(SGFixed.from_int(12)), SGFixed.from_int(12))
+	assert_eq(SGFixed.floor(SGFixed.from_float(6543.5)), SGFixed.from_int(6543))
+	
+func test_round():
+	assert_eq(SGFixed.round(SGFixed.from_float(12.3)), SGFixed.from_int(12))
+	assert_eq(SGFixed.round(SGFixed.from_float(12.499)), SGFixed.from_int(12))
+	assert_eq(SGFixed.round(SGFixed.from_float(0.999)), SGFixed.from_int(1))
+	assert_eq(SGFixed.round(SGFixed.from_int(12)), SGFixed.from_int(12))
+	assert_eq(SGFixed.round(SGFixed.from_float(6543.5)), SGFixed.from_int(6544))
+	
+func test_ceil():
+	assert_eq(SGFixed.ceil(SGFixed.from_float(12.3)), SGFixed.from_int(13))
+	assert_eq(SGFixed.ceil(SGFixed.from_float(12.499)), SGFixed.from_int(13))
+	assert_eq(SGFixed.ceil(SGFixed.from_float(0.999)), SGFixed.from_int(1))
+	assert_eq(SGFixed.ceil(SGFixed.from_int(12)), SGFixed.from_int(12))
+	assert_eq(SGFixed.ceil(SGFixed.from_float(6543.5)), SGFixed.from_int(6544))

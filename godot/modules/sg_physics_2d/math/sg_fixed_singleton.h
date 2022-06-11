@@ -77,6 +77,9 @@ public:
 	int64_t sqrt(int64_t p_fixed_value) const;
 	int64_t deg2rad(int64_t p_fixed_value) const;
 	int64_t rad2deg(int64_t p_fixed_value) const;
+	int64_t floor(int64_t p_fixed_value) const;
+	int64_t round(int64_t p_fixed_value) const;
+	int64_t ceil(int64_t p_fixed_value) const;
 	int64_t pow(int64_t p_fixed_one, int64_t p_fixed_two) const;
 	int64_t move_toward(int64_t p_from, int64_t p_to, int64_t p_delta) const;
 
