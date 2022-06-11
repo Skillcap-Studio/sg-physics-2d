@@ -4,7 +4,7 @@ func test_float_conversion():
 	var a: float = 2.4
 	var b: int = SGFixed.from_float(a)
 	var c: float = SGFixed.to_float(b)
-	
+
 	assert_eq(b, 157286)
 	assert_eq("%s" % c, "2.399994")
 
@@ -12,7 +12,7 @@ func test_int_conversion():
 	var a: int = 2
 	var b: int = SGFixed.from_int(a)
 	var c: float = SGFixed.to_int(b)
-	
+
 	assert_eq(b, 65536*2)
 	assert_eq(c, 2.0)
 
@@ -20,22 +20,41 @@ func test_multiplication():
 	var a: int = SGFixed.from_float(2.5)
 	var b: int = SGFixed.from_float(2.5)
 	var c: int = SGFixed.mul(a, b)
-	
+
 	assert_eq(c, 409600)
 
 func test_division():
 	var a: int = SGFixed.from_int(15)
 	var b: int = SGFixed.from_int(2)
 	var c: int = SGFixed.div(a, b)
-	
+
 	assert_eq(c, 491520)
+
+func test_power():
+	var a: int = SGFixed.pow(65536, 131072)
+	var b: int = SGFixed.pow(131072, 131072)
+	var c: int = SGFixed.pow(131072, 32768)
+	var d: int = SGFixed.pow(-32768, 32768)
+	var e: int = SGFixed.pow(32768, 131072)
+	var f: int = SGFixed.pow(6553, 32768)
+	var g: int = SGFixed.pow(-131072, 131072)
+	var h: int = SGFixed.pow(-131072, 196608)
+
+	assert_eq(a, 65536) #1 to the power of fraction/integer = 1
+	assert_eq(b, 262144) #Int exponent, int base - 2^2 = 4
+	assert_eq(c, 92681) #Fraction exponent, int base - 2^0.5 = root 2
+	assert_eq(d, 0) #Fraction exponent, negative base - unsupported, returns 0
+	assert_eq(e, 16384) #int exponent, fractional base - 0.5^2 = 0.25
+	assert_eq(f, 20724) #Fraction exponent, fraction base - 0.1^0.5 = 1/root 2
+	assert_eq(g, 262144) #neg int exponent (even), negative int base - -2^2 = 4
+	assert_eq(h, -524288) #neg int exponent (odd), negative int base - -2^3 = -8
 
 func test_move_toward():
 	var a: int = SGFixed.from_int(1)
 	var b: int = SGFixed.from_int(2)
 	var c: int = SGFixed.move_toward(a, b, 32768) #0.5
 	var d: int = SGFixed.move_toward(a, b, 131072) #2
-	
+
 	assert_eq(c, 98304) # 1.5
 	assert_eq(d, 131072) # 2
 
@@ -43,83 +62,83 @@ func test_trig():
 	#
 	# Test some important "well known" values
 	#
-	
+
 	# sin()
 	var sin_0: int = SGFixed.sin(0)
 	assert_eq(sin_0, 0)
-	
+
 	var sin_90deg: int = SGFixed.sin(SGFixed.PI_DIV_2)
 	assert_eq(sin_90deg, 65536)
-	
+
 	var sin_180deg: int = SGFixed.sin(SGFixed.PI)
 	assert_eq(sin_180deg, 0)
-	
+
 	var sin_270deg: int = SGFixed.sin(SGFixed.PI + SGFixed.PI_DIV_2)
 	assert_eq(sin_270deg, -65536)
-	
+
 	var sin_360deg: int = SGFixed.sin(SGFixed.TAU)
 	assert_eq(sin_360deg, 0)
-	
+
 	# cos()
 	var cos_0: int = SGFixed.cos(0)
 	assert_eq(cos_0, 65536)
-	
+
 	var cos_90deg: int = SGFixed.cos(SGFixed.PI_DIV_2)
 	assert_eq(cos_90deg, 0)
-	
+
 	var cos_180deg: int = SGFixed.cos(SGFixed.PI)
 	assert_eq(cos_180deg, -65536)
-	
+
 	var cos_270deg: int = SGFixed.cos(SGFixed.PI + SGFixed.PI_DIV_2)
 	assert_eq(cos_270deg, 0)
-	
+
 	var cos_360deg: int = SGFixed.cos(SGFixed.TAU)
 	assert_eq(cos_360deg, 65536)
-	
+
 	# tan()
 	var tan_0: int = SGFixed.tan(0)
 	assert_eq(tan_0, 0)
-	
+
 	var tan_45deg: int = SGFixed.tan(SGFixed.PI_DIV_4)
 	assert_eq(tan_45deg, 65536)
-	
+
 	var tan_90deg: int = SGFixed.tan(SGFixed.PI_DIV_2)
 	assert_eq(tan_90deg, 0)
-	
+
 	var tan_135deg: int = SGFixed.tan(SGFixed.PI_DIV_2 + SGFixed.PI_DIV_4)
 	assert_eq(tan_135deg, -65536)
-	
+
 	var tan_180deg: int = SGFixed.tan(SGFixed.PI)
 	assert_eq(tan_180deg, 0)
-	
+
 	var tan_225deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_4)
 	assert_eq(tan_225deg, 65536)
-	
+
 	var tan_270deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_2)
 	assert_eq(tan_270deg, 0)
-	
+
 	var tan_315deg: int = SGFixed.tan(SGFixed.PI + SGFixed.PI_DIV_2 + SGFixed.PI_DIV_4)
 	# Overshoots it a tiny bit, due to our SGFixed.PI_DIV_4 rounding up.
 	assert_eq(tan_315deg, -65538)
-	
+
 	var tan_360deg: int = SGFixed.tan(SGFixed.PI * 2)
 	assert_eq(tan_360deg, 0)
-	
+
 	# asin()
 	var asin_65536: int = SGFixed.asin(65536)
 	assert_eq(asin_65536, SGFixed.PI_DIV_2)
-	
+
 	# acos()
 	var acos_65536: int = SGFixed.acos(65536)
 	assert_eq(acos_65536, 0)
-	
+
 	#
 	# Test that big values loop around as expected
 	#
-	
+
 	var sin_10: int = SGFixed.sin(10*65536)
 	assert_eq(sin_10, -35665)
-	
+
 	var sin_50000: int = SGFixed.sin(50000*65536)
 	assert_eq(sin_50000, -65313)
 
@@ -170,12 +189,12 @@ func test_from_string():
 	assert_eq(quarter, SGFixed.HALF/2)
 	var one_percent = SGFixed.from_string("0.01")
 	assert_eq(one_percent, SGFixed.ONE/100)
-	
+
 	var random = SGFixed.from_string("130.205")
 	assert_eq(random, 8533114) #manually calculated
 	var _invalid = SGFixed.from_string("buenas tardes")
 	assert_eq(_invalid, 0)
-	
+
 func test_format_string():
 	assert_eq( SGFixed.format_string(SGFixed.ONE), "1")
 	assert_eq( SGFixed.format_string(SGFixed.ONE*200), "200")
@@ -188,61 +207,61 @@ func test_format_string():
 	assert_eq( SGFixed.format_string(SGFixed.ONE/32), "0.03125")
 	assert_eq( SGFixed.format_string(SGFixed.ONE/64), "0.015625")
 	assert_eq( SGFixed.format_string(SGFixed.ONE/128), "0.0078125")
-	
+
 func test_deg2rad():
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(360)), SGFixed.TAU) #TAU is 2 PI, a loop
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(180)), SGFixed.PI)
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(90)), SGFixed.PI_DIV_2)
-	
+
 	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
-	assert_eq(SGFixed.deg2rad(SGFixed.from_int(45))+1, SGFixed.PI_DIV_4) 
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(45))+1, SGFixed.PI_DIV_4)
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(30)), 34314)
 	assert_eq(SGFixed.deg2rad(806092), 14068) # deg2rad(12.3)
 	assert_eq(SGFixed.deg2rad(3279093), 57230) # deg2rad(50.035) Aprox
 	assert_almost_eq(SGFixed.deg2rad(4696650), 81972, SGFixed.EPSILON) # deg2rad(71.6652) Aprox some are not exact
-	
+
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(720)), SGFixed.TAU*2) #TAU is 2 PI, a loop
-	
+
 ### Negative checks
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-360)), -SGFixed.TAU) #TAU is 2 PI, a loop
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-180)), -SGFixed.PI)
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-90)), -SGFixed.PI_DIV_2)
-	
+
 	#Same reason as before but in negative
-	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-45))-1, -SGFixed.PI_DIV_4) 
+	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-45))-1, -SGFixed.PI_DIV_4)
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-30)), -34314)
 	assert_eq(SGFixed.deg2rad(-806092), -14068) # deg2rad(12.3)
 	assert_eq(SGFixed.deg2rad(-3279093), -57230) # deg2rad(50.035) Aprox
 	assert_almost_eq(SGFixed.deg2rad(-4696650), -81972, SGFixed.EPSILON) # deg2rad(71.6652) Aprox, some are not exact
-	
+
 	assert_eq(SGFixed.deg2rad(SGFixed.from_int(-720)), -SGFixed.TAU*2) #TAU is 2 PI, a loop
-	
+
 #Converting from rad 2 deg has more inaccuracy because the decimal limit
 func test_rad2deg():
 	var precision_valve = 70
 	assert_almost_eq(SGFixed.rad2deg(SGFixed.TAU), SGFixed.from_int(360), precision_valve) #TAU is 2 PI, a loop
 	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI), SGFixed.from_int(180), precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI_DIV_2), SGFixed.from_int(90), precision_valve)
-	
+
 	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
-	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI_DIV_4), SGFixed.from_int(45) + 1, precision_valve) 
+	assert_almost_eq(SGFixed.rad2deg(SGFixed.PI_DIV_4), SGFixed.from_int(45) + 1, precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(34314), SGFixed.from_int(30), precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(14068), 806092, precision_valve) # deg2rad(12.3)
 	assert_almost_eq(SGFixed.rad2deg(57230), 3279093, precision_valve) # deg2rad(50.035) Aprox
 	assert_almost_eq(SGFixed.rad2deg(81972), 4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
-	
+
 	assert_almost_eq(SGFixed.rad2deg(SGFixed.TAU*2), SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop
-	
+
 ### Negative checks
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU), SGFixed.from_int(-360), precision_valve) #TAU is 2 PI, a loop
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI), SGFixed.from_int(-180), precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI_DIV_2), SGFixed.from_int(-90), precision_valve)
-	
+
 	#SGFixed.PI_DIV_4 is rounded up therefore we need to add 1 to the deg2rad result
-	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI_DIV_4), -SGFixed.from_int(45) - 1, precision_valve) 
+	assert_almost_eq(SGFixed.rad2deg(-SGFixed.PI_DIV_4), -SGFixed.from_int(45) - 1, precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(-34314), -SGFixed.from_int(30), precision_valve)
 	assert_almost_eq(SGFixed.rad2deg(-14068), -806092, precision_valve) # deg2rad(12.3)
 	assert_almost_eq(SGFixed.rad2deg(-57230), -3279093, precision_valve) # deg2rad(50.035) Aprox
 	assert_almost_eq(SGFixed.rad2deg(-81972), -4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
-	
+
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU*2), -SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop

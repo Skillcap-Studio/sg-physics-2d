@@ -138,6 +138,15 @@
 				Returns the tangent of the fixed-point number [code]fixed_value[/code] in radians (fixed-point).
 			</description>
 		</method>
+		<method name="pow" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="base" type="int" />
+			<argument index="1" name="exp" type="int" />
+			<description>
+				Returns the result of computing base to the power of exp.
+				[b]Note:[/b] While fractional and negative exponents are supported, applying pow() with a negative base and a fractional exponent is not supported.
+			</description>
+		</method>
 		<method name="to_float" qualifiers="const">
 			<return type="float" />
 			<argument index="0" name="fixed_value" type="int" />

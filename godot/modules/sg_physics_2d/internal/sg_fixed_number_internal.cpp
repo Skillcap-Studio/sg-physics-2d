@@ -172,3 +172,74 @@ fixed fixed::atan2(const fixed &inY) const {
 	int64_t y = inY.value % fixed::PI.value;
 	return fixed(fix16_atan2(x, y));
 }
+
+/* Copied from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#With_constant_auxiliary_memory,
+  * Copyrighted by Wikipedia editors and contributors
+	* License: Creative Commons Attribution-ShareAlike 3.0 Unported License
+	*/
+fixed fixed::pow_integer(const fixed &exp) const {
+	if (value < 0) {
+		return fixed::ONE / (pow(exp * fixed::NEG_ONE));
+	}
+
+	fixed x = fixed(value);
+	fixed y = fixed::ONE;
+	fixed n = exp;
+
+	if (n < fixed::ZERO) {
+		x = fixed::ONE / x;
+		n *= fixed::NEG_ONE;
+	}
+
+	if (n == fixed::ZERO) {
+		return fixed::ONE;
+	}
+
+	while (n > fixed::ONE) {
+		if ((n % fixed::TWO) == fixed::ZERO) {
+			x *= x;
+			n /= fixed::TWO;
+		} else {
+			y *= x;
+			x *= x;
+			n = (n - fixed::ONE) / fixed::TWO;
+		}
+	}
+	return x * y;
+}
+
+/* Adapted from https://github.com/MikeLankamp/fpm/blob/master/include/fpm/math.hpp,
+  * specifically the non-integer pow function at line 315. Calls the integer pow function if
+	* the exponent is not a fraction.
+	* Copyright 2019 Mike Lankamp
+	* License: MIT
+	*/
+fixed fixed::pow(const fixed &exp) const {
+	if (value == 0) {
+		#ifdef MATH_CHECKS
+			ERR_FAIL_COND_V_MSG(exp.value < 0, fixed::ARITHMETIC_OVERFLOW, "Cannot use negative exponents and a base of 0 with integer exponentiation!");
+		#endif
+		return fixed::ZERO;
+	}
+
+	if (exp < fixed::ZERO) {
+		return fixed::ONE / (pow(exp * fixed::NEG_ONE));
+	}
+
+	if ((exp.value % 65536) == 0) {
+		if (value < 0) {
+			if (exp % fixed::TWO == fixed::ZERO) {
+				return (fixed(value) * fixed::NEG_ONE).pow_integer(exp);
+			} else {
+				return (fixed(value) * fixed::NEG_ONE).pow_integer(exp)*fixed::NEG_ONE;
+			}
+		} else {
+			return pow_integer(exp);
+		}
+	}
+
+	#ifdef MATH_CHECKS
+		ERR_FAIL_COND_V_MSG(base < fixed::ZERO, fixed::ARITHMETIC_OVERFLOW, "Negative bases and fractional exponents in pow() are not supported!");
+	#endif
+	return fixed(fix16_exp((fixed(fix16_log(value)) * exp).value));
+}

@@ -69,7 +69,7 @@ struct fixed {
 	static _FORCE_INLINE_ fixed from_int(int64_t p_int_value) {
 		return fixed(p_int_value << 16);
 	}
-	
+
 	static _FORCE_INLINE_ fixed from_float(float p_float_value) {
 		return fixed(p_float_value * 65536);
 	}
@@ -242,6 +242,8 @@ struct fixed {
 	_FORCE_INLINE_ fixed sign() const { return value < 0 ? fixed::NEG_ONE : (value > 0 ? fixed::ONE : fixed::ZERO); }
 	_FORCE_INLINE_ fixed move_toward(const fixed& p_other, fixed p_delta) { return (p_other - *this).abs() <= p_delta ? p_other : *this + FIXED_SGN(p_other - *this) * p_delta; }
 
+	fixed pow(const fixed &exp) const;
+	fixed pow_integer(const fixed &exp) const;
 	fixed  sin() const;
 	fixed  cos() const;
 	fixed  tan() const;
