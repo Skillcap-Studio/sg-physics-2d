@@ -226,7 +226,7 @@ follow these steps:
 
  1. Download this repository and extract it.
 
- 2. Download the source code for the Godot 3.x version that you are targeting.
+ 2. Download the source code for the Godot 3.x version that you are targeting. If you cloned the source code, you must switch to the 3.x branch before continuing.
 
  3. Using the command-line, switch to the directory containing the Godot
     source code and run:
