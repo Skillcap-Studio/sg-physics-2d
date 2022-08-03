@@ -86,3 +86,9 @@ position = Vector2( 20, 20 )
 fixed_position_x = 1310720
 fixed_position_y = 1310720
 shape = SubResource( 5 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Player"]
+
+[node name="DebugLabel" type="Label" parent="Player/CanvasLayer"]
+margin_right = 40.0
+margin_bottom = 14.0

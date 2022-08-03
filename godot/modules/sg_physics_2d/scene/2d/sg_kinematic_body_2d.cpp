@@ -41,7 +41,10 @@ void SGKinematicBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_on_floor"), &SGKinematicBody2D::is_on_floor);
 	ClassDB::bind_method(D_METHOD("is_on_ceiling"), &SGKinematicBody2D::is_on_ceiling);
 	ClassDB::bind_method(D_METHOD("is_on_wall"), &SGKinematicBody2D::is_on_wall);
+
 	ClassDB::bind_method(D_METHOD("get_slide_count"), &SGKinematicBody2D::get_slide_count);
+	ClassDB::bind_method(D_METHOD("get_slide_collision", "slide_idx"), &SGKinematicBody2D::get_slide_collision);
+	ClassDB::bind_method(D_METHOD("get_last_slide_collision"), &SGKinematicBody2D::get_last_slide_collision);
 
 	ClassDB::bind_method(D_METHOD("move_and_collide", "linear_velocity"), &SGKinematicBody2D::_move);
 	ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "up_direction", "unused", "max_slides", "floor_max_angle"), &SGKinematicBody2D::move_and_slide, DEFVAL(Variant()), DEFVAL(false), DEFVAL(4), DEFVAL(51471));
@@ -84,6 +87,28 @@ bool SGKinematicBody2D::is_on_wall() const {
 
 int SGKinematicBody2D::get_slide_count() const {
 	return colliders.size();
+}
+
+Ref<SGKinematicCollision2D> SGKinematicBody2D::get_slide_collision(int p_bounce) {
+	ERR_FAIL_INDEX_V(p_bounce, colliders.size(), Ref<SGKinematicCollision2D>());
+	if (p_bounce >= slide_colliders.size()) {
+		slide_colliders.resize(p_bounce + 1);
+	}
+
+	// Create a new instance when the cached reference is invalid or still in use in script.
+	if (slide_colliders[p_bounce].is_null() || slide_colliders[p_bounce]->reference_get_count() > 1) {
+		slide_colliders.write[p_bounce].instance();
+	}
+
+	slide_colliders.write[p_bounce]->set_collision(colliders[p_bounce]);
+	return slide_colliders[p_bounce];
+}
+
+Ref<SGKinematicCollision2D> SGKinematicBody2D::get_last_slide_collision() {
+	if (colliders.size() == 0) {
+		return Ref<SGKinematicCollision2D>();
+	}
+	return get_slide_collision(colliders.size() - 1);
 }
 
 bool SGKinematicBody2D::move_and_collide(const SGFixedVector2Internal &p_linear_velocity, SGKinematicBody2D::Collision &p_collision) {
@@ -192,7 +217,7 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 			break;
 		}
 
-		colliders.push_back(collision.collider);
+		colliders.push_back(collision);
 
 		if (up_direction == SGFixedVector2Internal::ZERO) {
 			// All is wall!

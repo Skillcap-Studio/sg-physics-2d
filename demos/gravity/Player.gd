@@ -1,6 +1,7 @@
 extends SGKinematicBody2D
 
 onready var color_rect = $ColorRect
+onready var debug_label = $CanvasLayer/DebugLabel
 
 const SPEED = 196608
 const GRAVITY = 32768
@@ -18,6 +19,11 @@ func _physics_process(delta: float) -> void:
 	
 	velocity.y += GRAVITY
 	velocity = move_and_slide(velocity, up_direction)
+
+	debug_label.text = ""
+	for slide_idx in get_slide_count():
+		var col = get_slide_collision(slide_idx)
+		debug_label.text += "[collider = %s, normal = %s, remainder = %s]\n" % [col.collider.name, col.normal.to_float(), col.remainder.to_float()]
 	
 	if is_on_floor():
 		color_rect.color = Color(0.0, 0.0, 1.0)

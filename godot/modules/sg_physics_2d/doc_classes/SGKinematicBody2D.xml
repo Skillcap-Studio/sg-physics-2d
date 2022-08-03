@@ -24,10 +24,30 @@
 				This is only set after running [method move_and_slide].
 			</description>
 		</method>
+		<method name="get_last_slide_collision">
+			<return type="SGKinematicCollision2D" />
+			<description>
+				Gets the [SGKinematicCollision2D] which contains information about the latest collision that occurred during the last call to [method move_and_slide].
+			</description>
+		</method>
+		<method name="get_slide_collision">
+			<return type="SGKinematicCollision2D" />
+			<argument index="0" name="slide_idx" type="int" />
+			<description>
+				Gets a [SGKinematicCollision2D] which contains information about a collision that occurred during the last call to [method move_and_slide].
+				Since the body can collide several times in a single call to [method move_and_slide], you must specify the index of the collision in the range 0 to ([method get_slide_count] - 1).
+				[b]Example usage:[/b]
+				[codeblock]
+				for i in get_slide_count():
+				    var collision = get_slide_collision(i)
+				    print("Collided with: ", collision.collider.name)
+				[/codeblock]
+			</description>
+		</method>
 		<method name="get_slide_count" qualifiers="const">
 			<return type="int" />
 			<description>
-				Gets the number of slides of the last move_and_slide call.
+				Gets the number of times the body collided and changed direction during the last call to [method move_and_slide].
 			</description>
 		</method>
 		<method name="is_on_ceiling" qualifiers="const">

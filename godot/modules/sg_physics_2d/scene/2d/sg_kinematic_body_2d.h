@@ -46,7 +46,8 @@ public:
 protected:
 	fixed safe_margin;
 
-	Vector<SGCollisionObject2D*> colliders;
+	Vector<Collision> colliders;
+	Vector<Ref<SGKinematicCollision2D>> slide_colliders;
 	Ref<SGFixedVector2> floor_normal;
 	bool on_floor;
 	bool on_ceiling;
@@ -65,6 +66,8 @@ public:
 	bool is_on_wall() const;
 
 	int get_slide_count() const;
+	Ref<SGKinematicCollision2D> get_slide_collision(int p_slide_idx);
+	Ref<SGKinematicCollision2D> get_last_slide_collision();
 
 	bool move_and_collide(const SGFixedVector2Internal &p_linear_velocity, Collision &p_collision);
 	Ref<SGFixedVector2> move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, const Ref<SGFixedVector2> &p_up_direction, bool p_unused, int p_max_slides, int p_floor_max_angle);
