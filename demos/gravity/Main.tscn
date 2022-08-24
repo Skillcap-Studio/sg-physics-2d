@@ -34,9 +34,9 @@ shape = SubResource( 1 )
 [node name="SGCollisionShape2D2" type="SGCollisionShape2D" parent="Floor"]
 position = Vector2( 460, 467 )
 rotation = 0.340302
-fixed_rotation = 22302
 fixed_position_x = 30146560
 fixed_position_y = 30605308
+fixed_rotation = 22302
 shape = SubResource( 1 )
 
 [node name="SGCollisionShape2D3" type="SGCollisionShape2D" parent="Floor"]

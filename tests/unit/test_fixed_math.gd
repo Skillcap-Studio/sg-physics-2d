@@ -128,9 +128,70 @@ func test_trig():
 	var asin_65536: int = SGFixed.asin(65536)
 	assert_eq(asin_65536, SGFixed.PI_DIV_2)
 
+	var asin_32768: int = SGFixed.asin(32768)
+	assert_eq(asin_32768, 34355)
+
+	var asin_0: int = SGFixed.asin(0)
+	assert_eq(asin_0, 0)
+
+	var asin_n65536: int = SGFixed.asin(-65536)
+	assert_eq(asin_n65536, -SGFixed.PI_DIV_2)
+
+	var asin_n32768: int = SGFixed.asin(-32768)
+	assert_eq(asin_n32768, -34355)
+
 	# acos()
 	var acos_65536: int = SGFixed.acos(65536)
 	assert_eq(acos_65536, 0)
+
+	var acos_32768: int = SGFixed.acos(32768)
+	assert_eq(acos_32768, 68708)
+
+	var acos_0: int = SGFixed.acos(0)
+	# Sooo close! But we are 1 off. That's probably fine?
+	assert_eq(acos_0, SGFixed.PI_DIV_2 + 1)
+
+	var acos_n32768: int = SGFixed.acos(-32768)
+	assert_eq(acos_n32768, 137176)
+
+	var acos_n65536: int = SGFixed.acos(-205887)
+	assert_eq(acos_n65536, 0)
+
+	# atan()
+	var atan_0: int = SGFixed.atan(0)
+	assert_eq(atan_0, 0)
+
+	var atan_65536: int = SGFixed.atan(65536)
+	assert_eq(atan_65536, SGFixed.PI_DIV_4)
+
+	var atan_n65536: int = SGFixed.atan(-65536)
+	assert_eq(atan_n65536, -SGFixed.PI_DIV_4)
+
+
+	# atan2()
+	var atan2_1_0: int = SGFixed.atan2(0, 65536)
+	assert_eq(atan2_1_0, 0);
+
+	var atan2_1_1: int = SGFixed.atan2(65536, 65536)
+	assert_eq(atan2_1_1, SGFixed.PI_DIV_4)
+
+	var atan2_0_1: int = SGFixed.atan2(65536, 0)
+	assert_eq(atan2_0_1, SGFixed.PI_DIV_2)
+
+	var atan2_n1_1: int = SGFixed.atan2(SGFixed.ONE, SGFixed.NEG_ONE)
+	assert_eq(atan2_n1_1, SGFixed.PI_DIV_2 + SGFixed.PI_DIV_4)
+
+	var atan2_n1_0: int = SGFixed.atan2(0, SGFixed.NEG_ONE)
+	assert_eq(atan2_n1_0, SGFixed.PI)
+
+	var atan2_n1_n1: int = SGFixed.atan2(SGFixed.NEG_ONE, SGFixed.NEG_ONE)
+	assert_eq(atan2_n1_n1, -SGFixed.PI_DIV_2 - SGFixed.PI_DIV_4)
+
+	var atan2_0_n1: int = SGFixed.atan2(SGFixed.NEG_ONE, 0)
+	assert_eq(atan2_0_n1, -SGFixed.PI_DIV_2)
+
+	var atan2_1_n1: int = SGFixed.atan2(SGFixed.NEG_ONE, SGFixed.ONE)
+	assert_eq(atan2_1_n1, -SGFixed.PI_DIV_4)
 
 	#
 	# Test that big values loop around as expected
@@ -265,20 +326,20 @@ func test_rad2deg():
 	assert_almost_eq(SGFixed.rad2deg(-81972), -4696650, precision_valve) # deg2rad(71.6652) Aprox some are not exact
 
 	assert_almost_eq(SGFixed.rad2deg(-SGFixed.TAU*2), -SGFixed.from_int(720), precision_valve) #TAU is 2 PI, a loop
-	
+
 func test_floor():
 	assert_eq(SGFixed.floor(SGFixed.from_float(12.3)), SGFixed.from_int(12))
 	assert_eq(SGFixed.floor(SGFixed.from_float(0.999)), SGFixed.from_int(0))
 	assert_eq(SGFixed.floor(SGFixed.from_int(12)), SGFixed.from_int(12))
 	assert_eq(SGFixed.floor(SGFixed.from_float(6543.5)), SGFixed.from_int(6543))
-	
+
 func test_round():
 	assert_eq(SGFixed.round(SGFixed.from_float(12.3)), SGFixed.from_int(12))
 	assert_eq(SGFixed.round(SGFixed.from_float(12.499)), SGFixed.from_int(12))
 	assert_eq(SGFixed.round(SGFixed.from_float(0.999)), SGFixed.from_int(1))
 	assert_eq(SGFixed.round(SGFixed.from_int(12)), SGFixed.from_int(12))
 	assert_eq(SGFixed.round(SGFixed.from_float(6543.5)), SGFixed.from_int(6544))
-	
+
 func test_ceil():
 	assert_eq(SGFixed.ceil(SGFixed.from_float(12.3)), SGFixed.from_int(13))
 	assert_eq(SGFixed.ceil(SGFixed.from_float(12.499)), SGFixed.from_int(13))

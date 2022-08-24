@@ -80,7 +80,7 @@ struct fixed {
 		}
 
 		int64_t value = 0;
-		Vector<String> str_values = p_string_value.split(".", false);		
+		Vector<String> str_values = p_string_value.split(".", false);
 		if ( !str_values.empty()) {
 			value = str_values.get(0).to_int64() << 16;
 			if (str_values.size() > 1){
@@ -110,11 +110,11 @@ struct fixed {
 		}
 		return (a - b).abs() < tolerance;
 	}
-	
+
 	_FORCE_INLINE_ fixed deg2rad(){
 		return *this * fixed::PI / fixed::DEG_180;
 	}
-	
+
 	_FORCE_INLINE_ fixed rad2deg(){
 		return *this * fixed::DEG_180 / fixed::PI;
 	}
@@ -126,9 +126,9 @@ struct fixed {
 	_FORCE_INLINE_ fixed round() {
 		return (*this + fixed::HALF).floor();
 	}
-	
+
 	_FORCE_INLINE_ fixed ceil() {
-		return (value & 0xFFFF)? (*this + fixed::ONE).floor() : *this; 
+		return (value & 0xFFFF)? (*this + fixed::ONE).floor() : *this;
 	}
 
 	_FORCE_INLINE_ int64_t to_int() const {
@@ -144,7 +144,7 @@ struct fixed {
 		int64_t decimal = value & 0xFFFF;
 		if(decimal != 0) {
 			decimal = (decimal * 10000000) >> 16;  //10.000.000 - for precision
-			
+
 			//add left zeros
 			String left_zeros = "";
 			int64_t left_zero_checker = 1000000;
@@ -262,7 +262,12 @@ struct fixed {
 	fixed asin() const;
 	fixed acos() const;
 	fixed atan() const;
-	fixed atan2(const fixed &inY) const;
+	fixed atan2(const fixed &inX) const;
+
+	// Calculates atan(x), assuming that x is in the range 0 to 1.
+	static fixed atan_sanitized(const fixed &p_x);
+	// Calculates atan(y / x), assuming x != 0.
+	static fixed atan_div(const fixed &p_y, const fixed &p_x);
 };
 
 #endif

@@ -78,7 +78,7 @@ const fixed fixed::DEG_180 = fixed(11796480);
 const int64_t fixed::TENS[] { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };
 const int fixed::TENS_SIZE = sizeof(TENS)/sizeof(TENS[0]);
 
-// Adapted form the fpm library: https://github.com/MikeLankamp
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
 // Copyright 2019 Mike Lankamp
 // License: MIT
 fixed fixed::sin() const {
@@ -121,56 +121,106 @@ fixed fixed::tan() const {
 	return sin() / cx;
 }
 
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
 fixed fixed::asin() const {
-	if (value == 65536) {
-		// libfixmath generates an incorrect result for asin(65536).
-		// @todo Remove after we've replaced libfixmatch per issue #4:
-		//       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
-		return fixed::PI_DIV_2;
-	}
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_asin(value));
+	if (*this < fixed::NEG_ONE || *this > fixed::ONE) {
+		return fixed::ZERO;
 	}
 
-	int64_t remainder = value % fixed::TAU.value;
-	return fixed(fix16_asin(remainder));
+	fixed yy = fixed::ONE - (*this) * (*this);
+	if (yy == fixed::ZERO) {
+		return (*this > fixed::ZERO) ? fixed::PI_DIV_2 : -fixed::PI_DIV_2;
+	}
+
+	return atan_div(*this, yy.sqrt());
 }
 
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
 fixed fixed::acos() const {
-	if (value == 65536) {
-		// libfixmath generates an incorrect result for acos(65536).
-		// @todo Remove after we've replaced libfixmatch per issue #4:
-		//       https://gitlab.com/snopek-games/sg-physics-2d/-/issues/4
+	if (*this < fixed::NEG_ONE || *this > fixed::ONE) {
 		return fixed::ZERO;
 	}
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_acos(value));
+
+	if (*this == fixed::NEG_ONE) {
+		return fixed::PI;
 	}
 
-	int64_t remainder = value % fixed::TAU.value;
-	return fixed(fix16_acos(remainder));
+	fixed yy = fixed::ONE - (*this) * (*this);
+	return fixed::TWO * atan_div(yy.sqrt(), fixed::ONE + *this);
 }
 
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
 fixed fixed::atan() const {
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_atan(value));
+	if (*this < fixed::ZERO) {
+		return -fixed(-value).atan();
 	}
 
-	int64_t remainder = value % fixed::TAU.value;
-	return fixed(fix16_atan(remainder));
+	if (*this > fixed::ONE) {
+		return fixed::PI_DIV_2 - atan_sanitized(fixed::ONE / *this);
+	}
+
+	return atan_sanitized(*this);
 }
 
-fixed fixed::atan2(const fixed &inY) const {
-	if (value == 0 && inY.value == 0) {
-		return fixed::ZERO;
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
+fixed fixed::atan2(const fixed &inX) const {
+	if (*this == fixed::ZERO) {
+		return (inX < fixed::ZERO) ? fixed::PI : fixed::ZERO;
 	}
-	if (value < fix16_maximum && value > fix16_minimum) {
-		return fixed(fix16_atan2(value, inY.value));
+	if (inX == fixed::ZERO) {
+		return (*this > fixed::ZERO) ? fixed::PI_DIV_2 : -fixed::PI_DIV_2;
 	}
 
-	int64_t x = value % fixed::PI.value;
-	int64_t y = inY.value % fixed::PI.value;
-	return fixed(fix16_atan2(x, y));
+	fixed ret = atan_div(*this, inX);
+
+	if (inX < fixed::ZERO) {
+		return (*this >= fixed::ZERO) ? ret + fixed::PI : ret - fixed::PI;
+	}
+	return ret;
+}
+
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
+fixed fixed::atan_sanitized(const fixed &p_x) {
+	ERR_FAIL_COND_V(p_x < fixed::ZERO || p_x > fixed::ONE, fixed::ZERO);
+
+	fixed a = fixed(5089);   //  0.0776509570923569
+	fixed b = fixed(-18837); // -0.2874298095703125
+	fixed c = fixed(65220);  //  0.999755859375 (PI_DIV_4 - A - B)
+
+	fixed xx = p_x * p_x;
+	return ((a * xx + b) * xx + c) * p_x;
+}
+
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
+fixed fixed::atan_div(const fixed &p_y, const fixed &p_x) {
+	ERR_FAIL_COND_V(p_x == fixed::ZERO, fixed::ZERO);
+
+	if (p_y < fixed::ZERO) {
+		if (p_x < fixed::ZERO) {
+			return atan_div(-p_y, -p_x);
+		}
+		return -atan_div(-p_y, p_x);
+	}
+	if (p_x < fixed::ZERO) {
+		return -atan_div(p_y, -p_x);
+	}
+
+	if (p_y > p_x) {
+		return fixed::PI_DIV_2 - atan_sanitized(p_x / p_y);
+	}
+	return atan_sanitized(p_y / p_x);
 }
 
 /* Copied from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#With_constant_auxiliary_memory,
