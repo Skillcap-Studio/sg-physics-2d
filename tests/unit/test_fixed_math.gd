@@ -30,6 +30,37 @@ func test_division():
 
 	assert_eq(c, 491520)
 
+func test_exp():
+	var exp_0 = SGFixed.exp(0)
+	assert_eq(exp_0, SGFixed.ONE)
+
+	var exp_1 = SGFixed.exp(SGFixed.ONE)
+	assert_eq(exp_1, SGFixed.E)
+
+	var exp_2 = SGFixed.exp(SGFixed.TWO)
+	assert_eq(exp_2, 484237)
+
+	# 1.5
+	var exp_15 = SGFixed.exp(98304)
+	assert_eq(exp_15, 293707)
+
+func test_log():
+	# These are all slightly inaccurate. :-( Is that OK?
+	# The error is shown as an addition to the correct value.
+
+	var log_exp_0 = SGFixed.log(SGFixed.ONE)
+	assert_eq(log_exp_0, 0 + 1)
+
+	var log_exp_1 = SGFixed.log(SGFixed.E)
+	assert_eq(log_exp_1, SGFixed.ONE + 3)
+
+	var log_exp_2 = SGFixed.log(484237)
+	assert_eq(log_exp_2, SGFixed.TWO)
+
+	# 1.5
+	var log_exp_15 = SGFixed.log(293707)
+	assert_eq(log_exp_15, 98304 + 1)
+
 func test_power():
 	var a: int = SGFixed.pow(65536, 131072)
 	var b: int = SGFixed.pow(131072, 131072)

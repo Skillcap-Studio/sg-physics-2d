@@ -15,13 +15,6 @@ sg_physics_2d_subdirs = [
     "scene/animation/",
 ]
 
-# Add the sources for libfixmath
-env_sg_physics_2d.Append(CPPDEFINES = [
-    'FIXMATH_NO_OVERFLOW',
-    'FIXMATH_NO_ROUNDING',
-])
-env_sg_physics_2d.add_source_files(env.modules_sources, "thirdparty/libfixmath/*.c")
-
 for d in sg_physics_2d_subdirs:
     env_sg_physics_2d.add_source_files(env.modules_sources, d + "*.cpp")
 

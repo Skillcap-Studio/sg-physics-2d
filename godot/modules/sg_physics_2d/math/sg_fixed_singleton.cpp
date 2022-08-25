@@ -65,6 +65,8 @@ void SGFixed::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("floor", "fixed_value"), &SGFixed::floor);
 	ClassDB::bind_method(D_METHOD("round", "fixed_value"), &SGFixed::round);
 	ClassDB::bind_method(D_METHOD("ceil", "fixed_value"), &SGFixed::ceil);
+	ClassDB::bind_method(D_METHOD("exp", "fixed_value"), &SGFixed::exp);
+	ClassDB::bind_method(D_METHOD("log", "fixed_value"), &SGFixed::log);
 	ClassDB::bind_method(D_METHOD("pow", "fixed_one", "fixed_two"), &SGFixed::pow);
 	ClassDB::bind_method(D_METHOD("move_toward", "fixed_from_value", "fixed_to_value", "fixed_delta_value"), &SGFixed::move_toward);
 
@@ -80,6 +82,7 @@ void SGFixed::_bind_methods() {
 	BIND_CONSTANT(HALF);
 	BIND_CONSTANT(TWO);
 	BIND_CONSTANT(NEG_ONE);
+	BIND_CONSTANT(E);
 	BIND_CONSTANT(PI);
 	BIND_CONSTANT(TAU);
 	BIND_CONSTANT(PI_DIV_2);
@@ -159,6 +162,15 @@ int64_t SGFixed::deg2rad(int64_t p_fixed_value) const {
 int64_t SGFixed::rad2deg(int64_t p_fixed_value) const {
 	return fixed(p_fixed_value).rad2deg().value;
 }
+
+int64_t SGFixed::exp(int64_t p_fixed_value) const {
+	return fixed(p_fixed_value).exp().value;
+}
+
+int64_t SGFixed::log(int64_t p_fixed_value) const {
+	return fixed(p_fixed_value).log().value;
+}
+
 int64_t SGFixed::pow(int64_t base, int64_t exp) const {
 	return fixed(base).pow(fixed(exp)).value;
 }

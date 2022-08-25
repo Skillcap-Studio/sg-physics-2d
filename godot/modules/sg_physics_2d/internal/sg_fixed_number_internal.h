@@ -57,6 +57,7 @@ struct fixed {
 	static const fixed TWO;
 	static const fixed NEG_ONE;
 	static const fixed PI;
+	static const fixed E;
 	static const fixed TAU;
 	static const fixed PI_DIV_2;
 	static const fixed PI_DIV_4;
@@ -254,6 +255,9 @@ struct fixed {
 	_FORCE_INLINE_ fixed sign() const { return value < 0 ? fixed::NEG_ONE : (value > 0 ? fixed::ONE : fixed::ZERO); }
 	_FORCE_INLINE_ fixed move_toward(const fixed& p_other, fixed p_delta) { return (p_other - *this).abs() <= p_delta ? p_other : *this + FIXED_SGN(p_other - *this) * p_delta; }
 
+	fixed exp() const;
+	fixed log() const;
+
 	fixed pow(const fixed &exp) const;
 	fixed pow_integer(const fixed &exp) const;
 	fixed  sin() const;
@@ -263,6 +267,8 @@ struct fixed {
 	fixed acos() const;
 	fixed atan() const;
 	fixed atan2(const fixed &inX) const;
+
+private:
 
 	// Calculates atan(x), assuming that x is in the range 0 to 1.
 	static fixed atan_sanitized(const fixed &p_x);

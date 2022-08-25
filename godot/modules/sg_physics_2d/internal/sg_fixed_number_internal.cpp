@@ -23,8 +23,6 @@
 
 #include "sg_fixed_number_internal.h"
 
-#include "../thirdparty/libfixmath/fixmath.h"
-
 /**
  * Copied from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Binary_numeral_system_.28base_2.29
  * but modified to use 64-bit numbers.
@@ -69,6 +67,7 @@ const fixed fixed::HALF = fixed(32768);
 const fixed fixed::TWO  = fixed(131072);
 const fixed fixed::NEG_ONE = fixed(-65536);
 const fixed fixed::PI = fixed(205887);
+const fixed fixed::E = fixed(178145);
 const fixed fixed::TAU = fixed(411774);
 const fixed fixed::PI_DIV_2 = fixed(102943);
 const fixed fixed::PI_DIV_4 = fixed(51472);
@@ -223,10 +222,95 @@ fixed fixed::atan_div(const fixed &p_y, const fixed &p_x) {
 	return atan_sanitized(p_y / p_x);
 }
 
-/* Copied from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#With_constant_auxiliary_memory,
-  * Copyrighted by Wikipedia editors and contributors
-	* License: Creative Commons Attribution-ShareAlike 3.0 Unported License
-	*/
+// Adapted from libfixmath: https://github.com/PetteriAimonen/libfixmath
+// Copyright 2011-2021 Flatmush <Flatmush@gmail.com>
+// License: MIT
+fixed fixed::log() const {
+	fixed guess = fixed::from_int(2);
+	fixed delta;
+	int scaling = 0;
+	int count = 0;
+
+	if (value <= 0)
+		return fixed::ARITHMETIC_OVERFLOW;
+
+	fixed inValue = fixed(value);
+
+	// Bring the value to the most accurate range (1 < x < 100)
+	const fixed e_to_fourth = fixed(3578144);
+	while (inValue > fixed::from_int(100)) {
+		inValue = inValue / e_to_fourth;
+		scaling += 4;
+	}
+
+	while (inValue < fixed::ONE) {
+		inValue = inValue * e_to_fourth;
+		scaling -= 4;
+	}
+
+	do {
+		// Solving e(x) = y using Newton's method
+		// f(x) = e(x) - y
+		// f'(x) = e(x)
+		fixed e = guess.exp();
+		delta = (inValue - e) / e;
+
+		// It's unlikely that logarithm is very large, so avoid overshooting.
+		if (delta > fixed::from_int(3))
+			delta = fixed::from_int(3);
+
+		guess += delta;
+	} while ((count++ < 10)
+		&& ((delta > fixed(1)) || (delta < fixed(-1))));
+
+	return guess + fixed::from_int(scaling);
+}
+
+// Adapted from libfixmath: https://github.com/PetteriAimonen/libfixmath
+// Copyright 2011-2021 Flatmush <Flatmush@gmail.com>
+// License: MIT
+fixed fixed::exp() const {
+	if (value == 0)
+		return fixed::ONE;
+	if (value == fixed::ONE.value)
+		return fixed::E;
+	if (value >= 681391)
+		return fixed(INT64_MAX);
+	if (value <= -772243)
+		return fixed::ZERO;
+
+	/* The algorithm is based on the power series for exp(x):
+	 * http://en.wikipedia.org/wiki/Exponential_function#Formal_definition
+	 *
+	 * From term n, we get term n+1 by multiplying with x/n.
+	 * When the sum term drops to zero, we can stop summing.
+	 */
+
+	bool neg = (value < 0);
+	fixed inValue = fixed(neg ? -value : value);
+
+	fixed result = inValue + fixed::ONE;
+	fixed term = inValue;
+
+	for (int i = 2; i < 30; i++)
+	{
+		term = term * (inValue / fixed::from_int(i));
+		result += term;
+
+		if ((term.value < 500) && ((i > 15) || (term.value < 20)))
+			break;
+	}
+
+	if (neg) {
+		result = fixed::ONE / result;
+	}
+
+	return result;
+}
+
+// Adapted from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#With_constant_auxiliary_memory,
+// Copyright: Wikipedia editors and contributors
+// License: Creative Commons Attribution-ShareAlike 3.0 Unported License
 fixed fixed::pow_integer(const fixed &exp) const {
 	if (value < 0) {
 		return fixed::ONE / (pow(exp * fixed::NEG_ONE));
@@ -258,17 +342,12 @@ fixed fixed::pow_integer(const fixed &exp) const {
 	return x * y;
 }
 
-/* Adapted from https://github.com/MikeLankamp/fpm/blob/master/include/fpm/math.hpp,
-  * specifically the non-integer pow function at line 315. Calls the integer pow function if
-	* the exponent is not a fraction.
-	* Copyright 2019 Mike Lankamp
-	* License: MIT
-	*/
+// Adapted from the fpm library: https://github.com/MikeLankamp/fpm
+// Copyright 2019 Mike Lankamp
+// License: MIT
 fixed fixed::pow(const fixed &exp) const {
 	if (value == 0) {
-		#ifdef MATH_CHECKS
-			ERR_FAIL_COND_V_MSG(exp.value < 0, fixed::ARITHMETIC_OVERFLOW, "Cannot use negative exponents and a base of 0 with integer exponentiation!");
-		#endif
+		ERR_FAIL_COND_V_MSG(exp.value < 0, fixed::ZERO, "Cannot use negative exponents and a base of 0 with integer exponentiation!");
 		return fixed::ZERO;
 	}
 
@@ -288,8 +367,7 @@ fixed fixed::pow(const fixed &exp) const {
 		}
 	}
 
-	#ifdef MATH_CHECKS
-		ERR_FAIL_COND_V_MSG(base < fixed::ZERO, fixed::ARITHMETIC_OVERFLOW, "Negative bases and fractional exponents in pow() are not supported!");
-	#endif
-	return fixed(fix16_exp((fixed(fix16_log(value)) * exp).value));
+	ERR_FAIL_COND_V_MSG(value < 0, fixed::ZERO, "Negative bases and fractional exponents in pow() are not supported!");
+
+	return (log() * exp).exp();
 }
