@@ -255,6 +255,7 @@ struct fixed {
 	_FORCE_INLINE_ fixed sign() const { return value < 0 ? fixed::NEG_ONE : (value > 0 ? fixed::ONE : fixed::ZERO); }
 	_FORCE_INLINE_ fixed move_toward(const fixed& p_other, fixed p_delta) { return (p_other - *this).abs() <= p_delta ? p_other : *this + FIXED_SGN(p_other - *this) * p_delta; }
 
+	fixed div_rounded(const fixed &p_other) const;
 	fixed exp() const;
 	fixed log() const;
 

@@ -65,6 +65,7 @@ void SGFixed::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("floor", "fixed_value"), &SGFixed::floor);
 	ClassDB::bind_method(D_METHOD("round", "fixed_value"), &SGFixed::round);
 	ClassDB::bind_method(D_METHOD("ceil", "fixed_value"), &SGFixed::ceil);
+	ClassDB::bind_method(D_METHOD("div_rounded", "fixed_one", "fixed_two"), &SGFixed::div_rounded);
 	ClassDB::bind_method(D_METHOD("exp", "fixed_value"), &SGFixed::exp);
 	ClassDB::bind_method(D_METHOD("log", "fixed_value"), &SGFixed::log);
 	ClassDB::bind_method(D_METHOD("pow", "fixed_one", "fixed_two"), &SGFixed::pow);
@@ -161,6 +162,10 @@ int64_t SGFixed::deg2rad(int64_t p_fixed_value) const {
 
 int64_t SGFixed::rad2deg(int64_t p_fixed_value) const {
 	return fixed(p_fixed_value).rad2deg().value;
+}
+
+int64_t SGFixed::div_rounded(int64_t p_fixed_one, int64_t p_fixed_two) const {
+	return fixed(p_fixed_one).div_rounded(fixed(p_fixed_two)).value;
 }
 
 int64_t SGFixed::exp(int64_t p_fixed_value) const {

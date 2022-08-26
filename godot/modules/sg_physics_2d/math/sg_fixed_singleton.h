@@ -81,6 +81,7 @@ public:
 	int64_t floor(int64_t p_fixed_value) const;
 	int64_t round(int64_t p_fixed_value) const;
 	int64_t ceil(int64_t p_fixed_value) const;
+	int64_t div_rounded(int64_t p_fixed_one, int64_t p_fixed_two) const;
 	int64_t exp(int64_t p_fixed_value) const;
 	int64_t log(int64_t p_fixed_value) const;
 	int64_t pow(int64_t p_fixed_one, int64_t p_fixed_two) const;

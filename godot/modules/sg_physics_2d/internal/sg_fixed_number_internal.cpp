@@ -239,7 +239,7 @@ fixed fixed::log() const {
 	// Bring the value to the most accurate range (1 < x < 100)
 	const fixed e_to_fourth = fixed(3578144);
 	while (inValue > fixed::from_int(100)) {
-		inValue = inValue / e_to_fourth;
+		inValue = inValue.div_rounded(e_to_fourth);
 		scaling += 4;
 	}
 
@@ -253,17 +253,21 @@ fixed fixed::log() const {
 		// f(x) = e(x) - y
 		// f'(x) = e(x)
 		fixed e = guess.exp();
-		delta = (inValue - e) / e;
+		delta = (inValue - e).div_rounded(e);
 
 		// It's unlikely that logarithm is very large, so avoid overshooting.
 		if (delta > fixed::from_int(3))
 			delta = fixed::from_int(3);
 
 		guess += delta;
-	} while ((count++ < 10)
-		&& ((delta > fixed(1)) || (delta < fixed(-1))));
+	} while ((count++ < 10) && (delta != fixed(0)));
 
 	return guess + fixed::from_int(scaling);
+}
+
+fixed fixed::div_rounded(const fixed &p_other) const {
+	int64_t temp = (value << 17) / p_other.value;
+	return fixed((temp / 2) + (temp % 2));
 }
 
 // Adapted from libfixmath: https://github.com/PetteriAimonen/libfixmath
@@ -294,7 +298,7 @@ fixed fixed::exp() const {
 
 	for (int i = 2; i < 30; i++)
 	{
-		term = term * (inValue / fixed::from_int(i));
+		term = term * (inValue.div_rounded(fixed::from_int(i)));
 		result += term;
 
 		if ((term.value < 500) && ((i > 15) || (term.value < 20)))
@@ -302,7 +306,7 @@ fixed fixed::exp() const {
 	}
 
 	if (neg) {
-		result = fixed::ONE / result;
+		result = fixed::ONE.div_rounded(result);
 	}
 
 	return result;
@@ -313,7 +317,7 @@ fixed fixed::exp() const {
 // License: Creative Commons Attribution-ShareAlike 3.0 Unported License
 fixed fixed::pow_integer(const fixed &exp) const {
 	if (value < 0) {
-		return fixed::ONE / (pow(exp * fixed::NEG_ONE));
+		return fixed::ONE.div_rounded(pow(exp * fixed::NEG_ONE));
 	}
 
 	fixed x = fixed(value);
@@ -321,7 +325,7 @@ fixed fixed::pow_integer(const fixed &exp) const {
 	fixed n = exp;
 
 	if (n < fixed::ZERO) {
-		x = fixed::ONE / x;
+		x = fixed::ONE.div_rounded(x);
 		n *= fixed::NEG_ONE;
 	}
 
@@ -332,11 +336,11 @@ fixed fixed::pow_integer(const fixed &exp) const {
 	while (n > fixed::ONE) {
 		if ((n % fixed::TWO) == fixed::ZERO) {
 			x *= x;
-			n /= fixed::TWO;
+			n = n.div_rounded(fixed::TWO);
 		} else {
 			y *= x;
 			x *= x;
-			n = (n - fixed::ONE) / fixed::TWO;
+			n = (n - fixed::ONE).div_rounded(fixed::TWO);
 		}
 	}
 	return x * y;
@@ -352,7 +356,7 @@ fixed fixed::pow(const fixed &exp) const {
 	}
 
 	if (exp < fixed::ZERO) {
-		return fixed::ONE / (pow(exp * fixed::NEG_ONE));
+		return fixed::ONE.div_rounded(pow(exp * fixed::NEG_ONE));
 	}
 
 	if ((exp.value % 65536) == 0) {

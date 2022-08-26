@@ -54,6 +54,35 @@
 				Return the result of dividing the fixed-point numbers [code]fixed_one[/code] divided by [code]fixed_two[/code].
 			</description>
 		</method>
+		<method name="div_rounded" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_one" type="int" />
+			<argument index="1" name="fixed_two" type="int" />
+			<description>
+				Return the result of dividing the fixed-point numbers [code]fixed_one[/code] divided by [code]fixed_two[/code],
+				 but rounding the result to the nearest value instead of returning the integer division quotient.
+			</description>
+		</method>
+		<method name="exp" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="floor" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded down.
+			</description>
+		</method>
+		<method name="format_string" qualifiers="const">
+			<return type="String" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Formats a fixed-point number into a string.
+			</description>
+		</method>
 		<method name="from_float" qualifiers="const">
 			<return type="int" />
 			<argument index="0" name="float_value" type="float" />

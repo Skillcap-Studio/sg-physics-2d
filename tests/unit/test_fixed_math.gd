@@ -38,27 +38,26 @@ func test_exp():
 	assert_eq(exp_1, SGFixed.E)
 
 	var exp_2 = SGFixed.exp(SGFixed.TWO)
-	assert_eq(exp_2, 484237)
+	assert_eq(exp_2, 484249 - 5)
 
 	# 1.5
 	var exp_15 = SGFixed.exp(98304)
 	assert_eq(exp_15, 293707)
 
 func test_log():
-	# These are all slightly inaccurate. :-( Is that OK?
 	# The error is shown as an addition to the correct value.
 
 	var log_exp_0 = SGFixed.log(SGFixed.ONE)
-	assert_eq(log_exp_0, 0 + 1)
+	assert_eq(log_exp_0, 0)
 
 	var log_exp_1 = SGFixed.log(SGFixed.E)
-	assert_eq(log_exp_1, SGFixed.ONE + 3)
+	assert_eq(log_exp_1, SGFixed.ONE + 1)
 
-	var log_exp_2 = SGFixed.log(484237)
-	assert_eq(log_exp_2, SGFixed.TWO)
+	var log_exp_2 = SGFixed.log(484249)
+	assert_eq(log_exp_2, SGFixed.TWO + 1)
 
 	# 1.5
-	var log_exp_15 = SGFixed.log(293707)
+	var log_exp_15 = SGFixed.log(293712)
 	assert_eq(log_exp_15, 98304 + 1)
 
 func test_power():
