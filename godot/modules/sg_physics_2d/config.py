@@ -34,4 +34,3 @@ def get_doc_classes():
         'SGTween',
         'SGAStar2D',
     ]
-
