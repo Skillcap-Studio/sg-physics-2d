@@ -31,15 +31,15 @@
 #include "../../internal/sg_world_2d_internal.h"
 
 void SGAreaCollision2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_object"), &SGAreaCollision2D::get_object);
+	ClassDB::bind_method(D_METHOD("get_collider"), &SGAreaCollision2D::get_collider);
 	ClassDB::bind_method(D_METHOD("get_shape"), &SGAreaCollision2D::get_shape);
 
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "object"), "", "get_object");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "collider"), "", "get_collider");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape"), "", "get_shape");
 }
 
-SGCollisionObject2D *SGAreaCollision2D::get_object() const {
-	return object;
+SGCollisionObject2D *SGAreaCollision2D::get_collider() const {
+	return collider;
 }
 
 SGFixedNode2D *SGAreaCollision2D::get_shape() const {
@@ -47,12 +47,12 @@ SGFixedNode2D *SGAreaCollision2D::get_shape() const {
 }
 
 SGAreaCollision2D::SGAreaCollision2D(SGCollisionObject2D *p_object, SGFixedNode2D *p_shape) {
-	object = p_object;
+	collider = p_object;
 	shape = p_shape;
 }
 
 SGAreaCollision2D::SGAreaCollision2D() {
-	object = nullptr;
+	collider = nullptr;
 	shape = nullptr;
 }
 
@@ -82,8 +82,8 @@ struct SGCollisionObjectComparator {
 
 struct SGAreaCollision2DComparator {
 	bool operator()(const SGAreaCollision2D *p_a, const SGAreaCollision2D *p_b) const {
-		SGCollisionObject2D *a = Object::cast_to<SGCollisionObject2D>((Object *)p_a->get_object());
-		SGCollisionObject2D *b = Object::cast_to<SGCollisionObject2D>((Object *)p_b->get_object());
+		SGCollisionObject2D *a = Object::cast_to<SGCollisionObject2D>((Object *)p_a->get_collider());
+		SGCollisionObject2D *b = Object::cast_to<SGCollisionObject2D>((Object *)p_b->get_collider());
 		return b->is_greater_than(a);
 	}
 };

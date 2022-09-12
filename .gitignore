@@ -1,6 +1,7 @@
 /.import/
 /.vscode/
 /build/
+/.mono/
 
 *.o
 *.pyc

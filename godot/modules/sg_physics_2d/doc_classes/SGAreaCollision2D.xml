@@ -11,7 +11,7 @@
 	<methods>
 	</methods>
 	<members>
-		<member name="object" type="SGCollisionObject2D" setter="" getter="get_object">
+		<member name="collider" type="SGCollisionObject2D" setter="" getter="get_collider">
 			The overlapping body or area.
 		</member>
 		<member name="shape" type="SGFixedNode2D" setter="" getter="get_shape">

@@ -37,11 +37,11 @@ class SGAreaCollision2D : public Reference
 protected:
 	static void _bind_methods();
 
-	SGCollisionObject2D *object;
+	SGCollisionObject2D *collider;
 	SGFixedNode2D *shape;
 
 public:
-	SGCollisionObject2D *get_object() const;
+	SGCollisionObject2D *get_collider() const;
 	SGFixedNode2D *get_shape() const;
 
 	SGAreaCollision2D(SGCollisionObject2D *p_object, SGFixedNode2D *p_shape);

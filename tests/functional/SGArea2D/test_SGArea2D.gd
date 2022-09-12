@@ -52,12 +52,12 @@ func test_get_overlapping_area_shape_collisions() -> void:
 	
 	result = scene.detector_area1.get_overlapping_area_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].collider, scene.colliding_area)
 	assert_eq(result[0].shape, scene.colliding_area_shape1)
 	
 	result = scene.detector_area2.get_overlapping_area_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].collider, scene.colliding_area)
 	assert_eq(result[0].shape, scene.colliding_area_shape2)
 	
 	remove_child(scene)
@@ -73,12 +73,12 @@ func test_get_overlapping_body_shape_collisions() -> void:
 	
 	result = scene.detector_area1.get_overlapping_body_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].collider, scene.colliding_body)
 	assert_eq(result[0].shape, scene.colliding_body_shape1)
 	
 	result = scene.detector_area2.get_overlapping_body_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].collider, scene.colliding_body)
 	assert_eq(result[0].shape, scene.colliding_body_shape2)
 	
 	remove_child(scene)
@@ -94,12 +94,12 @@ func test_get_overlapping_area_polygon_collisions() -> void:
 	
 	result = scene.detector_area1.get_overlapping_area_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].collider, scene.colliding_area)
 	assert_eq(result[0].shape, scene.colliding_area_shape1)
 	
 	result = scene.detector_area2.get_overlapping_area_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_area)
+	assert_eq(result[0].collider, scene.colliding_area)
 	assert_eq(result[0].shape, scene.colliding_area_shape2)
 	
 	remove_child(scene)
@@ -115,12 +115,12 @@ func test_get_overlapping_body_polygon_collisions() -> void:
 	
 	result = scene.detector_area1.get_overlapping_body_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].collider, scene.colliding_body)
 	assert_eq(result[0].shape, scene.colliding_body_shape1)
 	
 	result = scene.detector_area2.get_overlapping_body_collisions()
 	assert_eq(result.size(), 1)
-	assert_eq(result[0].object, scene.colliding_body)
+	assert_eq(result[0].collider, scene.colliding_body)
 	assert_eq(result[0].shape, scene.colliding_body_shape2)
 	
 	remove_child(scene)
