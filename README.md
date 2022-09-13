@@ -98,6 +98,8 @@ Collision objects and shapes
 SG Physics 2D is used in a very similar way to Godot's built-in physics, and
 provides Nodes and Resources that mirror the built-in Godot ones.
 
+![Screenshot of the "Create New Node" dialog showing the additional nodes](assets/screenshots/nodes.png)
+
 At the moment, the follow collision objects are supported:
 
  - `SGArea2D`
