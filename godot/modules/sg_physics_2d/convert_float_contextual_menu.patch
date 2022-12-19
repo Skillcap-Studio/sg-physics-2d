@@ -1,0 +1,59 @@
+diff --git a/editor/plugins/script_text_editor.cpp b/editor/plugins/script_text_editor.cpp
+index 5077b5d581..b7c5042641 100644
+--- a/editor/plugins/script_text_editor.cpp
++++ b/editor/plugins/script_text_editor.cpp
+@@ -37,6 +37,8 @@
+ #include "editor/editor_scale.h"
+ #include "editor/editor_settings.h"
+ #include "editor/script_editor_debugger.h"
++#include <string>
++#include "modules/sg_physics_2d/math/sg_fixed_singleton.h"
+ 
+ void ConnectionInfoDialog::ok_pressed() {
+ }
+@@ -1216,6 +1218,17 @@ void ScriptTextEditor::_edit_option(int p_op) {
+ 			code_editor->get_text_edit()->insert_text_at_cursor(results.join("\n"));
+ 			code_editor->get_text_edit()->end_complex_operation();
+ 		} break;
++		case EDIT_FLOAT_TO_SGFIXED_DECIMAL: {
++			String text_float = tx->get_selection_text();
++			if(text_float.split("\n").size() == 1 && (text_float.is_valid_float() || text_float.is_valid_integer())) {
++				std::string converted_value = std::to_string(
++					SGFixed::get_singleton()->from_string(text_float)
++				);
++				tx->begin_complex_operation();
++				tx-> insert_text_at_cursor(String(converted_value.c_str()));
++				tx->end_complex_operation();
++			}
++		} break;
+ 		case SEARCH_FIND: {
+ 			code_editor->get_find_replace_bar()->popup_search();
+ 		} break;
+@@ -1722,6 +1735,7 @@ void ScriptTextEditor::_make_context_menu(bool p_selection, bool p_color, bool p
+ 		context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_to_uppercase"), EDIT_TO_UPPERCASE);
+ 		context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_to_lowercase"), EDIT_TO_LOWERCASE);
+ 		context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/evaluate_selection"), EDIT_EVALUATE);
++		context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_float_to_fixed_decimal"), EDIT_FLOAT_TO_SGFIXED_DECIMAL);
+ 	}
+ 	if (p_foldable) {
+ 		context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_fold_line"), EDIT_TOGGLE_FOLD_LINE);
+@@ -1995,6 +2009,7 @@ void ScriptTextEditor::register_editor() {
+ 	ED_SHORTCUT("script_text_editor/toggle_fold_line", TTR("Fold/Unfold Line"), KEY_MASK_ALT | KEY_F);
+ 	ED_SHORTCUT("script_text_editor/fold_all_lines", TTR("Fold All Lines"), 0);
+ 	ED_SHORTCUT("script_text_editor/unfold_all_lines", TTR("Unfold All Lines"), 0);
++	ED_SHORTCUT("script_text_editor/convert_float_to_fixed_decimal", TTR("Transform float to fixed decimal"), 0);
+ #ifdef OSX_ENABLED
+ 	ED_SHORTCUT("script_text_editor/duplicate_selection", TTR("Duplicate Selection"), KEY_MASK_SHIFT | KEY_MASK_CMD | KEY_C);
+ 	ED_SHORTCUT("script_text_editor/complete_symbol", TTR("Complete Symbol"), KEY_MASK_CTRL | KEY_SPACE);
+diff --git a/editor/plugins/script_text_editor.h b/editor/plugins/script_text_editor.h
+index 2e56a0ab32..58b3e9cb15 100644
+--- a/editor/plugins/script_text_editor.h
++++ b/editor/plugins/script_text_editor.h
+@@ -128,6 +128,7 @@ class ScriptTextEditor : public ScriptEditorBase {
+ 		EDIT_TOGGLE_FOLD_LINE,
+ 		EDIT_FOLD_ALL_LINES,
+ 		EDIT_UNFOLD_ALL_LINES,
++		EDIT_FLOAT_TO_SGFIXED_DECIMAL,
+ 		SEARCH_FIND,
+ 		SEARCH_FIND_NEXT,
+ 		SEARCH_FIND_PREV,
