@@ -32,6 +32,8 @@
 class SGRayCast2D : public SGFixedNode2D {
 	GDCLASS(SGRayCast2D, SGFixedNode2D);
 
+	RID world_rid;
+
 	Ref<SGFixedVector2> cast_to;
 	uint32_t collision_mask;
 	bool collide_with_areas = false;
@@ -79,6 +81,9 @@ public:
 	Array get_exceptions() const;
 	void set_exceptions(const Array &p_exceptions);
 	void clear_exceptions();
+
+	RID get_world() const { return world_rid; }
+	void set_world(RID p_world);
 
 	SGRayCast2D();
 	~SGRayCast2D();

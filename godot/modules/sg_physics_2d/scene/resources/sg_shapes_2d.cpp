@@ -25,7 +25,7 @@
 
 #include <servers/visual_server.h>
 
-#include "../../internal/sg_shapes_2d_internal.h"
+#include "../../servers/sg_physics_2d_server.h"
 
 void SGShape2D::_bind_methods() {
 }
@@ -68,8 +68,8 @@ void SGRectangleShape2D::fixed_vector2_changed(SGFixedVector2 *p_vector) {
 	emit_changed();
 }
 
-SGShape2DInternal *SGRectangleShape2D::create_internal_shape() const {
-	return memnew(SGRectangle2DInternal(fixed(655360), fixed(655360)));
+RID SGRectangleShape2D::create_internal_shape() const {
+	return SGPhysics2DServer::get_singleton()->shape_create(SGPhysics2DServer::SHAPE_RECTANGLE);
 }
 
 int64_t SGRectangleShape2D::_get_extents_x() const {
@@ -88,9 +88,8 @@ void SGRectangleShape2D::_set_extents_y(int64_t p_y) {
 	extents->set_y(p_y);
 }
 
-void SGRectangleShape2D::sync_to_physics_engine(SGShape2DInternal *p_internal_shape) const {
-	SGRectangle2DInternal* rectangle = (SGRectangle2DInternal *)p_internal_shape;
-	rectangle->set_extents(extents->get_internal());
+void SGRectangleShape2D::sync_to_physics_engine(RID p_internal_shape) const {
+	SGPhysics2DServer::get_singleton()->rectangle_set_extents(p_internal_shape, extents);
 }
 
 void SGRectangleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
@@ -117,27 +116,26 @@ void SGCircleShape2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "radius"), "set_radius", "get_radius");
 }
 
-void SGCircleShape2D::set_radius(int p_radius) {
-	radius = fixed(p_radius);
+void SGCircleShape2D::set_radius(int64_t p_radius) {
+	radius = p_radius;
 	_change_notify("extents");
 	emit_changed();
 }
 
-int SGCircleShape2D::get_radius() const {
-	return radius.value;
+int64_t SGCircleShape2D::get_radius() const {
+	return radius;
 }
 
-SGShape2DInternal *SGCircleShape2D::create_internal_shape() const {
-	return memnew(SGCircle2DInternal(fixed(655360)));
+RID SGCircleShape2D::create_internal_shape() const {
+	return SGPhysics2DServer::get_singleton()->shape_create(SGPhysics2DServer::SHAPE_CIRCLE);
 }
 
-void SGCircleShape2D::sync_to_physics_engine(SGShape2DInternal *p_internal_shape) const {
-	SGCircle2DInternal *circle = (SGCircle2DInternal *)p_internal_shape;
-	circle->set_radius(fixed(radius));
+void SGCircleShape2D::sync_to_physics_engine(RID p_internal_shape) const {
+	SGPhysics2DServer::get_singleton()->circle_set_radius(p_internal_shape, radius);
 }
 
 void SGCircleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
-	float float_radius = radius.to_float();
+	float float_radius = fixed(radius).to_float();
 
 	Vector<Vector2> points;
 	for (int i = 0; i < 24; i++) {
@@ -170,38 +168,38 @@ void SGCapsuleShape2D::_bind_methods() {
 }
 
 void SGCapsuleShape2D::set_radius(int p_radius) {
-	radius = fixed(p_radius);
+	radius = p_radius;
 	_change_notify("extents");
 	emit_changed();
 }
 
-int SGCapsuleShape2D::get_radius() const {
-	return radius.value;
+int64_t SGCapsuleShape2D::get_radius() const {
+	return radius;
 }
 
 void SGCapsuleShape2D::set_height(int p_height) {
-	height = fixed(p_height);
+	height = p_height;
 	_change_notify("extents");
 	emit_changed();
 }
 
-int SGCapsuleShape2D::get_height() const {
-	return height.value;
+int64_t SGCapsuleShape2D::get_height() const {
+	return height;
 }
 
-SGShape2DInternal* SGCapsuleShape2D::create_internal_shape() const {
-	return memnew(SGCapsule2DInternal(fixed(655360), fixed(655360)));
+RID SGCapsuleShape2D::create_internal_shape() const {
+	return SGPhysics2DServer::get_singleton()->shape_create(SGPhysics2DServer::SHAPE_CAPSULE);
 }
 
-void SGCapsuleShape2D::sync_to_physics_engine(SGShape2DInternal* p_internal_shape) const {
-	SGCapsule2DInternal* capsule = (SGCapsule2DInternal*)p_internal_shape;
-	capsule->set_radius(fixed(radius));
-	capsule->set_height(fixed(height));
+void SGCapsuleShape2D::sync_to_physics_engine(RID p_internal_shape) const {
+	SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
+	physics_server->capsule_set_radius(p_internal_shape, radius);
+	physics_server->capsule_set_height(p_internal_shape, height);
 }
 
 void SGCapsuleShape2D::draw(const RID& p_to_rid, const Color& p_color) {
-	float float_height = height.to_float();
-	float float_radius = radius.to_float();
+	float float_height = fixed(height).to_float();
+	float float_radius = fixed(radius).to_float();
 
 	Vector<Vector2> points;
 	for (int i = 12; i < 24; i++) {

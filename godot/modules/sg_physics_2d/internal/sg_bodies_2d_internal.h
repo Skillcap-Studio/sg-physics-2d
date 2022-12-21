@@ -29,6 +29,8 @@
 #include "sg_shapes_2d_internal.h"
 #include "sg_broadphase_2d_internal.h"
 
+class SGWorld2DInternal;
+
 class SGCollisionObject2DInternal {
 public:
 	enum ObjectType {
@@ -41,6 +43,7 @@ private:
 	ObjectType object_type;
 	SGFixedTransform2DInternal transform;
 	List<SGShape2DInternal *> shapes;
+	SGWorld2DInternal *world;
 	SGBroadphase2DInternal *broadphase;
 	SGBroadphase2DInternal::Element *broadphase_element;
 	void *data;
@@ -48,9 +51,16 @@ private:
 	uint32_t collision_layer;
 	uint32_t collision_mask;
 	bool monitorable;
-	
+
+	friend class SGWorld2DInternal;
+
+	_FORCE_INLINE_ void set_world(SGWorld2DInternal *p_world) {
+		world = p_world;
+	}
+
 public:
 	_FORCE_INLINE_ ObjectType get_object_type() const { return object_type; }
+	_FORCE_INLINE_ SGWorld2DInternal *get_world() const { return world; }
 
 	_FORCE_INLINE_ SGFixedTransform2DInternal get_transform() const { return transform; }
 	void set_transform(const SGFixedTransform2DInternal &p_transform);
@@ -63,7 +73,7 @@ public:
 	}
 
 	SGFixedRect2Internal get_bounds() const;
-   
+
 	void add_to_broadphase(SGBroadphase2DInternal *p_broadphase);
 	void remove_from_broadphase();
 
@@ -104,9 +114,13 @@ public:
 
 protected:
 	BodyType body_type;
+	fixed safe_margin;
 
 public:
 	_FORCE_INLINE_ BodyType get_body_type() const { return body_type; }
+
+	void set_safe_margin(fixed p_safe_margin) { safe_margin = p_safe_margin; }
+	_FORCE_INLINE_ fixed get_safe_margin() const { return safe_margin; }
 
 	SGBody2DInternal(BodyType p_type);
 	~SGBody2DInternal();

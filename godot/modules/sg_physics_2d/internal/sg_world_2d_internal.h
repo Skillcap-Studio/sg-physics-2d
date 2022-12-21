@@ -37,11 +37,14 @@ class SGShape2DInternal;
 class SGBroadphase2DInternal;
 
 class SGWorld2DInternal {
+public:
+	typedef bool (* CompareCallback)(const SGCollisionObject2DInternal*, const SGCollisionObject2DInternal*);
+
+protected:
 	List<SGArea2DInternal *> areas;
 	List<SGBody2DInternal *> bodies;
 	SGBroadphase2DInternal *broadphase;
-
-	static SGWorld2DInternal *singleton;
+	CompareCallback compare_callback;
 
 public:
 	struct ShapeOverlapInfo {
@@ -68,6 +71,17 @@ public:
 		}
 	};
 
+	struct BodyCollisionInfo {
+		SGCollisionObject2DInternal *collider;
+		// @todo How can we get the shape in here?
+		SGFixedVector2Internal normal;
+		SGFixedVector2Internal remainder;
+
+		BodyCollisionInfo() {
+			collider = nullptr;
+		}
+	};
+
 	struct RayCastInfo {
 		SGBody2DInternal *body;
 		SGFixedVector2Internal collision_point;
@@ -77,10 +91,6 @@ public:
 			body = nullptr;
 		}
 	};
-
-	typedef bool (*CompareCallback)(SGCollisionObject2DInternal*, SGCollisionObject2DInternal*);
-
-	static SGWorld2DInternal *get_singleton();
 
 	_FORCE_INLINE_ const List<SGBody2DInternal *> &get_bodies() const { return bodies; }
 	_FORCE_INLINE_ const List<SGArea2DInternal *> &get_areas() const { return areas; }
@@ -94,16 +104,18 @@ public:
 	bool overlaps(SGCollisionObject2DInternal *p_object1, SGCollisionObject2DInternal *p_object2, fixed p_margin, BodyOverlapInfo *p_info = nullptr) const;
 	bool overlaps(SGShape2DInternal *p_shape1, SGShape2DInternal *p_shape2, fixed p_margin, ShapeOverlapInfo *p_info = nullptr) const;
 
-	bool get_best_overlapping_body(SGCollisionObject2DInternal *p_object, fixed p_margin, BodyOverlapInfo *p_info, CompareCallback p_compare = nullptr) const;
-
 	void get_overlapping_areas(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const;
 	void get_overlapping_bodies(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const;
+
+	bool get_best_overlapping_body(SGBody2DInternal *p_body, bool p_use_safe_margin, BodyOverlapInfo *p_info) const;
+	bool unstuck_body(SGBody2DInternal *p_body, int p_max_attempts, BodyOverlapInfo *p_info = nullptr) const;
+	bool move_and_collide(SGBody2DInternal *p_body, const SGFixedVector2Internal &p_linear_velocity, BodyCollisionInfo *p_collision = nullptr) const;
 
 	bool segment_intersects_shape(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, SGShape2DInternal *p_shape, SGFixedVector2Internal &p_intersection_point, SGFixedVector2Internal &p_collision_normal) const;
 	bool cast_ray(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, uint32_t p_collision_mask, Set<SGCollisionObject2DInternal *> *p_exceptions = nullptr,
 		bool collide_with_areas=false, bool collide_with_bodies=true, RayCastInfo *p_info = nullptr) const;
 
-	SGWorld2DInternal();
+	SGWorld2DInternal(CompareCallback p_compare_callback = nullptr);
 	~SGWorld2DInternal();
 };
 

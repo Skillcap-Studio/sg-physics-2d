@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SGFixed" inherits="Object" version="3.4">
+<class name="SGFixed" inherits="Object" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A singleton with utility functions for working with fixed-point numbers and data types.
 	</brief_description>
@@ -39,11 +39,25 @@
 				Returns the arc tangent of [code]y/x[code] (fixed-point numbers) in radians (fixed-point).
 			</description>
 		</method>
+		<method name="ceil" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded up.
+			</description>
+		</method>
 		<method name="cos" qualifiers="const">
 			<return type="int" />
 			<argument index="0" name="fixed_value" type="int" />
 			<description>
 				Returns the cosine of the fixed-point number [code]fixed_value[/code] in radians (fixed-point).
+			</description>
+		</method>
+		<method name="deg2rad" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Fixed-point conversion of degree angles into radian angles
 			</description>
 		</method>
 		<method name="div" qualifiers="const">
@@ -118,8 +132,15 @@
 			<return type="int" />
 			<argument index="0" name="string_value" type="String" />
 			<description>
-				Parses a String into a fixed-point number. 
+				Parses a String into a fixed-point number.
 				[b]Note:[/b] string_value must represent number (decimal or not). If it isn't a valid number then it will return 0
+			</description>
+		</method>
+		<method name="log" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Natural logarithm using fixed-point math.
 			</description>
 		</method>
 		<method name="move_toward" qualifiers="const">
@@ -138,12 +159,35 @@
 				Returns the result of multiplying two fixed-point numbers.
 			</description>
 		</method>
+		<method name="pow" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_one" type="int" />
+			<argument index="1" name="fixed_two" type="int" />
+			<description>
+				Returns the result of computing base to the power of exp.
+				[b]Note:[/b] While fractional and negative exponents are supported, applying pow() with a negative base and a fractional exponent is not supported.
+			</description>
+		</method>
+		<method name="rad2deg" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Fixed-point conversion of radian angles into degree angles
+			</description>
+		</method>
 		<method name="rect2" qualifiers="const">
 			<return type="SGFixedRect2" />
 			<argument index="0" name="position" type="SGFixedVector2" />
 			<argument index="1" name="size" type="SGFixedVector2" />
 			<description>
 				Constructs an [SGFixedRect2].
+			</description>
+		</method>
+		<method name="round" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="fixed_value" type="int" />
+			<description>
+				Returns the [code]fixed_value[/code] without the decimals, rounded down if the decimal is lower than [code]SGFixed.HALF[/code], rounded up otherwise.
 			</description>
 		</method>
 		<method name="sin" qualifiers="const">
@@ -167,15 +211,6 @@
 				Returns the tangent of the fixed-point number [code]fixed_value[/code] in radians (fixed-point).
 			</description>
 		</method>
-		<method name="pow" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="base" type="int" />
-			<argument index="1" name="exp" type="int" />
-			<description>
-				Returns the result of computing base to the power of exp.
-				[b]Note:[/b] While fractional and negative exponents are supported, applying pow() with a negative base and a fractional exponent is not supported.
-			</description>
-		</method>
 		<method name="to_float" qualifiers="const">
 			<return type="float" />
 			<argument index="0" name="fixed_value" type="int" />
@@ -188,13 +223,6 @@
 			<argument index="0" name="fixed_value" type="int" />
 			<description>
 				Converts a fixed-point number into a normal int.
-			</description>
-		</method>
-		<method name="format_string" qualifiers="const">
-			<return type="string" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Formats a fixed-point number into a string.
 			</description>
 		</method>
 		<method name="transform2d" qualifiers="const">
@@ -213,41 +241,6 @@
 				Constructs an [SGFixedVector2].
 			</description>
 		</method>
-		<method name="deg2rad" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Fixed-point conversion of degree angles into radian angles
-			</description>
-		</method>
-		<method name="rad2deg" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Fixed-point conversion of radian angles into degree angles
-			</description>
-		</method>
-		<method name="floor" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Returns the [code]fixed_value[/code] without the decimals, rounded down.
-			</description>
-		</method>
-		<method name="round" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Returns the [code]fixed_value[/code] without the decimals, rounded down if the decimal is lower than [code]SGFixed.HALF[/code], rounded up otherwise.
-			</description>
-		</method>
-		<method name="ceil" qualifiers="const">
-			<return type="int" />
-			<argument index="0" name="fixed_value" type="int" />
-			<description>
-				Returns the [code]fixed_value[/code] without the decimals, rounded up.
-			</description>
-		</method>
 	</methods>
 	<constants>
 		<constant name="ONE" value="65536">
@@ -262,6 +255,9 @@
 		<constant name="NEG_ONE" value="-65536">
 			-1.0 in fixed-point.
 		</constant>
+		<constant name="E" value="178145">
+			An approximation of Euler's number (2.718281828459045) in fixed-point.
+		</constant>
 		<constant name="PI" value="205887">
 			An approximation of PI (3.1415863037109375) in fixed-point.
 		</constant>
@@ -271,7 +267,7 @@
 		<constant name="PI_DIV_2" value="102943">
 			An approximation of PI / 2.0 (1.5707931518554688) in fixed-point.
 		</constant>
-		<constant name="PI_DIV_4" value="51471">
+		<constant name="PI_DIV_4" value="51472">
 			An approximation of PI / 4.0 (0.7853851318359375) in fixed-point.
 		</constant>
 		<constant name="EPSILON" value="1">

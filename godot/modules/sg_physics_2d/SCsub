@@ -13,6 +13,7 @@ sg_physics_2d_subdirs = [
     "scene/2d/",
     "scene/resources/",
     "scene/animation/",
+    "servers/",
 ]
 
 for d in sg_physics_2d_subdirs:

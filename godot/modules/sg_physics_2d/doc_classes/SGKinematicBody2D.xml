@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SGKinematicBody2D" inherits="SGCollisionObject2D" version="3.4">
+<class name="SGKinematicBody2D" inherits="SGCollisionObject2D" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		Kinematic physics body for SG Physics 2D.
 	</brief_description>
@@ -90,8 +90,6 @@
 		</method>
 	</methods>
 	<members>
-		<member name="fixed_position" type="SGFixedVector2" setter="set_fixed_position" getter="get_fixed_position" override="true" />
-		<member name="fixed_scale" type="SGFixedVector2" setter="set_fixed_scale" getter="get_fixed_scale" override="true" />
 		<member name="safe_margin" type="int" setter="set_safe_margin" getter="get_safe_margin" default="64">
 			Extra margin used for separating the body before [method move_and_slide] or [method move_and_collide].
 			If the body is at least this close to another body, it will move them apart before performing the motion.

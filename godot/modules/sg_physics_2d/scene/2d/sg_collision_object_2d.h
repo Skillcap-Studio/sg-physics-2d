@@ -28,10 +28,6 @@
 
 #include "../../math/sg_fixed_vector2.h"
 
-class SGShape2DInternal;
-class SGWorld2DInternal;
-class SGCollisionObject2DInternal;
-
 class SGCollisionObject2D : public SGFixedNode2D {
 	GDCLASS(SGCollisionObject2D, SGFixedNode2D);
 
@@ -42,16 +38,11 @@ class SGCollisionObject2D : public SGFixedNode2D {
 	uint32_t collision_mask;
 
 protected:
-	SGCollisionObject2DInternal *internal;
+	RID rid;
+	RID world_rid;
 
 	static void _bind_methods();
 	void _notification(int p_what);
-
-	void add_to_world(SGWorld2DInternal *p_world) const;
-	void remove_from_world(SGWorld2DInternal *p_world) const;
-
-	void add_shape(SGShape2DInternal *p_shape);
-	void remove_shape(SGShape2DInternal *p_shape);
 
 	void sync_from_physics_engine();
 
@@ -60,7 +51,10 @@ public:
 
 	virtual void sync_to_physics_engine() const;
 
-	_FORCE_INLINE_ SGCollisionObject2DInternal *get_internal() const { return internal; }
+	_FORCE_INLINE_ RID get_rid() const { return rid; }
+
+	void set_world(RID p_world);
+	RID get_world() const { return world_rid; }
 
 	uint32_t get_collision_layer() const;
 	void set_collision_layer(uint32_t p_collision_layer);
@@ -74,9 +68,8 @@ public:
 	void set_collision_mask_bit(int p_bit, bool p_value);
 	bool get_collision_mask_bit(int p_bit) const;
 
-	SGCollisionObject2D(SGCollisionObject2DInternal *p_internal);
+	SGCollisionObject2D(RID p_rid);
 	~SGCollisionObject2D();
-
 };
 
 #endif

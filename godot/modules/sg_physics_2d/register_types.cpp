@@ -43,6 +43,7 @@
 #include "./scene/resources/sg_curve_2d.h"
 #include "./scene/2d/sg_path_2d.h"
 #include "./scene/animation/sg_tween.h"
+#include "./servers/sg_physics_2d_server.h"
 #include "./internal/sg_world_2d_internal.h"
 
 #ifdef TOOLS_ENABLED
@@ -53,7 +54,7 @@
 #endif
 
 static SGFixed *fixed_singleton;
-static SGWorld2DInternal *world_singleton;
+static SGPhysics2DServer *server_singleton;
 
 void register_sg_physics_2d_types() {
 	ClassDB::register_class<SGFixed>();
@@ -63,6 +64,7 @@ void register_sg_physics_2d_types() {
 
 	ClassDB::register_class<SGFixedNode2D>();
 	ClassDB::register_class<SGFixedPosition2D>();
+	ClassDB::register_class<SGPhysics2DServer>();
 	ClassDB::register_virtual_class<SGCollisionObject2D>();
 	ClassDB::register_class<SGArea2D>();
 	ClassDB::register_class<SGAreaCollision2D>();
@@ -90,7 +92,8 @@ void register_sg_physics_2d_types() {
 	fixed_singleton = memnew(SGFixed);
 	Engine::get_singleton()->add_singleton(Engine::Singleton("SGFixed", SGFixed::get_singleton()));
 
-	world_singleton = memnew(SGWorld2DInternal);
+	server_singleton = memnew(SGPhysics2DServer);
+	Engine::get_singleton()->add_singleton(Engine::Singleton("SGPhysics2DServer", SGPhysics2DServer::get_singleton()));
 
 #ifdef TOOLS_ENABLED
 	EditorPlugins::add_by_type<SGFixedMathEditorPlugin>();
@@ -102,5 +105,5 @@ void register_sg_physics_2d_types() {
 
 void unregister_sg_physics_2d_types() {
 	memdelete(fixed_singleton);
-	memdelete(world_singleton);
+	memdelete(server_singleton);
 }

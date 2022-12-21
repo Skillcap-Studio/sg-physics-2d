@@ -32,9 +32,9 @@ class SGCollisionShape2D : public SGFixedNode2D {
 
 	GDCLASS(SGCollisionShape2D, SGFixedNode2D);
 
-	SGCollisionObject2D *collision_object;
 	Ref<SGShape2D> shape;
-	SGShape2DInternal *internal_shape;
+	RID collision_object_rid;
+	RID rid;
 	bool disabled;
 
 protected:
@@ -51,6 +51,7 @@ public:
 	void _shape_changed();
 
 	void sync_to_physics_engine() const;
+	_FORCE_INLINE_ RID get_rid() const { return rid; };
 
 	SGCollisionShape2D();
 	~SGCollisionShape2D();

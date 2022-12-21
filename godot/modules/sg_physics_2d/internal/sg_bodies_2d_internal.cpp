@@ -78,8 +78,13 @@ SGFixedRect2Internal SGCollisionObject2DInternal::get_bounds() const {
 void SGCollisionObject2DInternal::add_to_broadphase(SGBroadphase2DInternal *p_broadphase) {
 	remove_from_broadphase();
 	broadphase = p_broadphase;
-	// Defer creation of the broadphase element until we update the transform.
-	broadphase_element = nullptr;
+	if (transform == SGFixedTransform2DInternal()) {
+		// Defer creation of the broadphase element until we update the transform.
+		broadphase_element = nullptr;
+	}
+	else {
+		broadphase_element = broadphase->create_element(this);
+	}
 }
 
 void SGCollisionObject2DInternal::remove_from_broadphase() {
@@ -111,6 +116,7 @@ void SGCollisionObject2DInternal::set_monitorable(bool p_monitorable) {
 
 SGCollisionObject2DInternal::SGCollisionObject2DInternal(ObjectType p_type) {
 	object_type = p_type;
+	world = nullptr;
 	broadphase = nullptr;
 	broadphase_element = nullptr;
 	data = nullptr;
@@ -134,6 +140,7 @@ SGBody2DInternal::SGBody2DInternal(BodyType p_type)
 	: SGCollisionObject2DInternal(OBJECT_BODY)
 {
 	body_type = p_type;
+	safe_margin = fixed(64);
 }
 
 SGBody2DInternal::~SGBody2DInternal() {

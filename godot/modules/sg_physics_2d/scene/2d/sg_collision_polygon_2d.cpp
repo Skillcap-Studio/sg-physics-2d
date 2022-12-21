@@ -26,6 +26,8 @@
 #include <core/engine.h>
 #include "sg_collision_object_2d.h"
 
+#include "../../servers/sg_physics_2d_server.h"
+
 void SGCollisionPolygon2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_polygon", "polygon"), &SGCollisionPolygon2D::set_polygon);
 	ClassDB::bind_method(D_METHOD("get_polygon"), &SGCollisionPolygon2D::get_polygon);
@@ -35,6 +37,8 @@ void SGCollisionPolygon2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &SGCollisionPolygon2D::set_disabled);
 	ClassDB::bind_method(D_METHOD("get_disabled"), &SGCollisionPolygon2D::get_disabled);
+
+	ClassDB::bind_method(D_METHOD("get_rid"), &SGCollisionPolygon2D::get_rid);
 
 	ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon", PROPERTY_HINT_NONE, "", 0), "set_polygon", "get_polygon");
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "fixed_polygon", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_fixed_polygon", "get_fixed_polygon");
@@ -79,20 +83,22 @@ void SGCollisionPolygon2D::_notification(int p_what) {
 			}
 		} break;
 
-		case NOTIFICATION_PARENTED:
-			collision_object = Object::cast_to<SGCollisionObject2D>(get_parent());
-			if (collision_object && !disabled && !concave) {
-				collision_object->add_shape(internal_shape);
+		case NOTIFICATION_PARENTED: {
+			SGCollisionObject2D *parent_node = Object::cast_to<SGCollisionObject2D>(get_parent());
+			if (parent_node) {
+				collision_object_rid = parent_node->get_rid();
 			}
-			break;
-
-		case NOTIFICATION_UNPARENTED:
-			if (collision_object && !disabled && !concave) {
-				collision_object->remove_shape(internal_shape);
+			if (collision_object_rid.is_valid() && !disabled && !concave) {
+				SGPhysics2DServer::get_singleton()->collision_object_add_shape(collision_object_rid, rid);
 			}
-			collision_object = nullptr;
-			break;
+		} break;
 
+		case NOTIFICATION_UNPARENTED: {
+			if (collision_object_rid.is_valid() && !disabled && !concave) {
+				SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
+			}
+			collision_object_rid = RID();
+		} break;
 	}
 
 }
@@ -154,12 +160,12 @@ void SGCollisionPolygon2D::check_concave() {
 
 	// Add or remove the shape if our "convex-ness" has changed.
 	if (concave != was_concave) {
-		if (collision_object && !disabled) {
+		if (collision_object_rid.is_valid() && !disabled) {
+			SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
 			if (concave) {
-				collision_object->remove_shape(internal_shape);
-			}
-			else {
-				collision_object->add_shape(internal_shape);
+				physics_server->collision_object_remove_shape(collision_object_rid, rid);
+			} else {
+				physics_server->collision_object_add_shape(collision_object_rid, rid);
 			}
 		}
 	}
@@ -327,12 +333,12 @@ bool SGCollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, dou
 void SGCollisionPolygon2D::set_disabled(bool p_disabled) {
 	if (disabled != p_disabled) {
 		disabled = p_disabled;
-		if (collision_object && !concave) {
+		if (collision_object_rid.is_valid() && !concave) {
+			SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
 			if (disabled) {
-				collision_object->remove_shape(internal_shape);
-			}
-			else {
-				collision_object->add_shape(internal_shape);
+				physics_server->collision_object_remove_shape(collision_object_rid, rid);
+			} else {
+				physics_server->collision_object_add_shape(collision_object_rid, rid);
 			}
 		}
 	}
@@ -377,22 +383,12 @@ Array SGCollisionPolygon2D::get_fixed_polygon() const {
 }
 
 void SGCollisionPolygon2D::update_internal_shape() const {
-	Vector<SGFixedVector2Internal> points;
-	points.resize(fixed_polygon.size());
-
-	for (int i = 0; i < fixed_polygon.size(); i++) {
-		Ref<SGFixedVector2> point = fixed_polygon[i];
-		if (point.is_valid()) {
-			points.write[i] = point->get_internal();
-		}
-	}
-
-	internal_shape->set_points(points);
+	SGPhysics2DServer::get_singleton()->polygon_set_points(rid, fixed_polygon);
 }
 
 void SGCollisionPolygon2D::sync_to_physics_engine() const {
 	if (!disabled && !concave) {
-		internal_shape->set_transform(get_fixed_transform_internal());
+		SGPhysics2DServer::get_singleton()->shape_set_transform(rid, get_fixed_transform());
 	}
 }
 
@@ -413,14 +409,16 @@ SGCollisionPolygon2D::SGCollisionPolygon2D() {
 	aabb = Rect2(-10, -10, 20, 20);
 	disabled = false;
 	concave = false;
-	collision_object = nullptr;
-	internal_shape = memnew(SGPolygon2DInternal);
-	internal_shape->set_data((void *)this);
+
+	SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
+	rid = physics_server->shape_create(SGPhysics2DServer::SHAPE_POLYGON);
+	physics_server->shape_set_data(rid, this);
 }
 
 SGCollisionPolygon2D::~SGCollisionPolygon2D() {
-	if (collision_object && !disabled && !concave) {
-		collision_object->remove_shape(internal_shape);
+	SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
+	if (collision_object_rid.is_valid() && !disabled && !concave) {
+		physics_server->collision_object_remove_shape(collision_object_rid, rid);
 	}
-	memdelete(internal_shape);
+	physics_server->free_rid(rid);
 }

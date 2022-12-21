@@ -23,13 +23,13 @@
 
 #include "sg_static_body_2d.h"
 
-#include "../../internal/sg_bodies_2d_internal.h"
+#include "../../servers/sg_physics_2d_server.h"
 
 void SGStaticBody2D::_bind_methods() {
 }
 
 SGStaticBody2D::SGStaticBody2D()
-	: SGCollisionObject2D(memnew(SGBody2DInternal(SGBody2DInternal::BodyType::BODY_STATIC)))
+	: SGCollisionObject2D(SGPhysics2DServer::get_singleton()->collision_object_create(SGPhysics2DServer::OBJECT_BODY, SGPhysics2DServer::BODY_STATIC))
 {
 }
 

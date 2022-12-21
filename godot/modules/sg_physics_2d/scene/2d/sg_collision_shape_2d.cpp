@@ -25,7 +25,7 @@
 
 #include <core/engine.h>
 
-#include "../../internal/sg_shapes_2d_internal.h"
+#include "../../servers/sg_physics_2d_server.h"
 
 void SGCollisionShape2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_shape", "shape"), &SGCollisionShape2D::set_shape);
@@ -33,6 +33,8 @@ void SGCollisionShape2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &SGCollisionShape2D::set_disabled);
 	ClassDB::bind_method(D_METHOD("get_disabled"), &SGCollisionShape2D::get_disabled);
+
+	ClassDB::bind_method(D_METHOD("get_rid"), &SGCollisionShape2D::get_rid);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "SGShape2D"), "set_shape", "get_shape");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "get_disabled");
@@ -65,32 +67,35 @@ void SGCollisionShape2D::_notification(int p_what) {
 			shape->draw(get_canvas_item(), draw_col);
 		} break;
 
-		case NOTIFICATION_PARENTED:
-			collision_object = Object::cast_to<SGCollisionObject2D>(get_parent());
-			if (collision_object && internal_shape && !disabled) {
-				collision_object->add_shape(internal_shape);
+		case NOTIFICATION_PARENTED: {
+			SGCollisionObject2D *parent_node = Object::cast_to<SGCollisionObject2D>(get_parent());
+			if (parent_node) {
+				collision_object_rid = parent_node->get_rid();
 			}
-			break;
-
-		case NOTIFICATION_UNPARENTED:
-			if (collision_object && internal_shape && !disabled) {
-				collision_object->remove_shape(internal_shape);
+			if (collision_object_rid.is_valid() && rid.is_valid() && !disabled) {
+				SGPhysics2DServer::get_singleton()->collision_object_add_shape(collision_object_rid, rid);
 			}
-			collision_object = nullptr;
-			break;
+		} break;
 
+		case NOTIFICATION_UNPARENTED: {
+			if (collision_object_rid.is_valid() && rid.is_valid() && !disabled) {
+				SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
+			}
+			collision_object_rid = RID();
+		}
+		break;
 	}
 }
 
 void SGCollisionShape2D::set_disabled(bool p_disabled) {
 	if (disabled != p_disabled) {
 		disabled = p_disabled;
-		if (collision_object && internal_shape) {
+		if (collision_object_rid.is_valid() && rid.is_valid()) {
 			if (disabled) {
-				collision_object->remove_shape(internal_shape);
+				SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
 			}
 			else {
-				collision_object->add_shape(internal_shape);
+				SGPhysics2DServer::get_singleton()->collision_object_add_shape(collision_object_rid, rid);
 			}
 		}
 	}
@@ -101,12 +106,14 @@ bool SGCollisionShape2D::get_disabled() const {
 }
 
 void SGCollisionShape2D::set_shape(const Ref<SGShape2D> &p_shape) {
+	SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
+
 	if (shape.is_valid()) {
 		shape->disconnect("changed", this, "_shape_changed");
-		if (collision_object && internal_shape && !disabled) {
-			collision_object->remove_shape(internal_shape);
-			memdelete(internal_shape);
-			internal_shape = nullptr;
+		if (collision_object_rid.is_valid() && rid.is_valid() && !disabled) {
+			physics_server->collision_object_remove_shape(collision_object_rid, rid);
+			physics_server->free_rid(rid);
+			rid = RID();
 		}
 	}
 
@@ -114,11 +121,10 @@ void SGCollisionShape2D::set_shape(const Ref<SGShape2D> &p_shape) {
 
 	if (shape.is_valid()) {
 		shape->connect("changed", this, "_shape_changed");
-		internal_shape = shape->create_internal_shape();
-		internal_shape->set_data((void *)this);
-		if (collision_object && !disabled)
-		{
-			collision_object->add_shape(internal_shape);
+		rid = shape->create_internal_shape();
+		physics_server->shape_set_data(rid, this);
+		if (collision_object_rid.is_valid() && !disabled) {
+			physics_server->collision_object_add_shape(collision_object_rid, rid);
 		}
 	}
 
@@ -134,23 +140,21 @@ void SGCollisionShape2D::_shape_changed() {
 }
 
 void SGCollisionShape2D::sync_to_physics_engine() const {
-	if (shape.is_valid() && internal_shape && !disabled) {
-		internal_shape->set_transform(get_fixed_transform_internal());
-		shape->sync_to_physics_engine(internal_shape);
+	if (shape.is_valid() && rid.is_valid() && !disabled) {
+		SGPhysics2DServer::get_singleton()->shape_set_transform(rid, get_fixed_transform());
+		shape->sync_to_physics_engine(rid);
 	}
 }
 
 SGCollisionShape2D::SGCollisionShape2D() {
 	disabled = false;
-	collision_object = nullptr;
-	internal_shape = nullptr;
 }
 
 SGCollisionShape2D::~SGCollisionShape2D() {
-	if (collision_object && internal_shape && !disabled) {
-		collision_object->remove_shape(internal_shape);
+	if (collision_object_rid.is_valid() && rid.is_valid() && !disabled) {
+		SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
 	}
-	if (internal_shape) {
-		memdelete(internal_shape);
+	if (rid.is_valid()) {
+		SGPhysics2DServer::get_singleton()->free_rid(rid);
 	}
 }

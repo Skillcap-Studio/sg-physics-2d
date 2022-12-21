@@ -30,30 +30,28 @@
 #include "sg_broadphase_2d_internal.h"
 #include "sg_collision_detector_2d_internal.h"
 
-SGWorld2DInternal *SGWorld2DInternal::singleton = NULL;
-
-SGWorld2DInternal *SGWorld2DInternal::get_singleton() {
-	return singleton;
-}
-
 void SGWorld2DInternal::add_area(SGArea2DInternal *p_area) {
 	areas.push_back(p_area);
 	p_area->add_to_broadphase(broadphase);
+	p_area->set_world(this);
 }
 
 void SGWorld2DInternal::remove_area(SGArea2DInternal *p_area) {
 	areas.erase(p_area);
 	p_area->remove_from_broadphase();
+	p_area->set_world(nullptr);
 }
 
 void SGWorld2DInternal::add_body(SGBody2DInternal *p_body) {
 	bodies.push_back(p_body);
 	p_body->add_to_broadphase(broadphase);
+	p_body->set_world(this);
 }
 
 void SGWorld2DInternal::remove_body(SGBody2DInternal *p_body) {
 	bodies.erase(p_body);
 	p_body->remove_from_broadphase();
+	p_body->set_world(this);
 }
 
 bool SGWorld2DInternal::overlaps(SGCollisionObject2DInternal *p_object1, SGCollisionObject2DInternal *p_object2, fixed p_margin, SGWorld2DInternal::BodyOverlapInfo *p_info) const {
@@ -167,6 +165,46 @@ bool SGWorld2DInternal::overlaps(SGShape2DInternal *p_shape1, SGShape2DInternal 
 	return overlapping;
 }
 
+class SGOverlappingResultHandler : public SGResultHandlerInternal {
+private:
+
+	const SGWorld2DInternal *world;
+	SGCollisionObject2DInternal *object;
+	SGResultHandlerInternal *result_handler;
+
+public:
+
+	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
+		if (object == p_object) {
+			return;
+		}
+
+		if (!object->test_collision_layers(p_object)) {
+			return;
+		}
+
+		SGWorld2DInternal::BodyOverlapInfo overlap_info;
+
+		if (world->overlaps(object, p_object, fixed::ZERO, &overlap_info)) {
+			result_handler->handle_result(p_object, overlap_info.collider_shape);
+		}
+	}
+
+	_FORCE_INLINE_ SGOverlappingResultHandler(const SGWorld2DInternal *p_world, SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler)
+		: world(p_world), object(p_object), result_handler(p_result_handler) { }
+
+};
+
+void SGWorld2DInternal::get_overlapping_areas(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const {
+	SGOverlappingResultHandler overlapping_handler(this, p_object, p_result_handler);
+	broadphase->find_nearby(p_object->get_bounds(), &overlapping_handler, SGCollisionObject2DInternal::OBJECT_AREA);
+}
+
+void SGWorld2DInternal::get_overlapping_bodies(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const {
+	SGOverlappingResultHandler overlapping_handler(this, p_object, p_result_handler);
+	broadphase->find_nearby(p_object->get_bounds(), &overlapping_handler, SGCollisionObject2DInternal::OBJECT_BODY);
+}
+
 class SGBestOverlappingResultHandler : public SGResultHandlerInternal {
 private:
 
@@ -217,53 +255,105 @@ public:
 
 };
 
-bool SGWorld2DInternal::get_best_overlapping_body(SGCollisionObject2DInternal *p_object, fixed p_margin, SGWorld2DInternal::BodyOverlapInfo *p_info, SGWorld2DInternal::CompareCallback p_compare) const {
-	SGFixedRect2Internal bounds = p_object->get_bounds();
-	bounds.grow_by(p_margin);
+bool SGWorld2DInternal::get_best_overlapping_body(SGBody2DInternal *p_body, bool p_use_safe_margin, SGWorld2DInternal::BodyOverlapInfo *p_info) const {
+	fixed safe_margin = p_use_safe_margin ? p_body->get_safe_margin() : fixed::ZERO;
 
-	SGBestOverlappingResultHandler result_handler(this, p_object, p_margin, p_info, p_compare);
+	SGFixedRect2Internal bounds = p_body->get_bounds();
+	bounds.grow_by(safe_margin);
+
+	SGBestOverlappingResultHandler result_handler(this, p_body, safe_margin, p_info, compare_callback);
 	broadphase->find_nearby(bounds, &result_handler, SGCollisionObject2DInternal::OBJECT_BODY);
 	return result_handler.is_overlapping();
 }
 
-class SGOverlappingResultHandler : public SGResultHandlerInternal {
-private:
+bool SGWorld2DInternal::unstuck_body(SGBody2DInternal *p_body, int p_max_attempts, BodyOverlapInfo *p_info) const {
+	BodyOverlapInfo overlap_info;
 
-	const SGWorld2DInternal *world;
-	SGCollisionObject2DInternal *object;
-	SGResultHandlerInternal *result_handler;
+	// First, get our body unstuck, if it's stuck.
+	bool stuck = get_best_overlapping_body(p_body, false, &overlap_info);
+	if (stuck) {
+		stuck = get_best_overlapping_body(p_body, true, &overlap_info);
+		for (int i = 0; i < p_max_attempts; i++) {
+			SGFixedTransform2DInternal t = p_body->get_transform();
+			t.set_origin(t.get_origin() + overlap_info.separation);
+			p_body->set_transform(t);
 
-public:
-
-	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
-		if (object == p_object) {
-			return;
-		}
-
-		if (!object->test_collision_layers(p_object)) {
-			return;
-		}
-
-		SGWorld2DInternal::BodyOverlapInfo overlap_info;
-
-		if (world->overlaps(object, p_object, fixed::ZERO, &overlap_info)) {
-			result_handler->handle_result(p_object, overlap_info.collider_shape);
+			stuck = get_best_overlapping_body(p_body, true, &overlap_info);
+			if (!stuck) {
+				break;
+			}
 		}
 	}
 
-	_FORCE_INLINE_ SGOverlappingResultHandler(const SGWorld2DInternal *p_world, SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler)
-		: world(p_world), object(p_object), result_handler(p_result_handler) { }
+	if (stuck && p_info != nullptr) {
+		*p_info = overlap_info;
+	}
 
-};
-
-void SGWorld2DInternal::get_overlapping_areas(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const {
-	SGOverlappingResultHandler overlapping_handler(this, p_object, p_result_handler);
-	broadphase->find_nearby(p_object->get_bounds(), &overlapping_handler, SGCollisionObject2DInternal::OBJECT_AREA);
+	return stuck;
 }
 
-void SGWorld2DInternal::get_overlapping_bodies(SGCollisionObject2DInternal *p_object, SGResultHandlerInternal *p_result_handler) const {
-	SGOverlappingResultHandler overlapping_handler(this, p_object, p_result_handler);
-	broadphase->find_nearby(p_object->get_bounds(), &overlapping_handler, SGCollisionObject2DInternal::OBJECT_BODY);
+bool SGWorld2DInternal::move_and_collide(SGBody2DInternal *p_body, const SGFixedVector2Internal &p_linear_velocity, SGWorld2DInternal::BodyCollisionInfo *p_collision) const {
+	BodyOverlapInfo overlap_info;
+
+	// First, get our body unstuck, if it's stuck.
+	bool stuck = unstuck_body(p_body, 4, &overlap_info);
+	if (stuck) {
+		// We can't really continue. Bail with some sort of reasonable values.
+		if (p_collision) {
+			p_collision->collider = overlap_info.collider;
+			p_collision->normal = SGFixedVector2Internal::ZERO;
+			p_collision->remainder = p_linear_velocity;
+		}
+		return true;
+	}
+
+	// Move the body the full amount.
+	SGFixedTransform2DInternal original_transform = p_body->get_transform();
+	SGFixedTransform2DInternal test_transform = original_transform;
+	SGFixedVector2Internal destination = original_transform.get_origin() + p_linear_velocity;
+	test_transform.set_origin(destination);
+	p_body->set_transform(test_transform);
+
+	// Check if we're colliding. If not, we're done here!
+	if (!get_best_overlapping_body(p_body, false, &overlap_info)) {
+		return false;
+	}
+
+	// Use binary search to find the point at which we collide, and the point just before that.
+	fixed low = fixed::ZERO;
+	fixed hi = fixed::ONE;
+	SGFixedVector2Internal last_safe_position = original_transform.get_origin();
+	for (int i = 0; i < 8; i++) {
+		fixed cur = (low + hi) * fixed::HALF;
+		SGFixedVector2Internal test_position = original_transform.get_origin() + (p_linear_velocity * cur);
+		test_transform.set_origin(test_position);
+		p_body->set_transform(test_transform);
+		if (get_best_overlapping_body(p_body, false, &overlap_info)) {
+			hi = cur;
+		}
+		else {
+			low = cur;
+			last_safe_position = test_transform.get_origin();
+		}
+	}
+
+	// Whatever was last set to our fixed position will be a safe position, so
+	// let's make sure that's what ends up in the transform (in case the
+	// last test_transform was a 'hi' position).
+	if (test_transform.get_origin() != last_safe_position) {
+		test_transform.set_origin(last_safe_position);
+		p_body->set_transform(test_transform);
+	}
+
+	// At this point, the overlap_info will contain info about the collision at 'hi'
+	// which is what we want to store in p_collision.
+	if (p_collision) {
+		p_collision->collider = overlap_info.collider;
+		p_collision->normal = overlap_info.collision_normal;
+		p_collision->remainder = p_linear_velocity - (p_linear_velocity * low);
+	}
+
+	return true;
 }
 
 bool SGWorld2DInternal::segment_intersects_shape(const SGFixedVector2Internal &p_start, const SGFixedVector2Internal &p_cast_to, SGShape2DInternal *p_shape, SGFixedVector2Internal &p_intersection_point, SGFixedVector2Internal &p_collision_normal) const {
@@ -371,7 +461,7 @@ bool SGWorld2DInternal::cast_ray(const SGFixedVector2Internal &p_start, const SG
 	return result_handler.is_intersecting();
 }
 
-SGWorld2DInternal::SGWorld2DInternal()
+SGWorld2DInternal::SGWorld2DInternal(CompareCallback p_compare_callback)
 {
 	int cell_size = 128;
 	if (ProjectSettings::get_singleton()->has_setting("physics/2d/cell_size")) {
@@ -379,10 +469,9 @@ SGWorld2DInternal::SGWorld2DInternal()
 	}
 
 	broadphase = memnew(SGBroadphase2DInternal(cell_size));
-	singleton = this;
+	compare_callback = p_compare_callback;
 }
 
 SGWorld2DInternal::~SGWorld2DInternal() {
 	memdelete(broadphase);
-	singleton = nullptr;
 }

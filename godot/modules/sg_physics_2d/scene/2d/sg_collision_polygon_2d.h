@@ -26,19 +26,16 @@
 
 #include "sg_fixed_node_2d.h"
 
-#include "../../math/sg_fixed_vector2.h"
-#include "../../internal/sg_shapes_2d_internal.h"
-
 class SGCollisionPolygon2D : public SGFixedNode2D {
 
 	GDCLASS(SGCollisionPolygon2D, SGFixedNode2D);
 
 protected:
-	SGCollisionObject2D *collision_object;
 	mutable Rect2 aabb;
 	mutable Vector<Point2> polygon;
 	Array fixed_polygon;
-	SGPolygon2DInternal *internal_shape;
+	RID collision_object_rid;
+	RID rid;
 	bool disabled;
 	bool concave;
 
@@ -63,6 +60,7 @@ public:
 	virtual bool _edit_use_rect() const;
 	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
 #endif
+
 	void set_disabled(bool p_disabled);
 	bool get_disabled() const;
 
@@ -74,6 +72,8 @@ public:
 
 	void update_internal_shape() const;
 	void sync_to_physics_engine() const;
+
+	_FORCE_INLINE_ RID get_rid() const { return rid; }
 
 	virtual String get_configuration_warning() const;
 

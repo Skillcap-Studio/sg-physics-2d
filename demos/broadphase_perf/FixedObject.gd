@@ -16,11 +16,10 @@ func move_me() -> Array:
 	var timings := []
 	
 	timing = OS.get_ticks_usec()
-	#var overlapping_areas = get_overlapping_areas()
-	var overlapping_areas = get_overlapping_areas(false)
+	var overlapping_area_count = get_overlapping_area_count()
 	timings.append(OS.get_ticks_usec() - timing)
 	
-	if overlapping_areas.size() > 0:
+	if overlapping_area_count > 0:
 		modulate = Color(0.0, 0.0, 0.0, 1.0)
 	else:
 		modulate = Color(1.0, 1.0, 1.0, 1.0)

@@ -31,22 +31,7 @@ class SGKinematicCollision2D;
 class SGKinematicBody2D : public SGCollisionObject2D {
 	GDCLASS(SGKinematicBody2D, SGCollisionObject2D);
 
-public:
-	struct Collision {
-		SGCollisionObject2D *collider;
-		// @todo How can we get the shape in here?
-		SGFixedVector2Internal normal;
-		SGFixedVector2Internal remainder;
-
-		Collision() {
-			collider = nullptr;
-		}
-	};
-
 protected:
-	fixed safe_margin;
-
-	Vector<Collision> colliders;
 	Vector<Ref<SGKinematicCollision2D>> slide_colliders;
 	Ref<SGFixedVector2> floor_normal;
 	bool on_floor;
@@ -69,36 +54,12 @@ public:
 	Ref<SGKinematicCollision2D> get_slide_collision(int p_slide_idx);
 	Ref<SGKinematicCollision2D> get_last_slide_collision();
 
-	bool move_and_collide(const SGFixedVector2Internal &p_linear_velocity, Collision &p_collision);
+	Ref<SGKinematicCollision2D> move_and_collide(const Ref<SGFixedVector2> &p_linear_velocity);
 	Ref<SGFixedVector2> move_and_slide(const Ref<SGFixedVector2> &p_linear_velocity, const Ref<SGFixedVector2> &p_up_direction, bool p_unused, int p_max_slides, int p_floor_max_angle);
 	bool rotate_and_slide(int64_t p_rotation, int p_max_slides);
 
-	Ref<SGKinematicCollision2D> _move(const Ref<SGFixedVector2> &p_linear_velocity);
-
 	SGKinematicBody2D();
 	~SGKinematicBody2D();
-};
-
-class SGKinematicCollision2D : public Reference {
-	GDCLASS(SGKinematicCollision2D, Reference);
-
-	friend class SGKinematicBody2D;
-
-	SGKinematicBody2D::Collision collision;
-	Ref<SGFixedVector2> normal;
-	Ref<SGFixedVector2> remainder;
-
-	void set_collision(const SGKinematicBody2D::Collision &p_collision);
-
-protected:
-	static void _bind_methods();
-
-public:
-	Object *get_collider() const;
-	Ref<SGFixedVector2> get_normal() const;
-	Ref<SGFixedVector2> get_remainder() const;
-
-	SGKinematicCollision2D();
 };
 
 #endif

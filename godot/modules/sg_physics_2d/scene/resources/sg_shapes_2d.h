@@ -28,22 +28,22 @@
 
 #include "../../math/sg_fixed_vector2.h"
 
-class SGShape2DInternal;
+class SGCollisionShape2D;
 
 class SGShape2D : public Resource {
 	GDCLASS(SGShape2D, Resource);
 	OBJ_SAVE_TYPE(SGShape2D);
 
 	friend class SGCollisionShape2D;
-	
+
 protected:
 	static void _bind_methods();
 
-	virtual SGShape2DInternal *create_internal_shape() const = 0;
+	virtual RID create_internal_shape() const = 0;
 
 	SGShape2D();
 public:
-	virtual void sync_to_physics_engine(SGShape2DInternal *p_internal_shape) const = 0;
+	virtual void sync_to_physics_engine(RID p_internal_shape) const = 0;
 
 	virtual void draw(const RID &p_to_rid, const Color &p_color) = 0;
 
@@ -59,7 +59,7 @@ class SGRectangleShape2D : public SGShape2D, public SGFixedVector2Watcher {
 protected:
 	static void _bind_methods();
 
-	virtual SGShape2DInternal *create_internal_shape() const override;
+	virtual RID create_internal_shape() const override;
 
 	int64_t _get_extents_x() const;
 	void _set_extents_x(int64_t p_x);
@@ -72,7 +72,7 @@ public:
 
 	void fixed_vector2_changed(SGFixedVector2 *p_vector);
 
-	virtual void sync_to_physics_engine(SGShape2DInternal *p_internal_shape) const override;
+	virtual void sync_to_physics_engine(RID p_internal_shape) const override;
 
 	virtual void draw(const RID &p_to_rid, const Color &p_color) override;
 
@@ -84,18 +84,18 @@ class SGCircleShape2D : public SGShape2D {
 	GDCLASS(SGCircleShape2D, SGShape2D);
 	OBJ_SAVE_TYPE(SGCircleShape2D);
 
-	fixed radius;
+	int64_t radius;
 
 protected:
 	static void _bind_methods();
 
-	virtual SGShape2DInternal *create_internal_shape() const override;
+	virtual RID create_internal_shape() const override;
 
 public:
-	void set_radius(int p_radius);
-	int get_radius() const;
+	void set_radius(int64_t p_radius);
+	int64_t get_radius() const;
 
-	virtual void sync_to_physics_engine(SGShape2DInternal *p_internal_shape) const override;
+	virtual void sync_to_physics_engine(RID p_internal_shape) const override;
 
 	virtual void draw(const RID &p_to_rid, const Color &p_color) override;
 
@@ -107,21 +107,21 @@ class SGCapsuleShape2D : public SGShape2D {
 	GDCLASS(SGCapsuleShape2D, SGShape2D);
 	OBJ_SAVE_TYPE(SGCapsuleShape2D);
 
-	fixed radius;
-	fixed height;
+	int64_t radius;
+	int64_t height;
 
 protected:
 	static void _bind_methods();
 
-	virtual SGShape2DInternal* create_internal_shape() const override;
+	virtual RID create_internal_shape() const override;
 
 public:
 	void set_radius(int p_radius);
-	int get_radius() const;
+	int64_t get_radius() const;
 	void set_height(int p_height);
-	int get_height() const;
+	int64_t get_height() const;
 
-	virtual void sync_to_physics_engine(SGShape2DInternal* p_internal_shape) const override;
+	virtual void sync_to_physics_engine(RID p_internal_shape) const override;
 
 	virtual void draw(const RID& p_to_rid, const Color& p_color) override;
 

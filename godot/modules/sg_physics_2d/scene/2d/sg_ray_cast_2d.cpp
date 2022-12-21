@@ -24,9 +24,11 @@
 #include "sg_ray_cast_2d.h"
 
 #include <core/engine.h>
+#include "sg_collision_object_2d.h"
+
+#include "../../servers/sg_physics_2d_server.h"
 #include "../../internal/sg_world_2d_internal.h"
 #include "../../internal/sg_bodies_2d_internal.h"
-#include "sg_collision_object_2d.h"
 
 void SGRayCast2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_cast_to"), &SGRayCast2D::get_cast_to);
@@ -166,19 +168,21 @@ bool SGRayCast2D::get_collide_with_bodies() {
 }
 
 void SGRayCast2D::update_raycast_collision() {
+	SGWorld2DInternal *world = SGPhysics2DServer::get_singleton()->world_get_internal(world_rid);
+	ERR_FAIL_COND(!world);
+
 	SGWorld2DInternal::RayCastInfo info;
 
 	SGFixedTransform2DInternal t = get_global_fixed_transform_internal();
 	SGFixedVector2Internal start = t.get_origin();
 	t.set_origin(SGFixedVector2Internal::ZERO);
 
-	if (SGWorld2DInternal::get_singleton()->cast_ray(start, t.xform(cast_to->get_internal()), collision_mask, &exceptions, collide_with_areas, collide_with_bodies, &info)) {
+	if (world->cast_ray(start, t.xform(cast_to->get_internal()), collision_mask, &exceptions, collide_with_areas, collide_with_bodies, &info)) {
 		colliding = true;
 		collider = ((Object *)info.body->get_data())->get_instance_id();
 		collision_point->set_internal(info.collision_point);
 		collision_normal->set_internal(info.collision_normal);
-	}
-	else {
+	} else {
 		colliding = false;
 		collider = 0;
 		collision_point->clear();
@@ -209,14 +213,14 @@ Ref<SGFixedVector2> SGRayCast2D::get_collision_normal() const {
 void SGRayCast2D::add_exception(const Object *p_object) {
 	const SGCollisionObject2D *collision_object = Object::cast_to<SGCollisionObject2D>(p_object);
 	if (p_object) {
-		exceptions.insert(collision_object->get_internal());
+		exceptions.insert(SGPhysics2DServer::get_singleton()->collision_object_get_internal(collision_object->get_rid()));
 	}
 }
 
 void SGRayCast2D::remove_exception(const Object *p_object) {
 	const SGCollisionObject2D *collision_object = Object::cast_to<SGCollisionObject2D>(p_object);
 	if (p_object) {
-		exceptions.erase(collision_object->get_internal());
+		exceptions.erase(SGPhysics2DServer::get_singleton()->collision_object_get_internal(collision_object->get_rid()));
 	}
 }
 
@@ -239,6 +243,10 @@ void SGRayCast2D::clear_exceptions() {
 	exceptions.clear();
 }
 
+void SGRayCast2D::set_world(RID p_world) {
+	world_rid = p_world;
+}
+
 SGRayCast2D::SGRayCast2D() {
 	// Start casting to (0, 50) like Godot's RayCast2D.
 	cast_to = Ref<SGFixedVector2>(memnew(SGFixedVector2(SGFixedVector2Internal(fixed::ZERO, fixed(3276800)))));
@@ -248,6 +256,8 @@ SGRayCast2D::SGRayCast2D() {
 	collider = 0;
 	collision_point = Ref<SGFixedVector2>(memnew(SGFixedVector2));
 	collision_normal = Ref<SGFixedVector2>(memnew(SGFixedVector2));
+
+	world_rid = SGPhysics2DServer::get_singleton()->get_default_world();
 }
 
 SGRayCast2D::~SGRayCast2D() {

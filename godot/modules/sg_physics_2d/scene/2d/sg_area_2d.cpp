@@ -27,34 +27,9 @@
 
 #include "sg_static_body_2d.h"
 #include "sg_kinematic_body_2d.h"
+#include "../../servers/sg_physics_2d_server.h"
 #include "../../internal/sg_bodies_2d_internal.h"
 #include "../../internal/sg_world_2d_internal.h"
-
-void SGAreaCollision2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_collider"), &SGAreaCollision2D::get_collider);
-	ClassDB::bind_method(D_METHOD("get_shape"), &SGAreaCollision2D::get_shape);
-
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "collider"), "", "get_collider");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape"), "", "get_shape");
-}
-
-SGCollisionObject2D *SGAreaCollision2D::get_collider() const {
-	return collider;
-}
-
-SGFixedNode2D *SGAreaCollision2D::get_shape() const {
-	return shape;
-}
-
-SGAreaCollision2D::SGAreaCollision2D(SGCollisionObject2D *p_object, SGFixedNode2D *p_shape) {
-	collider = p_object;
-	shape = p_shape;
-}
-
-SGAreaCollision2D::SGAreaCollision2D() {
-	collider = nullptr;
-	shape = nullptr;
-}
 
 void SGArea2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_overlapping_areas"), &SGArea2D::get_overlapping_areas);
@@ -72,130 +47,28 @@ void SGArea2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "monitorable"), "set_monitorable", "get_monitorable");
 }
 
-struct SGCollisionObjectComparator {
-	bool operator()(const SGCollisionObject2DInternal *p_a, const SGCollisionObject2DInternal *p_b) const {
-		SGCollisionObject2D *a = Object::cast_to<SGCollisionObject2D>((Object *)p_a->get_data());
-		SGCollisionObject2D *b = Object::cast_to<SGCollisionObject2D>((Object *)p_b->get_data());
-		return b->is_greater_than(a);
-	}
-};
-
-struct SGAreaCollision2DComparator {
-	bool operator()(const SGAreaCollision2D *p_a, const SGAreaCollision2D *p_b) const {
-		SGCollisionObject2D *a = Object::cast_to<SGCollisionObject2D>((Object *)p_a->get_collider());
-		SGCollisionObject2D *b = Object::cast_to<SGCollisionObject2D>((Object *)p_b->get_collider());
-		return b->is_greater_than(a);
-	}
-};
-
-class SGArrayResultHandler : public SGResultHandlerInternal {
-private:
-
-	Array result;
-
-public:
-	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
-		SGCollisionObject2D *object = Object::cast_to<SGCollisionObject2D>((Object *)p_object->get_data());
-		if (object) {
-			result.push_back(object);
-		}
-	}
-
-	_FORCE_INLINE_ Array get_array() {
-		return result;
-	}
-
-};
-
-class SGSortedArrayResultHandler : public SGResultHandlerInternal {
-private:
-
-	List<SGCollisionObject2DInternal *> result;
-
-public:
-	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
-		result.push_back(p_object);
-	}
-
-	_FORCE_INLINE_ Array get_array() {
-		if (result.size() > 1) {
-			result.sort_custom<SGCollisionObjectComparator>();
-		}
-
-		Array ret;
-		for (List<SGCollisionObject2DInternal *>::Element *E = result.front(); E; E = E->next()) {
-			SGCollisionObject2D *object = Object::cast_to<SGCollisionObject2D>((Object *)E->get()->get_data());
-			if (object) {
-				ret.push_back(object);
-			}
-		}
-
-		return ret;
-	}
-
-};
-
-class SGSortedCollisionArrayResultHandler : public SGResultHandlerInternal {
-private:
-
-	List<SGAreaCollision2D *> result;
-
-public:
-	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
-		SGAreaCollision2D *collision = memnew(SGAreaCollision2D((SGCollisionObject2D *)p_object->get_data(), (SGFixedNode2D *)p_shape->get_data()));
-		result.push_back(collision);
-	}
-
-	_FORCE_INLINE_ Array get_array() {
-		if (result.size() > 1) {
-			result.sort_custom<SGAreaCollision2DComparator>();
-		}
-
-		Array ret;
-		for (List<SGAreaCollision2D *>::Element *E = result.front(); E; E = E->next()) {
-			ret.push_back(E->get());
-		}
-
-		return ret;
-	}
-
-};
-
 Array SGArea2D::get_overlapping_areas() const {
-	SGSortedArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_areas(rid);
 }
 
 Array SGArea2D::get_overlapping_bodies() const {
-	SGSortedArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_bodies(rid);
 }
 
 Array SGArea2D::get_overlapping_area_collisions() const {
-	SGSortedCollisionArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_area_collisions(rid);
 }
 
 Array SGArea2D::get_overlapping_body_collisions() const {
-	SGSortedCollisionArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_body_collisions(rid);
 }
 
-
 int SGArea2D::get_overlapping_area_count() const {
-	SGArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_areas((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array().size();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_area_count(rid);
 }
 
 int SGArea2D::get_overlapping_body_count() const {
-	SGArrayResultHandler result_handler;
-	SGWorld2DInternal::get_singleton()->get_overlapping_bodies((SGArea2DInternal *)internal, &result_handler);
-	return result_handler.get_array().size();
+	return SGPhysics2DServer::get_singleton()->area_get_overlapping_body_count(rid);
 }
 
 void SGArea2D::set_monitorable(bool p_monitorable) {
@@ -204,7 +77,7 @@ void SGArea2D::set_monitorable(bool p_monitorable) {
 	}
 
 	monitorable = p_monitorable;
-	internal->set_monitorable(p_monitorable);
+	SGPhysics2DServer::get_singleton()->collision_object_set_monitorable(rid, p_monitorable);
 }
 
 bool SGArea2D::get_monitorable() const {
@@ -212,7 +85,7 @@ bool SGArea2D::get_monitorable() const {
 }
 
 SGArea2D::SGArea2D()
-	: SGCollisionObject2D(memnew(SGArea2DInternal))
+	: SGCollisionObject2D(SGPhysics2DServer::get_singleton()->collision_object_create(SGPhysics2DServer::OBJECT_AREA))
 {
 }
 

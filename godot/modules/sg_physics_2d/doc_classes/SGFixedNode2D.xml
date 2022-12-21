@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SGFixedNode2D" inherits="Node2D" version="3.4">
+<class name="SGFixedNode2D" inherits="Node2D" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
 	<brief_description>
 		A 2D game object, with its position, rotation and scale represented as fixed-point numbers, from which all other fixed-point nodes descend.
 	</brief_description>
