@@ -207,6 +207,21 @@ Other nodes
 - `SGTween` provides similar functionality to `Tween`, replacing the use of floating point numbers by fixed point numbers. The only type that can be interpolated is int, representing a fixed point value.
 - `SGAStar2D` provides the same functionality as `AStar2D`, replacing the use of floating point numbers by fixed point numbers.
 
+What about tile maps?
+---------------------
+
+SG Physics 2D doesn't include a special node for tile maps. If you want to add
+collision shapes to a `TileMap` node, you'd do it in code, rather than in the
+editor.
+
+Creating a thousands of `SGStaticBody2D` and `SGCollisionShape2D` nodes can
+cause performance problems, so instead of creating nodes, you can create
+resources using the `SGPhysics2DServer`.
+
+There's a demo in the code base demonstrating how to do this:
+
+[https://gitlab.com/snopek-games/sg-physics-2d/-/blob/main/demos/tilemap/Main.gd](https://gitlab.com/snopek-games/sg-physics-2d/-/blob/main/demos/tilemap/Main.gd)
+
 Compiling from source
 ---------------------
 
