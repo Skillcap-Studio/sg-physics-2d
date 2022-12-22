@@ -1,7 +1,7 @@
 #!/bin/bash
 
-OPTS="-j${NUM_CORES} osxcross_sdk=darwin20.2"
-STRIP="x86_64-apple-darwin20.2-strip -u -r"
+OPTS="-j${NUM_CORES} osxcross_sdk=darwin21.4"
+STRIP="x86_64-apple-darwin21.4-strip -u -r"
 
 case "$BUILD_TYPE" in
 	*-x86-64)

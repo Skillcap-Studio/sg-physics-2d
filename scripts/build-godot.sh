@@ -2,6 +2,7 @@
 
 GODOT_SOURCE_DIR=${GODOT_BUILD_DIR:-godot}
 GODOT_BUILD_DIR=${GODOT_BUILD_DIR:-build/godot}
+TEMP_DIR=$(mktemp -d)
 
 die() {
 	echo "$@" > /dev/stderr
@@ -28,7 +29,9 @@ if [ ! -d "$GODOT_BUILD_DIR" ]; then
 	mkdir -p "$GODOT_BUILD_DIR" \
 		|| die "Unable to create GODOT_BUILD_DIR: $GODOT_BUILD_DIR"
 
-	(cd "$GODOT_BUILD_DIR" && curl -L "$GODOT_DOWNLOAD_URL" | tar -xz --strip-components=1) \
+	fn=$(basename "$GODOT_DOWNLOAD_URL")
+	(cd "$TEMP_DIR" && wget "$GODOT_DOWNLOAD_URL")
+	(cd "$GODOT_BUILD_DIR" && tar -xf "$TEMP_DIR/$fn" --strip-components=1) \
 		|| die "Unable to download Godot source from GODOT_DOWNLOAD_URL: $GODOT_DOWNLOAD_URL"
 else
 	echo " !! WARNING: Reusing existing build directory !! "
