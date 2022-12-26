@@ -644,7 +644,7 @@ Array SGPhysics2DServer::area_get_overlapping_body_collisions(RID p_area) const 
 class SGCountResultHandler : public SGResultHandlerInternal {
 private:
 
-	int count;
+	int count = 0;
 
 public:
 	void handle_result(SGCollisionObject2DInternal *p_object, SGShape2DInternal *p_shape) {
