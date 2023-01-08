@@ -98,8 +98,10 @@ Ref<SGKinematicCollision2D> SGKinematicBody2D::get_last_slide_collision() {
 
 Ref<SGKinematicCollision2D> SGKinematicBody2D::move_and_collide(const Ref<SGFixedVector2> &p_linear_velocity) {
 	ERR_FAIL_COND_V(!p_linear_velocity.is_valid(), Ref<SGKinematicCollision2D>());
-	Ref<SGKinematicCollision2D> ret = SGPhysics2DServer::get_singleton()->body_move_and_collide(rid, p_linear_velocity);
-	sync_from_physics_engine();
+	SGPhysics2DServer *physics_server = SGPhysics2DServer::get_singleton();
+	Ref<SGKinematicCollision2D> ret = physics_server->body_move_and_collide(rid, p_linear_velocity);
+	// Sync only position from physics server to prevent precision loss.
+	set_global_fixed_position_internal(physics_server->collision_object_get_internal(rid)->get_transform().get_origin());
 	return ret;
 }
 
@@ -172,7 +174,8 @@ Ref<SGFixedVector2> SGKinematicBody2D::move_and_slide(const Ref<SGFixedVector2> 
 		p_max_slides--;
 	}
 
-	sync_from_physics_engine();
+	// Sync only position from physics server to prevent precision loss.
+	set_global_fixed_position_internal(physics_server->collision_object_get_internal(rid)->get_transform().get_origin());
 
 	return Ref<SGFixedVector2>(memnew(SGFixedVector2(body_velocity)));
 }
@@ -182,7 +185,9 @@ bool SGKinematicBody2D::rotate_and_slide(int64_t p_rotation, int p_max_slides) {
 
 	sync_to_physics_engine();
 	bool stuck = SGPhysics2DServer::get_singleton()->body_unstuck(rid, p_max_slides);
-	sync_from_physics_engine();
+
+	// Sync only position from physics server to prevent precision loss.
+	set_global_fixed_position_internal(SGPhysics2DServer::get_singleton()->collision_object_get_internal(rid)->get_transform().get_origin());
 
 	return stuck;
 }
