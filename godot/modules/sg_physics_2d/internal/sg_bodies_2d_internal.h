@@ -108,8 +108,8 @@ class SGBody2DInternal : public SGCollisionObject2DInternal {
 public:
 
 	enum BodyType {
-		BODY_STATIC,
-		BODY_KINEMATIC,
+		BODY_STATIC = 1,
+		BODY_KINEMATIC = 2,
 	};
 
 protected:

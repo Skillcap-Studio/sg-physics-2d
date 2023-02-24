@@ -144,9 +144,9 @@ public:
 	};
 
 	enum BodyType {
-		BODY_UNKNOWN = -1,
-		BODY_STATIC = 0,
-		BODY_KINEMATIC,
+		BODY_UNKNOWN = 0,
+		BODY_STATIC = 1,
+		BODY_KINEMATIC = 2,
 	};
 
 	RID shape_create(ShapeType p_shape_type);

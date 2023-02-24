@@ -167,7 +167,7 @@ void SGCapsuleShape2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "height"), "set_height", "get_height");
 }
 
-void SGCapsuleShape2D::set_radius(int p_radius) {
+void SGCapsuleShape2D::set_radius(int64_t p_radius) {
 	radius = p_radius;
 	_change_notify("extents");
 	emit_changed();
@@ -177,7 +177,7 @@ int64_t SGCapsuleShape2D::get_radius() const {
 	return radius;
 }
 
-void SGCapsuleShape2D::set_height(int p_height) {
+void SGCapsuleShape2D::set_height(int64_t p_height) {
 	height = p_height;
 	_change_notify("extents");
 	emit_changed();

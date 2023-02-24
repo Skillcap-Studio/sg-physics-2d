@@ -116,9 +116,9 @@ protected:
 	virtual RID create_internal_shape() const override;
 
 public:
-	void set_radius(int p_radius);
+	void set_radius(int64_t p_radius);
 	int64_t get_radius() const;
-	void set_height(int p_height);
+	void set_height(int64_t p_height);
 	int64_t get_height() const;
 
 	virtual void sync_to_physics_engine(RID p_internal_shape) const override;
