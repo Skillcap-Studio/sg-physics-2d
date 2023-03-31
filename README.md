@@ -247,7 +247,7 @@ follow these steps:
     source code and run:
 
 	```
-	scons platform=PLATFORM tools=yes target=release_debug custom_modules=/PATH/sg-physics-2d/godot/modules
+	scons platform=PLATFORM tools=yes target=release_debug custom_modules=/PATH/sg-physics-2d/src
 	```
 
 	... replacing `PLATFORM` with your desired platform (ex. windows, osx,
@@ -258,13 +258,13 @@ The instructions above will compile the Godot editor. If you want to compile
 the debug export templates instead, replace the command in the 3rd step with:
 
 ```
-scons platform=PLATFORM tools=no target=debug custom_modules=/PATH/sg-physics-2d/godot/modules
+scons platform=PLATFORM tools=no target=debug custom_modules=/PATH/sg-physics-2d/src
 ```
 
 ... or for the release export templates:
 
 ```
-scons platform=PLATFORM tools=no target=release production=yes custom_modules=/PATH/sg-physics-2d/godot/modules
+scons platform=PLATFORM tools=no target=release production=yes custom_modules=/PATH/sg-physics-2d/src
 ```
 
 For more information about compiling Godot, see [the official
