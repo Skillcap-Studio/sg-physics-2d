@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GODOT_SOURCE_DIR=${GODOT_BUILD_DIR:-godot}
+GODOT_SOURCE_DIR=${GODOT_BUILD_DIR:-src}
 GODOT_BUILD_DIR=${GODOT_BUILD_DIR:-build/godot}
 TEMP_DIR=$(mktemp -d)
 
@@ -14,11 +14,7 @@ if [ -z "$BUILD_TYPE" ]; then
 fi
 
 if [ ! -d "$GODOT_SOURCE_DIR" ]; then
-	die "No such GODOT_SOURCE_DIR diretory at $GODOT_SOURCE_DIR"
-fi
-
-if [ ! -d "$GODOT_SOURCE_DIR/modules" ]; then
-	die "GODOT_SOURCE_DIR diretory at $GODOT_SOURCE_DIR has no 'modules' sub-directory"
+	die "No such GODOT_SOURCE_DIR directory at $GODOT_SOURCE_DIR"
 fi
 
 if [ -z "$GODOT_DOWNLOAD_URL" ]; then
@@ -91,7 +87,7 @@ case "$BUILD_TYPE" in
 esac
 
 SCONS_OPTS=${SCONS_OPTS:-production=yes}
-SCONS_OPTS="$SCONS_OPTS platform=$PLATFORM custom_modules=/src/modules"
+SCONS_OPTS="$SCONS_OPTS platform=$PLATFORM custom_modules=/src"
 
 TARGET=""
 FN_TOOLS=""
@@ -113,7 +109,7 @@ case "$BUILD_TYPE" in
 		TARGET="export-template-release"
 		SCONS_OPTS="$SCONS_OPTS tools=no  target=release"
 		;;
-	
+
 	*)
 		die "Unable to identify target from BUILD_TYPE: $BUILD_TYPE"
 		;;
@@ -134,7 +130,7 @@ fi
 
 PODMAN_OPTS=${PODMAN_OPTS:-}
 
-(cd $GODOT_BUILD_DIR && patch -p1 < $CI_PROJECT_DIR/godot/modules/sg_physics_2d/convert_float_contextual_menu.patch)
+(cd $GODOT_BUILD_DIR && patch -p1 < $CI_PROJECT_DIR/src/sg_physics_2d/godot-3/convert_float_contextual_menu.patch)
 
 podman run --rm --systemd=false -v "$(realpath $GODOT_BUILD_DIR):/build" -v "$(realpath $GODOT_SOURCE_DIR):/src" -v "$(pwd)/scripts/godot:/scripts" -w /build -e NUM_CORES="$NUM_CORES" -e PLATFORM="$PLATFORM" -e BITS="$BITS" -e MONO="$MONO" -e TARGET="$TARGET" -e FN_TOOLS="$FN_TOOLS" -e FN_OPT="$FN_OPT" -e "SCONS_OPTS=$SCONS_OPTS" -e BUILD_TYPE=$BUILD_TYPE $PODMAN_OPTS "$IMAGE" /scripts/$CMD $BUILD_TYPE
 exit $?
