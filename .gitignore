@@ -1,10 +1,25 @@
-/.import/
 /.vscode/
+/bin/lib/
 /build/
-/.mono/
 
+/projects/godot-4/.godot/
+/projects/godot-4/bin/
+/projects/godot-4/build/
+
+/projects/godot-3/.import/
+/projects/godot-3/.mono/
+/projects/godot-3/build/
+
+*.code-workspace
+
+.sconsign.dblite
+
+*.swp
 *.o
+*.os
+*.so
 *.pyc
 *.bc
 *.obj
 *.tmp
+

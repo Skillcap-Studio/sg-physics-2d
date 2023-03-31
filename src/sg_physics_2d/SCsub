@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+#######
+# NOTE: This is used for building the Godot 3 module!
+#       It has to be at the top-level for technical reasons.
+#######
+
+Import("env")
+Import("env_modules")
+
+env_sg_physics_2d = env_modules.Clone()
+env_sg_physics_2d.Append(CPPDEFINES={'GODOT_MAJOR_VERSION': "3"})
+
+sg_physics_2d_subdirs = [
+    "internal/",
+    "",
+    "godot-3/math/",
+    "godot-3/servers/",
+    "godot-3/scene/2d/",
+    "godot-3/scene/resources/",
+    "godot-3/scene/animation/",
+    "godot-3/servers/",
+]
+
+for d in sg_physics_2d_subdirs:
+    env_sg_physics_2d.add_source_files(env.modules_sources, d + "*.cpp")
+
+if env["tools"]:
+    env_sg_physics_2d.add_source_files(env.modules_sources, "godot-3/editor/*.cpp")
