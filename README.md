@@ -5,6 +5,13 @@ SG Physics 2D
 based on fixed-point math. It's useful for online multiplayer games, especially
 those using rollback netcode.
 
+Download
+--------
+
+You can download prebuilt binaries for several platforms from the "Releases" page:
+
+[https://gitlab.com/snopek-games/sg-physics-2d/-/releases](https://gitlab.com/snopek-games/sg-physics-2d/-/releases)
+
 What is "deterministic" physics and why would I need it?
 --------------------------------------------------------
 
@@ -200,8 +207,8 @@ func _physics_process(delta: float) -> void:
 However, if you have parts of the game that are purely cosmetic, you're safe to
 use normal floating-point math for those.
 
-Other nodes
------------
+Other nodes (Godot 3 only)
+--------------------------
 - `SGYSort` provides the same functionality as `YSort`, and inherits its parent's `fixed_position`.
 - `SGPath2D` and `SGPathFollow2D` provide the same functionality as `Path2D` and `PathFollow2D`, replacing the use of floating point numbers by fixed point numbers.
 - `SGTween` provides similar functionality to `Tween`, replacing the use of floating point numbers by fixed point numbers. The only type that can be interpolated is int, representing a fixed point value.
@@ -225,8 +232,33 @@ There's a demo in the code base demonstrating how to do this:
 Compiling from source
 ---------------------
 
-SG Physics 2D is implemented as a Godot module, which (unlike a GDNative
-plugin) must be compiled into Godot.
+### Godot 4 ###
+
+In Godot 4, SG Physics 2D is implemented as a GDExtension.
+
+You can download prebuilt binaries for several platforms from the "Releases" page:
+
+[https://gitlab.com/snopek-games/sg-physics-2d/-/releases](https://gitlab.com/snopek-games/sg-physics-2d/-/releases)
+
+However, if you'd like to build it from source yourself, you can follow these steps:
+
+ 1. Download this repository and extract it.
+
+ 2. If you used Git, make sure that all the Git submodule are checked out too:
+    ```bash
+		git submodule update --init --recursive
+    ```
+
+ 3. Build both the debug and release version for your platform:
+   ```bash
+   scons target=template_debug
+   scons target=template_release
+   ```
+
+### Godot 3 ###
+
+In Godot 3, SG Physics 2D is implemented as a Godot module, which (unlike a
+GDNative plugin) must be compiled into Godot.
 
 **But you don't have to be the one who does the compiling!**
 
@@ -237,7 +269,7 @@ from the releases page:
 
 However, if are targeting a platform that doesn't have pre-compiled binaries,
 or need to include another module, or just want to compile it yourself, you
-follow these steps:
+can follow these steps:
 
  1. Download this repository and extract it.
 
@@ -270,15 +302,21 @@ scons platform=PLATFORM tools=no target=release production=yes custom_modules=/P
 For more information about compiling Godot, see [the official
 documentation](https://docs.godotengine.org/en/stable/development/compiling/index.html#toc-devel-compiling).
 
-Exporting your game
--------------------
+Exporting your game (Godot 3)
+-----------------------------
 
-When you export your game, you need to use an export template that is built
-with SG Physics 2D. If you don't, your game will crash with an error like:
+As mentioned above, the Godot 3 version of SG Physics 2D is implemented as
+a module.
+
+This means that when you export your game, you need to use an export template
+that is built with SG Physics 2D. If you don't, your game will crash with an
+error like:
 
 ```
 SCRIPT ERROR: Parse Error: Unknown class: "SGKinematicBody2D"
 ```
+
+**NOTE: This doesn't apply to Godot 4! You can use the standard export templates with Godot 4.**
 
 Each [release build](https://gitlab.com/snopek-games/sg-physics-2d/-/releases)
 includes not only the Godot editor, but also debug and release export templates
@@ -295,7 +333,7 @@ This screenshot shows configuring an export to run on Linux systems:
 License
 -------
 
-Copyright 2021-2022 David Snopek.
+Copyright 2021-2023 David Snopek.
 
 Licensed under the [MIT License](LICENSE.txt).
 

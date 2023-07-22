@@ -11,7 +11,7 @@ stages:
   - upload
   - release
 
-build:
+godot3-build:
   image: registry.gitlab.com/snopek-games/godot-builder-docker:latest
   stage: build
   tags:
@@ -41,19 +41,51 @@ build:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
     - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
       changes:
-        - godot/**/*
+        - src/internal/**/*
+        - src/godot-3/**/*
+        - src/*
   artifacts:
-    name: sg-physics-2d-$BUILD_TYPE
+    name: sg-physics-2d-godot3-$BUILD_TYPE
     paths:
       - build/godot/bin
 
-macosx-signed:
+godot4-build:
+  image: registry.gitlab.com/snopek-games/godot-builder-docker:latest
+  stage: build
+  tags:
+    - multicore
+  parallel:
+    matrix:
+      - BUILD_TYPE:
+        - linux-debug-x86_64
+        - linux-release-x86_64
+        - windows-debug-x86_64
+        - windows-release-x86_64
+  script:
+    - git config --global --add safe.directory '*'
+    - git submodule update --init --recursive
+    - podman login "$GODOT_BUILD_REGISTRY" $PODMAN_OPTS --username="$GODOT_BUILD_REGISTRY_USERNAME" --password="$GODOT_BUILD_REGISTRY_PASSWORD"
+    - ./scripts/build-gdextension.sh
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[build gdextension\]/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
+    - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
+      changes:
+        - src/internal/**/*
+        - src/godot-4/**/*
+  artifacts:
+    name: sg-physics-2d-godot4-$BUILD_TYPE
+    paths:
+      - bin/sg-physics-2d
+
+godot3-macosx-signed:
   stage: sign
   tags:
     - osx
     - shell
   dependencies:
-    - build
+    - godot3-build
   script:
     - mkdir -p build/macosx-signed
     - (cd build/macosx-signed && unzip -a ../godot/bin/macosx-editor-universal.zip)
@@ -72,11 +104,11 @@ macosx-signed:
       changes:
         - godot/**/*
 
-windows-signed:
+godot3-windows-signed:
   stage: sign
   image: ubuntu:20.04
   dependencies:
-    - build
+    - godot3-build
   before_script:
     - apt-get update
     - apt-get install -y --no-install-recommends osslsigncode
@@ -95,7 +127,7 @@ windows-signed:
       changes:
         - godot/**/*
 
-upload:
+godot3-upload:
   stage: upload
   image: ubuntu:20.04
   variables:
@@ -108,10 +140,27 @@ upload:
     - cp build/windows-signed/windows-editor-64.exe build/godot/bin/
     - cd build/godot/bin
     - |
-      for platform in $PLATFORMS; do fn="sg-physics-2d-$platform-$CI_COMMIT_TAG.zip"; zip $fn $platform-* && curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $fn ${PACKAGE_REGISTRY_URL}/$fn && rm $fn; done
+      for platform in $PLATFORMS; do fn="sg-physics-2d-godot3-$platform-$CI_COMMIT_TAG.zip"; zip $fn $platform-* && curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $fn ${PACKAGE_REGISTRY_URL}/$fn && rm $fn; done
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
- 
+
+godot4-upload:
+  stage: upload
+  image: ubuntu:20.04
+  variables:
+    PKG_FN: "sg-physics-2d-godot4-gdextension-${CI_COMMIT_TAG}.zip"
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends curl zip ca-certificates
+  script:
+    - |
+      (cd bin && zip -r ../$PKG_FN sg-physics-2d)
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $PKG_FN ${PACKAGE_REGISTRY_URL}/$PKG_FN
+    - rm $PKG_FN
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
+
 release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
@@ -119,10 +168,11 @@ release:
   script:
     - |
       release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
-        --assets-link "{\"name\":\"linux-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-linux-${CI_COMMIT_TAG}.zip\"}" \
-        --assets-link "{\"name\":\"windows-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-windows-${CI_COMMIT_TAG}.zip\"}" \
-        --assets-link "{\"name\":\"macosx-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-macosx-${CI_COMMIT_TAG}.zip\"}" \
-        --assets-link "{\"name\":\"html5-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-html5-${CI_COMMIT_TAG}.zip\"}"
+        --assets-link "{\"name\":\"godot3-linux-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-godot3-linux-${CI_COMMIT_TAG}.zip\"}" \
+        --assets-link "{\"name\":\"godot3-windows-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-godot3-windows-${CI_COMMIT_TAG}.zip\"}" \
+        --assets-link "{\"name\":\"godot3-macosx-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-godot3-macosx-${CI_COMMIT_TAG}.zip\"}" \
+        --assets-link "{\"name\":\"godot3-html5-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-godot3-html5-${CI_COMMIT_TAG}.zip\"}" \
+        --assets-link "{\"name\":\"godot4-gdextension-${CI_COMMIT_TAG}\",\"url\":\"${PACKAGE_REGISTRY_URL}/sg-physics-2d-godot4-gdextension-${CI_COMMIT_TAG}.zip\"}"
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
 
