@@ -178,7 +178,8 @@ void SGRayCast2D::update_raycast_collision() {
 	Ref<SGRayCastCollision2D> collision = SGPhysics2DServer::get_singleton()->world_cast_ray(world_rid, start, t->xform(cast_to), collision_mask, exceptions, collide_with_areas, collide_with_bodies);
 	if (collision.is_valid()) {
 		colliding = true;
-		collider = collision->get_collider()->get_instance_id();
+		Object *collider_obj = collision->get_collider();
+		collider = collider_obj ? collider_obj->get_instance_id() : 0;
 		collider_rid = collision->get_collider_rid();
 		collision_point = collision->get_point();
 		collision_normal = collision->get_normal();
