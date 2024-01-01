@@ -41,9 +41,9 @@ godot3-build:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
     - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
       changes:
-        - src/internal/**/*
-        - src/godot-3/**/*
-        - src/*
+        - src/sg_physics_2d/internal/**/*
+        - src/sg_physics_2d/godot-3/**/*
+        - src/sg_physics_2d/*
   artifacts:
     name: sg-physics-2d-godot3-$BUILD_TYPE
     paths:
@@ -72,8 +72,8 @@ godot4-build:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
     - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
       changes:
-        - src/internal/**/*
-        - src/godot-4/**/*
+        - src/sg_physics_2d/internal/**/*
+        - src/sg_physics_2d/godot-4/**/*
   artifacts:
     name: sg-physics-2d-godot4-$BUILD_TYPE
     paths:
@@ -102,7 +102,9 @@ godot3-macosx-signed:
     - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
       when: manual
       changes:
-        - godot/**/*
+        - src/sg_physics_2d/internal/**/*
+        - src/sg_physics_2d/godot-3/**/*
+        - src/sg_physics_2d/*
 
 godot3-windows-signed:
   stage: sign
@@ -125,7 +127,9 @@ godot3-windows-signed:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
     - if: '$GODOT_BUILD_REGISTRY && $GODOT_BUILD_REGISTRY_USERNAME && $GODOT_BUILD_REGISTRY_PASSWORD'
       changes:
-        - godot/**/*
+        - src/sg_physics_2d/internal/**/*
+        - src/sg_physics_2d/godot-3/**/*
+        - src/sg_physics_2d/*
 
 godot3-upload:
   stage: upload
