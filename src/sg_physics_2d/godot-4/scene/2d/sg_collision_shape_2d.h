@@ -36,6 +36,7 @@ class SGCollisionShape2D : public SGFixedNode2D {
 	RID collision_object_rid;
 	RID rid;
 	bool disabled;
+	Color debug_color = Color(0.0, 0.6, 0.7, 0.42);
 
 protected:
 	static void _bind_methods();
@@ -49,6 +50,10 @@ public:
 	Ref<SGShape2D> get_shape();
 
 	void _shape_changed();
+
+	void set_debug_color(const Color &p_color);
+	Color get_debug_color() const;
+
 
 	void sync_to_physics_engine() const;
 	_FORCE_INLINE_ RID get_rid() const { return rid; };
