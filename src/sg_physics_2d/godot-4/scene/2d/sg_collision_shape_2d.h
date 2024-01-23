@@ -54,7 +54,6 @@ public:
 	void set_debug_color(const Color &p_color);
 	Color get_debug_color() const;
 
-
 	void sync_to_physics_engine() const;
 	_FORCE_INLINE_ RID get_rid() const { return rid; };
 
