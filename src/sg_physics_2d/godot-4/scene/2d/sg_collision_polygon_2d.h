@@ -28,9 +28,11 @@
 
 #include "sg_fixed_node_2d.h"
 
-class SGCollisionPolygon2D : public SGFixedNode2D {
+class SGCollisionPolygon2D : public SGFixedNode2D
+{
 
 	GDCLASS(SGCollisionPolygon2D, SGFixedNode2D);
+	Color debug_color = Color(0.0, 0.6, 0.7, 0.42);
 
 protected:
 	mutable Rect2 aabb;
@@ -76,6 +78,9 @@ public:
 
 	void update_internal_shape() const;
 	void sync_to_physics_engine() const;
+
+	void set_debug_color(const Color &p_color);
+	Color get_debug_color() const;
 
 	_FORCE_INLINE_ RID get_rid() const { return rid; }
 

@@ -26,6 +26,8 @@
 		</member>
 		<member name="polygon" type="PoolVector2Array" setter="set_polygon" getter="get_polygon">
 		</member>
+		<member name="debug_color" type="Color" setter="set_debug_color" getter="get_debug_color">
+		</member>
 	</members>
 	<constants>
 	</constants>
