@@ -72,16 +72,20 @@ void SGFixedNode2D::_bind_methods() {
 
 void SGFixedNode2D::_notification(int p_what) {
 	switch (p_what) {
-		// @todo Figure out how to re-implement this from GDExtension
-		/*
 		case NOTIFICATION_TRANSFORM_CHANGED: {
-			update_float_transform();
+#if defined(TOOLS_ENABLED) || defined(DEBUG_ENABLED)
+			if (Engine::get_singleton()->is_editor_hint() && !updating_transform) {
+				updating_transform = true;
+				fixed_transform->from_float(get_transform());
+				fixed_rotation = fixed_transform->get_internal().get_rotation().value;
+				fixed_scale->set_internal(fixed_transform->get_internal().get_scale());
+				updating_transform = false;
+			}
+#endif
 		} break;
-
 		case NOTIFICATION_ENTER_TREE: {
 			Transform2D t = get_global_transform();
 		} break;
-		*/
 	}
 }
 
@@ -225,6 +229,10 @@ Ref<SGFixedVector2> SGFixedNode2D::get_fixed_scale() const {
 }
 
 void SGFixedNode2D::set_fixed_rotation(int64_t p_fixed_rotation) {
+#if defined(TOOLS_ENABLED) || defined(DEBUG_ENABLED)
+	//disable to avoid loop of updates of transform
+	CanvasItem::set_notify_transform(false);
+#endif
 	fixed_rotation = p_fixed_rotation;
 	_update_fixed_transform_rotation_and_scale();
 
@@ -234,6 +242,7 @@ void SGFixedNode2D::set_fixed_rotation(int64_t p_fixed_rotation) {
 		set_rotation(fixed(fixed_rotation).to_float());
 		updating_transform = false;
 	}
+	CanvasItem::set_notify_transform(true);
 #endif
 }
 
@@ -303,7 +312,7 @@ void SGFixedNode2D::update_float_transform() {
 		set_transform(float_xform);
 
 #if defined(TOOLS_ENABLED) || defined(DEBUG_ENABLED)
-		updating_transform = false;;
+		updating_transform = false;
 #endif
 
 		fixed_xform_dirty = false;
@@ -312,6 +321,11 @@ void SGFixedNode2D::update_float_transform() {
 }
 
 void SGFixedNode2D::fixed_vector2_changed(SGFixedVector2 *p_vector) {
+#if defined(TOOLS_ENABLED) || defined(DEBUG_ENABLED)
+	if (Engine::get_singleton()->is_editor_hint() && updating_transform) {
+		return;
+	}
+#endif
 	if (p_vector == fixed_transform->get_origin().ptr()) {
 		transform_changed();
 	}
@@ -341,6 +355,7 @@ SGFixedNode2D::SGFixedNode2D() {
 
 	fixed_xform_dirty = false;
 
+	CanvasItem::set_notify_transform(true);
 	// @todo Figure out how to re-implement this from GDExtension
 	//set_notify_transform(true);
 
