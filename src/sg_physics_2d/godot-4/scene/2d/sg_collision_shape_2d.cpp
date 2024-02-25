@@ -36,10 +36,14 @@ void SGCollisionShape2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &SGCollisionShape2D::set_disabled);
 	ClassDB::bind_method(D_METHOD("get_disabled"), &SGCollisionShape2D::get_disabled);
 
+	ClassDB::bind_method(D_METHOD("set_debug_color", "debug_color"), &SGCollisionShape2D::set_debug_color);
+	ClassDB::bind_method(D_METHOD("get_debug_color"), &SGCollisionShape2D::get_debug_color);
+
 	ClassDB::bind_method(D_METHOD("get_rid"), &SGCollisionShape2D::get_rid);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "SGShape2D"), "set_shape", "get_shape");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "get_disabled");
+	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "debug_color"), "set_debug_color", "get_debug_color");
 
 	ClassDB::bind_method(D_METHOD("_shape_changed"), &SGCollisionShape2D::_shape_changed);
 }
@@ -57,8 +61,7 @@ void SGCollisionShape2D::_notification(int p_what) {
 
 			// @todo Get access to the debug collision color from GDExtension
 			//Color draw_col = get_tree()->get_debug_collisions_color();
-			Color draw_col = Color(0.0, 0.0, 1.0, 1.0);
-			/*
+			Color draw_col = debug_color;
 			if (disabled) {
 				float g = draw_col.get_v();
 				draw_col.r = g;
@@ -66,7 +69,6 @@ void SGCollisionShape2D::_notification(int p_what) {
 				draw_col.b = g;
 				draw_col.a *= 0.5;
 			}
-			*/
 
 			shape->draw(get_canvas_item(), draw_col);
 		} break;
@@ -141,6 +143,15 @@ Ref<SGShape2D> SGCollisionShape2D::get_shape() {
 
 void SGCollisionShape2D::_shape_changed() {
 	queue_redraw();
+}
+
+void SGCollisionShape2D::set_debug_color(const Color& p_color) {
+	debug_color = p_color;
+	queue_redraw();
+}
+
+Color SGCollisionShape2D::get_debug_color() const {
+	return debug_color;
 }
 
 void SGCollisionShape2D::sync_to_physics_engine() const {

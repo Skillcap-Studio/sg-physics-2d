@@ -21,6 +21,8 @@
 		</member>
 		<member name="shape" type="SGShape2D" setter="set_shape" getter="get_shape">
 		</member>
+		<member name="debug_color" type="Color" setter="set_debug_color" getter="get_debug_color">
+		</member>
 	</members>
 	<constants>
 	</constants>

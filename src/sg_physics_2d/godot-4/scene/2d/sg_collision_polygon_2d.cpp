@@ -44,11 +44,15 @@ void SGCollisionPolygon2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &SGCollisionPolygon2D::set_disabled);
 	ClassDB::bind_method(D_METHOD("get_disabled"), &SGCollisionPolygon2D::get_disabled);
 
+	ClassDB::bind_method(D_METHOD("set_debug_color", "debug_color"), &SGCollisionPolygon2D::set_debug_color);
+	ClassDB::bind_method(D_METHOD("get_debug_color"), &SGCollisionPolygon2D::get_debug_color);
+
 	ClassDB::bind_method(D_METHOD("get_rid"), &SGCollisionPolygon2D::get_rid);
 
 	ADD_PROPERTY(PropertyInfo(Variant::PACKED_VECTOR2_ARRAY, "polygon", PROPERTY_HINT_NONE, "", 0), "set_polygon", "get_polygon");
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "fixed_polygon", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_fixed_polygon", "get_fixed_polygon");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "get_disabled");
+	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "debug_color"), "set_debug_color", "get_debug_color");
 
 	//
 	// For storage in TSCN and SCN files only.
@@ -77,6 +81,7 @@ void SGCollisionPolygon2D::_notification(int p_what) {
 			}
 
 			int polygon_count = polygon.size();
+			Color draw_col = debug_color;
 			for (int i = 0; i < polygon_count; i++) {
 				Vector2 p = polygon[i];
 				Vector2 n = polygon[(i + 1) % polygon_count];
@@ -87,7 +92,7 @@ void SGCollisionPolygon2D::_notification(int p_what) {
 			if (polygon_count > 2) {
 				// @todo Get access to the debug collision color from GDExtension
 				//draw_colored_polygon(polygon, get_tree()->get_debug_collisions_color());
-				draw_colored_polygon(polygon, Color(0.0, 0.0, 1.0, 1.0));
+				draw_colored_polygon(polygon, draw_col);
 			}
 		} break;
 
@@ -354,6 +359,17 @@ void SGCollisionPolygon2D::set_disabled(bool p_disabled) {
 
 bool SGCollisionPolygon2D::get_disabled() const {
 	return disabled;
+}
+
+void SGCollisionPolygon2D::set_debug_color(const Color& p_color)
+{
+	debug_color = p_color;
+	queue_redraw();
+}
+
+Color SGCollisionPolygon2D::get_debug_color() const
+{
+	return debug_color;
 }
 
 void SGCollisionPolygon2D::set_polygon(const PackedVector2Array &p_polygon) {
