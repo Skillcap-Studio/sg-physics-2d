@@ -119,32 +119,6 @@ void SGCollisionPolygon2D::_notification(int p_what)
 			collision_object_rid = RID();
 		} break;
 	}
-	break;
-
-	case NOTIFICATION_PARENTED:
-	{
-		SGCollisionObject2D *parent_node = Object::cast_to<SGCollisionObject2D>(get_parent());
-		if (parent_node)
-		{
-			collision_object_rid = parent_node->get_rid();
-		}
-		if (collision_object_rid.is_valid() && !disabled && !concave)
-		{
-			SGPhysics2DServer::get_singleton()->collision_object_add_shape(collision_object_rid, rid);
-		}
-	}
-	break;
-
-	case NOTIFICATION_UNPARENTED:
-	{
-		if (collision_object_rid.is_valid() && !disabled && !concave)
-		{
-			SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
-		}
-		collision_object_rid = RID();
-	}
-	break;
-	}
 }
 
 void SGCollisionPolygon2D::update_polygon() const
@@ -499,17 +473,6 @@ Array SGCollisionPolygon2D::get_fixed_polygon() const
 void SGCollisionPolygon2D::update_internal_shape() const
 {
 	SGPhysics2DServer::get_singleton()->polygon_set_points(rid, fixed_polygon);
-}
-
-void SGCollisionPolygon2D::set_debug_color(const Color &p_color)
-{
-	debug_color = p_color;
-	queue_redraw();
-}
-
-Color SGCollisionPolygon2D::get_debug_color() const
-{
-	return debug_color;
 }
 
 void SGCollisionPolygon2D::sync_to_physics_engine() const

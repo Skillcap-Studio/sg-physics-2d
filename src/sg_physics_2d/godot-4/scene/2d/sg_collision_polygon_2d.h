@@ -82,9 +82,6 @@ public:
 	void update_internal_shape() const;
 	void sync_to_physics_engine() const;
 
-	void set_debug_color(const Color &p_color);
-	Color get_debug_color() const;
-
 	_FORCE_INLINE_ RID get_rid() const { return rid; }
 
 	virtual PackedStringArray _get_configuration_warnings() const override;

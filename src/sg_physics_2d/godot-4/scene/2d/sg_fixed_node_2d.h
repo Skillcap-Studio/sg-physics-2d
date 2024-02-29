@@ -101,7 +101,7 @@ public:
 
 	void update_float_transform();
 
-	void fixed_vector2_changed(SGFixedVector2 *p_vector);
+	void fixed_vector2_changed(SGFixedVector2 *p_vector) override;
 
 	SGFixedNode2D();
 	~SGFixedNode2D();
