@@ -76,6 +76,9 @@ public:
 	void set_fixed_polygon(const Array &p_fixed_polygon);
 	Array get_fixed_polygon() const;
 
+	void set_debug_color(const Color& p_color);
+	Color get_debug_color() const;
+
 	void update_internal_shape() const;
 	void sync_to_physics_engine() const;
 

@@ -86,22 +86,38 @@ void SGCollisionPolygon2D::_notification(int p_what)
 			update_polygon();
 		}
 
-		int polygon_count = polygon.size();
-		Color draw_col = debug_color;
-		for (int i = 0; i < polygon_count; i++)
-		{
-			Vector2 p = polygon[i];
-			Vector2 n = polygon[(i + 1) % polygon_count];
-			// draw line with width <= 1, so it does not scale with zoom and break pixel exact editing
-			draw_line(p, n, draw_col, 1);
-		}
+			int polygon_count = polygon.size();
+			Color draw_col = debug_color;
+			for (int i = 0; i < polygon_count; i++) {
+				Vector2 p = polygon[i];
+				Vector2 n = polygon[(i + 1) % polygon_count];
+				// draw line with width <= 1, so it does not scale with zoom and break pixel exact editing
+				draw_line(p, n, Color(0.9, 0.2, 0.0, 0.8), 1);
+			}
 
-		if (polygon_count > 2)
-		{
-			// @todo Get access to the debug collision color from GDExtension
-			// draw_colored_polygon(polygon, get_tree()->get_debug_collisions_color());
-			draw_colored_polygon(polygon, draw_col);
-		}
+			if (polygon_count > 2) {
+				// @todo Get access to the debug collision color from GDExtension
+				//draw_colored_polygon(polygon, get_tree()->get_debug_collisions_color());
+				draw_colored_polygon(polygon, draw_col);
+			}
+		} break;
+
+		case NOTIFICATION_PARENTED: {
+			SGCollisionObject2D *parent_node = Object::cast_to<SGCollisionObject2D>(get_parent());
+			if (parent_node) {
+				collision_object_rid = parent_node->get_rid();
+			}
+			if (collision_object_rid.is_valid() && !disabled && !concave) {
+				SGPhysics2DServer::get_singleton()->collision_object_add_shape(collision_object_rid, rid);
+			}
+		} break;
+
+		case NOTIFICATION_UNPARENTED: {
+			if (collision_object_rid.is_valid() && !disabled && !concave) {
+				SGPhysics2DServer::get_singleton()->collision_object_remove_shape(collision_object_rid, rid);
+			}
+			collision_object_rid = RID();
+		} break;
 	}
 	break;
 
@@ -430,8 +446,18 @@ bool SGCollisionPolygon2D::get_disabled() const
 	return disabled;
 }
 
-void SGCollisionPolygon2D::set_polygon(const PackedVector2Array &p_polygon)
+void SGCollisionPolygon2D::set_debug_color(const Color& p_color)
 {
+	debug_color = p_color;
+	queue_redraw();
+}
+
+Color SGCollisionPolygon2D::get_debug_color() const
+{
+	return debug_color;
+}
+
+void SGCollisionPolygon2D::set_polygon(const PackedVector2Array &p_polygon) {
 	polygon = p_polygon;
 	update_fixed_polygon();
 	update_aabb();
